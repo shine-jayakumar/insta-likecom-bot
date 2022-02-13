@@ -131,6 +131,7 @@ try:
         insta.target(DEFAULT_PARAMS['TARGET'])
 
     logger.info(f"Attempting to log in with {insta.username}")
+
     if not insta.login():
         raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
 
