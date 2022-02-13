@@ -11,7 +11,6 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import logging
 import time
@@ -20,7 +19,10 @@ import sys
 from random import randint
 from instafunc import *
 import param_funcs as pf
+import os
 
+# suppress webdriver manager logs
+os.environ['WDM_LOG_LEVEL'] = '0'
 
 DEFAULT_PARAMS = {
     "INSTA_USER": None,
@@ -114,7 +116,7 @@ try:
     # UNCOMMENT THIS TO SPECIFY LOCATION OF THE CHROMEDRIVER IN LOCAL MACHINE
     # driver = webdriver.Chrome("D:/chromedriver/98/chromedriver.exe", options=options)
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager(log_level=0).install()), options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     wait = WebDriverWait(driver, 20)
 
     logger.info("Initializing instagram user")
@@ -130,7 +132,7 @@ try:
 
     logger.info(f"Attempting to log in with {insta.username}")
     if not insta.login():
-        raise Exception("Failed to login")
+        raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
 
     logger.info("Login successful")
     insta.dont_save_login_info()
@@ -185,6 +187,7 @@ finally:
         driver.quit()
     timediff = time.time() - start
     logger.info(f"Total time taken: {round(timediff, 4)} seconds")
+    sys.exit()
     
 
 
