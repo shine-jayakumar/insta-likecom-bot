@@ -8,10 +8,10 @@
     LICENSE: MIT
 """
 
-from tracemalloc import start
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import logging
 import time
@@ -46,8 +46,14 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 
 
 def display_intro():
+
     intro = """
-    insta-likecom-bot v.1
+     ___ _  _ ___ _____ _      _    ___ _  _____ ___ ___  __  __     ___  ___ _____ 
+    |_ _| \| / __|_   _/_\ ___| |  |_ _| |/ | __/ __/ _ \|  \/  |___| _ )/ _ |_   _|
+     | || .` \__ \ | |/ _ |___| |__ | || ' <| _| (_| (_) | |\/| |___| _ | (_) || |  
+    |___|_|\_|___/ |_/_/ \_\  |____|___|_|\_|___\___\___/|_|  |_|   |___/\___/ |_|  
+    
+    insta-likecom-bot v.1.2
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -63,12 +69,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter("%(asctime)s:%(name)s:%(lineno)d:%(levelname)s:%(message)s")
-file_handler = logging.FileHandler(
-    f'instalikecombot.py_{datetime.now().strftime("%d_%m_%Y__%H_%M_%S")}.log', 'w', 'utf-8')
+file_handler = logging.FileHandler(f'instalikecombot.py_{datetime.now().strftime("%d_%m_%Y__%H_%M_%S")}.log', 'w', 'utf-8')
 file_handler.setFormatter(formatter)
 
+stdout_formatter = logging.Formatter("[*] => %(message)s")
 stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setFormatter(formatter)
+stdout_handler.setFormatter(stdout_formatter)
 
 logger.addHandler(file_handler)
 logger.addHandler(stdout_handler)
@@ -101,11 +107,14 @@ try:
 
     options = Options()
     options.add_argument("--disable-notifications")
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_argument("--log-level=3")
 
     logger.info("Downloading webdriver for your version of chrome browser")
     # UNCOMMENT THIS TO SPECIFY LOCATION OF THE CHROMEDRIVER IN LOCAL MACHINE
     # driver = webdriver.Chrome("D:/chromedriver/98/chromedriver.exe", options=options)
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager(log_level=0).install()), options=options)
     wait = WebDriverWait(driver, 20)
 
     logger.info("Initializing instagram user")
