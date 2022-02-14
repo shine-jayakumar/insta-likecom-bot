@@ -41,65 +41,74 @@ View the [requirements.txt](https://github.com/shine-jayakumar/insta-likecom-bot
 pip install -r requirements.txt
 ```
 ## Options
+Required arguments
+| Argument | Description |
+| ------ | ------ |
+| username | Instagram username |
+| password | Instagram password |
+| target | An instagram account or tag |
+
+Optional Arguments
 | Option | Description |
 | ------ | ------ |
-| -u | Instagram username |
-| -p | Instagram password |
-| -t | target instagram account or hashtag (ex: -t someaccount11 or -t #haiku) |
-| -pn | number of posts to like (ex: -pn 30) (optional) |
-| -ps | add a text to the end of a comment (ex: -ps "check out my page @someaccount11") (optional) |
-| -comments | file with comments. Only 1 comment per line (optional) |
-| -crazy | runs with minimum delay between each posts. 1 - on, 0 - off (default) (ex: -crazy 1) (optional) |
-| -delay | delay between each post in seconds (ex: -delay 3). Has no affect when -crazy is set (optional) |
+| -np , --numofposts | number of posts to like |
+| -ps , --postscript |  additional text to add after every comment |
+| -c , --comments | file containing comments (one comment per line) |
+| -nc , --nocomments | turn off comments |
+| -d , --delay | time to wait during post switch |
+| -cz , --crazy | minimal wait during post switch |
 
 ## Usage
 **To like and comment every post**
 ```
-instalikecombot.py -u <username> -p <password> -t <target>
+instalikecombot.py username password target
 ```
     
 **To specify number of posts to like**
 ```
-instalikecombot.py -u <username> -p <password> -t <target> -pn <no_of_posts>
+instalikecombot.py username password target -np NOOFPOSTS
 ```
     
 **To specify a delay**
 ```
-instalikecombot.py -u <username> -p <password> -t <target> -delay <delay_in_seconds>
+instalikecombot.py username password target -d DELAY
 ```
 
 **To specify a file with comments**
 ```
-instalikecombot.py -u <username> -p <password> -t <target> -comments <comment_file>
+instalikecombot.py username password target -c FILE
 ```
 
-**To add a text to the end of a comment**
+**To add a text to the end of every comment**
 ```
-instalikecombot.py -u <username> -p <password> -t <target> -ps "text"
+instalikecombot.py username password target -ps TEXT
 ```
 
 **To leave no comments**
 ```
-instalikecombot.py -u <username> -p <password> -t <target> -nocom 1
+instalikecombot.py username password target -nc
 ```
 
 **To run in crazymode**
 ```
-instalikecombot.py -u <username> -p <password> -t <target> -crazy 1
+instalikecombot.py username password target -cz
 ```
 
 ## Examples
 ```
-instalikecombot.py -u randomjack01 -p somePASSWw0@d -t #haiku
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk
 ```
 ```
-instalikecombot.py -u randomjack01 -p somePASSWw0@d -t somerandomaccount032 -pn 10 -crazy 1
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
 ```
 ```
-instalikecombot.py -u randomjack01 -p somePASSWw0@d -t somerandomaccount032 -comments mycomments.txt -delay 5
+instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
 ```
 ```
-instalikecombot.py -u randomjack01 -p somePASSWw0@d -t somerandomaccount032 -ps "Check out my page @someaccount11"
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk --crazy -nc
+```
+```
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
 ```
     
 ## LICENSE
