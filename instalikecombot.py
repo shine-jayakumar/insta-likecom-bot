@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.1
+    insta-likecom-bot v.1.2
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -18,23 +18,12 @@ from datetime import datetime
 import sys
 from random import randint
 from instafunc import *
-import param_funcs as pf
+# import param_funcs as pf
+import argparse
 import os
 
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
-
-DEFAULT_PARAMS = {
-    "INSTA_USER": None,
-    "INSTA_PASS": None,
-    "TARGET": None,
-    "COMMENTS_FILE": None,
-    "NOCOMMENTS": None,
-    "POSTSTOLIKE": None,
-    "CRAZYMODE": None,
-    "DELAY": None,
-    "PS":None
-}
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
 "So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",
@@ -65,8 +54,47 @@ def display_intro():
     print(intro)
 
 
+# ====================================================
+# Argument parsing
+# ====================================================
+description = "Automates likes and comments on an instagram account or tag"
+usage = "instalikecombot.py [-h] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY | -cz] username password target"
+examples="""
+Examples:
+instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk
+instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk -crazy 1
+instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk -delay 2 -comments somecomments.txt
+instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk -ps "Check out my page @someaccount11"
+"""
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=description,
+    usage=usage,
+    epilog=examples)
+
+# required arguments
+parser.add_argument('username', type=str, help='Instagram username')
+parser.add_argument('password', type=str, help='Instagram password')
+parser.add_argument('target',   type=str, help='target (account or tag)')
+
+# optional arguments
+parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
+parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
+
+comments_group = parser.add_mutually_exclusive_group()
+comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
+comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
+
+delay_group = parser.add_mutually_exclusive_group()
+delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
+delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
+
+args = parser.parse_args()
+# ====================================================
+
+# ====================================================
 # Setting up logger
-# =====================================================
+# ====================================================
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -80,13 +108,9 @@ stdout_handler.setFormatter(stdout_formatter)
 
 logger.addHandler(file_handler)
 logger.addHandler(stdout_handler)
-#=======================================================
+#======================================================
 
-# checking command-line arguments
-if len(sys.argv) < 2 or len(sys.argv) % 2 == 0 or not pf.check_params_present(['-u', '-p', '-t'], sys.argv):
-    pf.display_help()
-    sys.exit()
-
+DELAY = args.delay
 driver = None
 
 try:
@@ -95,17 +119,16 @@ try:
     display_intro()
 
     logger.info("Script started")
-    logger.info("Loading arguments")
-    #loading command line arguments
-    pf.load_params(sys.argv, DEFAULT_PARAMS)
 
-    if DEFAULT_PARAMS['COMMENTS_FILE']:
-        COMMENTS = load_comments(DEFAULT_PARAMS['COMMENTS_FILE'])
-        logger.info(f"Loaded comments from {DEFAULT_PARAMS['COMMENTS_FILE']}")
+    # load comments from file
+    if args.comments:
+        COMMENTS = load_comments(args.comments)
+        logger.info(f"Loaded comments from {args.comments}")
 
-    if DEFAULT_PARAMS['CRAZYMODE']:
-        DEFAULT_PARAMS['DELAY'] = 0.50
-        logger.info("Crazy Mode set. Delay will be 0.5 seconds")
+    # if crazy mode is set
+    if args.crazy:
+        DELAY = 1
+        logger.info("Crazy Mode set. Delay will be 1 second")
 
     options = Options()
     options.add_argument("--disable-notifications")
@@ -117,18 +140,19 @@ try:
     # driver = webdriver.Chrome("D:/chromedriver/98/chromedriver.exe", options=options)
 
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
 
     logger.info("Initializing instagram user")
     insta = Insta(driver, wait)
-    insta.user(DEFAULT_PARAMS["INSTA_USER"], DEFAULT_PARAMS["INSTA_PASS"])
+    insta.user(args.username, args.password)
 
-    logger.info(f"Setting target to: {DEFAULT_PARAMS['TARGET']}")
+    logger.info(f"Setting target to: {args.target}")
+
     # if tag
-    if DEFAULT_PARAMS['TARGET'].startswith('#'):
-        insta.target(DEFAULT_PARAMS['TARGET'][1:], tag=True)
+    if args.target.startswith('#'):
+        insta.target(args.target[1:], tag=True)
     else:
-        insta.target(DEFAULT_PARAMS['TARGET'])
+        insta.target(args.target)
 
     logger.info(f"Attempting to log in with {insta.username}")
 
@@ -136,12 +160,13 @@ try:
         raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
 
     logger.info("Login successful")
+    logger.info("Skipping Save Login Info")
     insta.dont_save_login_info()
 
-    logger.info(f"Opening target {DEFAULT_PARAMS['TARGET']}")
+    logger.info(f"Opening target {args.target}")
     if not insta.open_target(3):
         logger.info("Invalid tag or account")
-        raise Exception(f"Invalid tag or account : {DEFAULT_PARAMS['TARGET']}")
+        raise Exception(f"Invalid tag or account : {args.target}")
 
     no_of_posts = insta.get_number_of_posts()
     logger.info(f"No. of posts found: {no_of_posts}")
@@ -151,8 +176,8 @@ try:
     post = 0
 
     # if user specified the number of posts to like
-    if DEFAULT_PARAMS['POSTSTOLIKE']:
-        no_of_posts_to_like = min(no_of_posts, DEFAULT_PARAMS['POSTSTOLIKE'])
+    if args.numofposts:
+        no_of_posts_to_like = min(no_of_posts, args.numofposts)
     else:
         no_of_posts_to_like = no_of_posts
 
@@ -161,19 +186,19 @@ try:
         logger.info(f"Liking post: {post + 1}")
         insta.like()
 
-        # don't comment if -nocom is set
-        if not DEFAULT_PARAMS['NOCOMMENTS']:
+        # don't comment if --nocomments is set
+        if not args.nocomments:
             random_comment = COMMENTS[randint(0, len(COMMENTS)-1)]
             # add ps to the comment
-            if DEFAULT_PARAMS['PS']:
-                random_comment += " " + DEFAULT_PARAMS['PS']
+            if args.postscript:
+                random_comment += " " + args.postscript
             logger.info(f"Commenting on the post")
             insta.comment(random_comment, 5, 5)
 
         logger.info("Moving on to the next post")
         insta.next_post()
-        # if there's a delay specified by user, otherwise random delay
-        delay = DEFAULT_PARAMS['DELAY'] or randint(1,10)
+        # delay specified in --delay or random delay
+        delay = DELAY or randint(1,10)
         logger.info(f"Waiting for {delay} seconds")
         time.sleep(delay)
         post += 1

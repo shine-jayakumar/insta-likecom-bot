@@ -163,7 +163,9 @@ class Insta:
         Returns number of post for an account or tag
         """
         try:
-            return int(self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="g47SY "]'))).text)
+            num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="g47SY "]'))).text
+            num_of_posts = num_of_posts.replace(',','')
+            return int(num_of_posts)
         except:
             return None
     
@@ -183,12 +185,12 @@ class Insta:
         """
         Clicks 'Not Now' button when prompted with 'Save Your Login Info?'
         """
-
         try:
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
             return True
         except:
             return False
+            
 
     def next_post(self): 
         """
