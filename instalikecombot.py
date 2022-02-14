@@ -18,7 +18,6 @@ from datetime import datetime
 import sys
 from random import randint
 from instafunc import *
-# import param_funcs as pf
 import argparse
 import os
 
