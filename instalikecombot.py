@@ -60,10 +60,11 @@ description = "Automates likes and comments on an instagram account or tag"
 usage = "instalikecombot.py [-h] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY | -cz] username password target"
 examples="""
 Examples:
-instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk
-instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk -crazy 1
-instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk -delay 2 -comments somecomments.txt
-instalikecombot.py -u notsofamousbob -p bbsp#%@wod#^%1101 -t elonmusk -ps "Check out my page @someaccount11"
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
+instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk --crazy -nc
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
 """
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
