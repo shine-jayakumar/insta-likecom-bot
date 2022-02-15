@@ -70,7 +70,8 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=description,
     usage=usage,
-    epilog=examples)
+    epilog=examples,
+    prog='instalikecombot')
 
 # required arguments
 parser.add_argument('username', type=str, help='Instagram username')
@@ -88,6 +89,7 @@ comments_group.add_argument('-nc', '--nocomments', action='store_true', help='tu
 delay_group = parser.add_mutually_exclusive_group()
 delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s v.1.2')
 
 args = parser.parse_args()
 # ====================================================
