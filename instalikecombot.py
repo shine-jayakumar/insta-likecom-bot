@@ -87,6 +87,8 @@ comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
 
+parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
+
 delay_group = parser.add_mutually_exclusive_group()
 delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
@@ -143,7 +145,7 @@ try:
     # driver = webdriver.Chrome("D:/chromedriver/98/chromedriver.exe", options=options)
 
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    wait = WebDriverWait(driver, 30)
+    wait = WebDriverWait(driver, args.eltimeout)
 
     logger.info("Initializing instagram user")
     insta = Insta(driver, wait)
