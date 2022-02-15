@@ -55,7 +55,7 @@ Optional Arguments
 | -ps , --postscript |  additional text to add after every comment |
 | -c , --comments | file containing comments (one comment per line) |
 | -nc , --nocomments | turn off comments |
-| -et, --eltimeout | max time to wait for elements to be loaded (default=30) |
+| -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait during post switch |
 | -cz , --crazy | minimal wait during post switch |
 
