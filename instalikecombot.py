@@ -34,16 +34,17 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
+VERSION = 'v.1.2'
 
 def display_intro():
 
-    intro = """
+    intro = f"""
      ___ _  _ ___ _____ _      _    ___ _  _____ ___ ___  __  __     ___  ___ _____ 
     |_ _| \| / __|_   _/_\ ___| |  |_ _| |/ | __/ __/ _ \|  \/  |___| _ )/ _ |_   _|
      | || .` \__ \ | |/ _ |___| |__ | || ' <| _| (_| (_) | |\/| |___| _ | (_) || |  
     |___|_|\_|___/ |_/_/ \_\  |____|___|_|\_|___\___\___/|_|  |_|   |___/\___/ |_|  
     
-    insta-likecom-bot v.1.2
+    insta-likecom-bot {VERSION}
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -89,7 +90,7 @@ comments_group.add_argument('-nc', '--nocomments', action='store_true', help='tu
 delay_group = parser.add_mutually_exclusive_group()
 delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
-parser.add_argument('-v', '--version', action='version', version='%(prog)s v.1.2')
+parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
 
 args = parser.parse_args()
 # ====================================================
