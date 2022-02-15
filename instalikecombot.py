@@ -168,11 +168,14 @@ try:
 
     logger.info(f"Opening target {args.target}")
     if not insta.open_target(3):
-        logger.info("Invalid tag or account")
         raise Exception(f"Invalid tag or account : {args.target}")
 
     no_of_posts = insta.get_number_of_posts()
     logger.info(f"No. of posts found: {no_of_posts}")
+
+    # exit if it's a private account
+    if insta.is_private():
+        raise Exception(f"This account is private. You may need to follow {args.target} to like their posts.")
 
     insta.click_first_post()
 

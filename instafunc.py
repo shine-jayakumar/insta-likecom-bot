@@ -203,6 +203,17 @@ class Insta:
             return False
 
 
+    def is_private(self):
+        """
+        Checks if an account is private
+        """
+        try:
+            self.driver.find_element(By.XPATH, '//*[text()="This Account is Private"]')
+            return True        
+        except:
+            return False
+
+
 def remove_blanks(lst):
     """
     Removes empty elements from a list
