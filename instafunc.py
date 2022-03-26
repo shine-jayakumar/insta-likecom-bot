@@ -1,3 +1,14 @@
+""" 
+    instafunc.py - function module for insta-likecom-bot
+
+    insta-likecom-bot v.1.2
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+
+    LICENSE: MIT
+"""
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
