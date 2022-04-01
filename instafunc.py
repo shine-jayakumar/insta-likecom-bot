@@ -10,32 +10,36 @@
     LICENSE: MIT
 """
 
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException
-
+import os
 import time
 
+# suppress webdriver manager logs
+os.environ['WDM_LOG_LEVEL'] = '0'
+
+options = Options()
+options.add_argument("--disable-notifications")
+options.add_experimental_option('excludeSwitches', ['enable-logging'])
+options.add_argument("--log-level=3")
+
+
 class Insta:
-    def __init__(self, driver, wait):
-        self.driver = driver
-        self.wait = wait
+    def __init__(self, username, password, timeout=30):
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+        self.wait = WebDriverWait(self.driver, timeout)
         self.baseurl = "https://www.instagram.com"
         self.targeturl = self.baseurl
-        self.username = None
-        self.password = None
-        self.tag = None
-        self.account = None
-
-
-    def user(self, username, password):
-        """
-        Loads user's Instagram username and password
-        """
         self.username = username
         self.password = password
-
+        self.tag = None
+        self.account = None
 
     def target(self, accountname, tag=False):
         """
@@ -50,7 +54,6 @@ class Insta:
             self.tag = accountname
             self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
 
-
     def validate_target(self):
         """
         Validates the target account or hashtag
@@ -60,7 +63,6 @@ class Insta:
             return True
         except:
             return False
-
 
     def validate_login(self):
         """
@@ -73,7 +75,6 @@ class Insta:
         except:
             return False
 
-
     def is_page_loaded(self):
         """
         Checks if page is loaded successfully
@@ -83,7 +84,6 @@ class Insta:
             return True
         except:
             return False
-
 
     def open_target(self, max_retry):
         """
@@ -109,7 +109,6 @@ class Insta:
                 break
         return load_success
 
-
     def login(self):
         """
         Initiates login with username and password
@@ -126,7 +125,6 @@ class Insta:
         except:
             return False
 
-
     def like(self):
         """
         Likes a post if not liked already
@@ -141,7 +139,6 @@ class Insta:
             return True
         except:
             return False
-
     
     def comment(self, text, timeout, max_retry):
         """
@@ -167,7 +164,6 @@ class Insta:
                 print("** Comment **: Couldn't capture the comment field. Re-capturing")
                 retry_count += 1
         return comment_success
-    
 
     def get_number_of_posts(self):
         """
@@ -179,7 +175,6 @@ class Insta:
             return int(num_of_posts)
         except:
             return None
-    
 
     def click_first_post(self):
         """
@@ -190,7 +185,6 @@ class Insta:
             return True
         except:
             return False
-    
 
     def dont_save_login_info(self):
         """
@@ -201,7 +195,6 @@ class Insta:
             return True
         except:
             return False
-            
 
     def next_post(self): 
         """
@@ -213,7 +206,6 @@ class Insta:
         except:
             return False
 
-
     def is_private(self):
         """
         Checks if an account is private
@@ -223,6 +215,15 @@ class Insta:
             return True        
         except:
             return False
+
+    def quit(self):
+        """
+        Quit driver
+        """
+        try:
+            self.driver.quit()
+        except:
+            print("** Failed to close browser**")
 
 
 def remove_blanks(lst):

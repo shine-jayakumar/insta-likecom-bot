@@ -8,10 +8,7 @@
     LICENSE: MIT
 """
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+
 import logging
 import time
 from datetime import datetime
@@ -21,8 +18,7 @@ from instafunc import *
 import argparse
 import os
 
-# suppress webdriver manager logs
-os.environ['WDM_LOG_LEVEL'] = '0'
+
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
 "So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",
@@ -135,21 +131,19 @@ try:
         DELAY = 1
         logger.info("Crazy Mode set. Delay will be 1 second")
 
-    options = Options()
-    options.add_argument("--disable-notifications")
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    options.add_argument("--log-level=3")
+    
 
     logger.info("Downloading webdriver for your version of chrome browser")
     # UNCOMMENT THIS TO SPECIFY LOCATION OF THE CHROMEDRIVER IN LOCAL MACHINE
     # driver = webdriver.Chrome("D:/chromedriver/98/chromedriver.exe", options=options)
 
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    wait = WebDriverWait(driver, args.eltimeout)
 
     logger.info("Initializing instagram user")
-    insta = Insta(driver, wait)
-    insta.user(args.username, args.password)
+    insta = Insta(
+        username=args.username,
+        password=args.password,
+        timeout=args.eltimeout
+        )
 
     logger.info(f"Setting target to: {args.target}")
 
@@ -217,8 +211,7 @@ except Exception as ex:
     logger.error(f"Script ended with error : {ex}")
 
 finally:
-    if driver:
-        driver.quit()
+    insta.quit()
     timediff = time.time() - start
     logger.info(f"Total time taken: {round(timediff, 4)} seconds")
     sys.exit()
