@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.1.2
+    insta-likecom-bot v.1.3
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -17,7 +17,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException
 import os
 import time
 
@@ -152,10 +152,10 @@ class Insta:
                 cmt.click()
                 cmt.send_keys(text)
                 self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="post-comment-input-button"]'))).click()
-                # self.driver.find_element(By.XPATH, '//button[@data-testid="post-comment-input-button"]').click()
-                
+
                 start = time.time()
                 end = 0
+                # wait until posted or until timeout
                 while cmt.text != '' and (end - start) < timeout:
                     end = time.time()
 
@@ -164,7 +164,7 @@ class Insta:
                 print("** Comment **: Couldn't capture the comment field. Re-capturing")
                 retry_count += 1
         return comment_success
-
+   
     def get_number_of_posts(self):
         """
         Returns number of post for an account or tag
@@ -250,3 +250,12 @@ def load_comments(fname):
         comments = remove_carriage_ret(lines)
         comments = remove_blanks(comments)
         return comments
+
+
+def bmp_emoji_safe_text(text):
+    """
+    Returns bmp emoji safe text
+    ChromeDriver only supports bmp emojis - unicode < FFFF
+    """
+    transformed = [ch for ch in text if ch <= '\uFFFF']
+    return ''.join(transformed)

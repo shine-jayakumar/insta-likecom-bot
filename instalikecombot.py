@@ -16,7 +16,6 @@ import sys
 from random import randint
 from instafunc import *
 import argparse
-import os
 
 
 
@@ -30,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.1.2'
+VERSION = 'v.1.3'
 
 def display_intro():
 
@@ -48,6 +47,13 @@ def display_intro():
     
     """
     print(intro)
+
+
+def generate_random_comment(comments):
+    """
+    Returns a random comment from a list of comments
+    """
+    return comments[randint(0, len(comments)-1)]
 
 
 # ====================================================
@@ -190,12 +196,19 @@ try:
 
         # don't comment if --nocomments is set
         if not args.nocomments:
-            random_comment = COMMENTS[randint(0, len(COMMENTS)-1)]
+            random_comment = '❤️'
+            # Try to generate a non-empty bmp emoji safe comment
+            for _ in range(5):
+                random_comment = bmp_emoji_safe_text(generate_random_comment(COMMENTS))
+                if random_comment != '':
+                    break
+                
             # add ps to the comment
             if args.postscript:
-                random_comment += " " + args.postscript
+                random_comment += " " + bmp_emoji_safe_text(args.postscript)
             logger.info(f"Commenting on the post")
-            insta.comment(random_comment, 5, 5)
+            if insta.comment(random_comment, 5, 5):
+                logger.info(f'Commented: {random_comment}')
 
         logger.info("Moving on to the next post")
         insta.next_post()
