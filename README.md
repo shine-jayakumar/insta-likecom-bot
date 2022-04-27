@@ -111,6 +111,9 @@ instalikecombot.py bob101 b@bpassw0rd1 elonmusk --crazy -nc
 ```
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
 ```
-    
+**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell.**
+```
+instalikecombot.py bob101 b@bpassw0rd1 "#haiku" -ps "Follow me @bob101" -c mycomments.txt**
+```
 ## LICENSE
 [MIT](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/LICENSE)
