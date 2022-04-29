@@ -25,6 +25,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 import os
 import time
 
+
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
 
