@@ -59,6 +59,7 @@ Optional Arguments
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -cz , --crazy | minimal wait while moving from one post to another |
+| -br, --browser | browser to use [chrome or firefox] (default=chrome) |
 
 ## Usage
 **To like and comment every post**
