@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.1.3
+    insta-likecom-bot v.1.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -10,29 +10,56 @@
     LICENSE: MIT
 """
 
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from webdriver_manager.chrome import ChromeDriverManager
+# Added for FireFox support
+from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException
+from selenium.common.exceptions import StaleElementReferenceException
 import os
 import time
 
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
 
-options = Options()
-options.add_argument("--disable-notifications")
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-options.add_argument("--log-level=3")
-
 
 class Insta:
-    def __init__(self, username, password, timeout=30):
-        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    def __init__(self, username, password, timeout=30, browser='chrome'):
+        # current working directory/driver
+        self.browser = 'chrome'
+        self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
+
+        # Firefox
+        if browser.lower() == 'firefox':
+            self.browser = 'firefox'
+            # Firefox Options
+            options = FirefoxOptions()
+            options.set_preference("dom.webnotifications.enabled", False)
+            options.log.level = 'fatal'
+
+            # current working directory/driver/firefox
+            self.driver = webdriver.Firefox(
+                executable_path=GeckoDriverManager(path=os.path.join(self.driver_baseloc, 'firefox')).install(),
+                options=options)
+        # Chrome
+        else:
+            # Chrome Options
+            options = ChromeOptions()
+            options.add_argument("--disable-notifications")
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            options.add_argument("--log-level=3")
+
+            # current working directory/driver/chrome
+            self.driver = webdriver.Chrome(
+                executable_path=ChromeDriverManager(path=os.path.join(self.driver_baseloc, 'chrome')).install(),
+                options=options)
+
         self.wait = WebDriverWait(self.driver, timeout)
         self.baseurl = "https://www.instagram.com"
         self.targeturl = self.baseurl
@@ -140,17 +167,29 @@ class Insta:
         except:
             return False
     
-    def comment(self, text, timeout, max_retry):
+    def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!'):
         """
         Comments on a post
+
+        Args:
+        timeout     wait until comment is posted
+        max_retry   no. of times to try re-capturing comment textarea
+        fs_comment  failsafe comment in case bmp_emoji_safe_text returns as empty string
         """
+
+        cmt_text = text
+
+        # remove non-bmp characters (for chrome)
+        if self.browser == 'chrome':
+            cmt_text = bmp_emoji_safe_text(text) or fs_comment
+
         comment_success = False
         retry_count = 0
         while retry_count < max_retry and not comment_success:
             try:
                 cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@aria-label="Add a comment…"]')))
                 cmt.click()
-                cmt.send_keys(text)
+                cmt.send_keys(cmt_text)
                 self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="post-comment-input-button"]'))).click()
 
                 start = time.time()

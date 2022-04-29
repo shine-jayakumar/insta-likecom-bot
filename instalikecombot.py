@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.1.2
+    insta-likecom-bot v.1.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.1.3'
+VERSION = 'v.1.4'
 
 def display_intro():
 
@@ -94,6 +94,7 @@ parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time 
 delay_group = parser.add_mutually_exclusive_group()
 delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
+parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
 parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
 
 args = parser.parse_args()
@@ -118,7 +119,6 @@ logger.addHandler(stdout_handler)
 #======================================================
 
 DELAY = args.delay
-driver = None
 
 try:
     start = time.time()
@@ -136,19 +136,17 @@ try:
     if args.crazy:
         DELAY = 1
         logger.info("Crazy Mode set. Delay will be 1 second")
-
     
 
-    logger.info("Downloading webdriver for your version of chrome browser")
-    # UNCOMMENT THIS TO SPECIFY LOCATION OF THE CHROMEDRIVER IN LOCAL MACHINE
-    # driver = webdriver.Chrome("D:/chromedriver/98/chromedriver.exe", options=options)
-
+    browser = args.browser
+    logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
 
     logger.info("Initializing instagram user")
     insta = Insta(
         username=args.username,
         password=args.password,
-        timeout=args.eltimeout
+        timeout=args.eltimeout,
+        browser=browser
         )
 
     logger.info(f"Setting target to: {args.target}")
@@ -196,18 +194,14 @@ try:
 
         # don't comment if --nocomments is set
         if not args.nocomments:
-            random_comment = '❤️'
-            # Try to generate a non-empty bmp emoji safe comment
-            for _ in range(5):
-                random_comment = bmp_emoji_safe_text(generate_random_comment(COMMENTS))
-                if random_comment != '':
-                    break
+            random_comment = generate_random_comment(COMMENTS)
                 
             # add ps to the comment
             if args.postscript:
-                random_comment += " " + bmp_emoji_safe_text(args.postscript)
+                random_comment += " " + args.postscript
+
             logger.info(f"Commenting on the post")
-            if insta.comment(random_comment, 5, 5):
+            if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
                 logger.info(f'Commented: {random_comment}')
 
         logger.info("Moving on to the next post")
