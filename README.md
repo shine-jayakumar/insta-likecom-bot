@@ -97,6 +97,11 @@ instalikecombot.py username password target -nc
 instalikecombot.py username password target -cz
 ```
 
+**To specify a browser**
+```
+instalikecombot.py username password target -br firefox
+```
+
 ## Examples
 ```
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk
