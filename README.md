@@ -23,12 +23,13 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Specify the number of posts to like
 - Comes loaded with generic comments
 - Load your own comments
-- Comments supports emojis
+- Comments supports emojis (full support with Firefox; only bmp characters with Chrome)
 - Add a PS to the comments
 - Skip comments and just like a post
 - Build in random time delays
 - Specify time delays after each post
 - CrazyMode to like and post comments with minimum delay
+- Supports Chrome and Firefox
 
 ## Requirements
 - Python 3
