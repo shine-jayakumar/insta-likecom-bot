@@ -174,7 +174,7 @@ class Insta:
         Args:
         timeout     wait until comment is posted
         max_retry   no. of times to try re-capturing comment textarea
-        fs_comment  failsafe comment in case bmp_emoji_safe_text returns as empty string
+        fs_comment  failsafe comment in case bmp_emoji_safe_text returns an empty string
         """
 
         cmt_text = text
