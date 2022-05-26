@@ -28,7 +28,6 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Skip comments and just like a post
 - Build in random time delays
 - Specify time delays after each post
-- CrazyMode to like and post comments with minimum delay
 - Supports Chrome and Firefox
 
 ## Requirements
@@ -58,7 +57,6 @@ Optional Arguments
 | -nc , --nocomments | turn off comments |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
-| -cz , --crazy | minimal wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
 
 ## Usage
@@ -92,11 +90,6 @@ instalikecombot.py username password target -ps TEXT
 instalikecombot.py username password target -nc
 ```
 
-**To run in crazymode**
-```
-instalikecombot.py username password target -cz
-```
-
 **To specify a browser**
 ```
 instalikecombot.py username password target -br firefox
@@ -111,9 +104,6 @@ instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
 ```
 ```
 instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
-```
-```
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk --crazy -nc
 ```
 ```
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
