@@ -59,13 +59,12 @@ def generate_random_comment(comments):
 # Argument parsing
 # ====================================================
 description = "Automates likes and comments on an instagram account or tag"
-usage = "instalikecombot.py [-h] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY | -cz] username password target"
+usage = "instalikecombot.py [-h] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY] username password target"
 examples="""
 Examples:
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
 instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk --crazy -nc
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
 """
 parser = argparse.ArgumentParser(
@@ -90,9 +89,10 @@ comments_group.add_argument('-nc', '--nocomments', action='store_true', help='tu
 
 parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
 
-delay_group = parser.add_mutually_exclusive_group()
-delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
-delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
+# delay_group = parser.add_mutually_exclusive_group()
+# delay_group.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
+# delay_group.add_argument('-cz', '--crazy', action='store_true', help='minimal wait during post switch')
+parser.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
 parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
 
@@ -132,11 +132,10 @@ try:
         logger.info(f"Loaded comments from {args.comments}")
 
     # if crazy mode is set
-    if args.crazy:
-        DELAY = 1
-        logger.info("Crazy Mode set. Delay will be 1 second")
+    # if args.crazy:
+    #     DELAY = 1
+    #     logger.info("Crazy Mode set. Delay will be 1 second")
     
-
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
 
