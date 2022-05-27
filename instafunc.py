@@ -171,9 +171,9 @@ class Insta:
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@type="submit"]'))).click()
             if not self.validate_login():
                 return False
-            return True
         except:
             return False
+        return True
 
     @retry
     def like(self):
