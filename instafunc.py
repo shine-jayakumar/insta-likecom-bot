@@ -47,6 +47,9 @@ def retry(func):
         while not status and attempt < max_tries:
             print(f'[{func.__name__}]: Attempt - {attempt}')
             status = func(*args, **kwargs)
+            if status == 'skip_retry':
+                status = False
+                break                    
             attempt +=  1
         return status
     return wrapper
@@ -135,29 +138,25 @@ class Insta:
         except:
             return False
 
-    def open_target(self, max_retry):
+    @retry
+    def open_target(self):
         """
         Opens the target account or hashtag
         """
-        load_success = False
-        retry_count = 0
-        while retry_count < max_retry and not load_success:
-            try:
-                self.driver.get(self.targeturl)
-                # if unable to load the page
-                if not self.is_page_loaded():
-                    print("** Open Target **: Unable to load the page. Retrying...")
-                    retry_count += 1
-                    time.sleep(1)
+        try:
+            self.driver.get(self.targeturl)
+            # if unable to load the page
+            if not self.is_page_loaded():
+                print("** Open Target **: Unable to load the page. Retrying...")
+                time.sleep(1)
+                return False
 
-                # if not a valid account or tag
-                elif not self.validate_target():
-                    break
-                else:
-                    load_success = True
-            except:
-                break
-        return load_success
+            # if not a valid account or tag
+            elif not self.validate_target():
+                return 'skip_retry'
+        except:
+            return False
+        return True
 
     def login(self):
         """
@@ -190,11 +189,9 @@ class Insta:
                 like_button.click()
 
         except ElementClickInterceptedException:
-            self.driver.execute_script('arguments[0].click();', like_button)
-
+            self.driver.execute_script('arguments[0].click();', like_button)         
         except:
             return False
-        
         return True
     
     def wait_until_comment_cleared(self, element, timeout):

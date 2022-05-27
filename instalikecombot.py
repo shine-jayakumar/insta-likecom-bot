@@ -157,7 +157,7 @@ try:
     insta.dont_save_login_info()
 
     logger.info(f"Opening target {args.target}")
-    if not insta.open_target(3):
+    if not insta.open_target():
         raise Exception(f"Invalid tag or account : {args.target}")
 
     no_of_posts = insta.get_number_of_posts()
