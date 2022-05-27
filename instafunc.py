@@ -16,18 +16,40 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from webdriver_manager.chrome import ChromeDriverManager
-# Added for FireFox support
-from webdriver_manager.firefox import GeckoDriverManager
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.webdriver.remote.webelement import WebElement
+
+# Added for FireFox support
+from webdriver_manager.firefox import GeckoDriverManager
+
 import os
 import time
 
 
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
+
+
+def retry(func):
+    """
+    Adds retry functionality to functions
+    """
+    # wrapper function
+    def wrapper(*args, **kwargs):
+        max_tries = 5
+        attempt = 1
+        status = False
+        while not status and attempt < max_tries:
+            print(f'[{func.__name__}]: Attempt - {attempt}')
+            status = func(*args, **kwargs)
+            attempt +=  1
+        return status
+    return wrapper
 
 
 class Insta:
@@ -153,10 +175,12 @@ class Insta:
         except:
             return False
 
+    @retry
     def like(self):
         """
         Likes a post if not liked already
         """
+        like_button:WebElement = None
         try:
             like_button = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="fr66n"]/button')))
             like_button_span = like_button.find_element(By.XPATH, 'div/span')
@@ -164,10 +188,23 @@ class Insta:
             # like only if not already liked
             if button_status == 'Like':
                 like_button.click()
-            return True
+
+        except ElementClickInterceptedException:
+            self.driver.execute_script('arguments[0].click();', like_button)
+
         except:
             return False
+        
+        return True
     
+    def wait_until_comment_cleared(self, element, timeout):
+        start = time.time()
+        end = 0
+        # wait until posted or until timeout
+        while element.text != '' and (end - start) < timeout:
+            end = time.time()
+    
+    @retry
     def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!'):
         """
         Comments on a post
@@ -179,32 +216,30 @@ class Insta:
         """
 
         cmt_text = text
-
+        cmt: WebElement = None
         # remove non-bmp characters (for chrome)
         if self.browser == 'chrome':
             cmt_text = bmp_emoji_safe_text(text) or fs_comment
 
-        comment_success = False
-        retry_count = 0
-        while retry_count < max_retry and not comment_success:
-            try:
-                cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@aria-label="Add a comment…"]')))
-                cmt.click()
-                cmt.send_keys(cmt_text)
-                self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="post-comment-input-button"]'))).click()
+        # comment_success = False
+        # retry_count = 0
+        # while retry_count < max_retry and not comment_success:
+        try:
+            cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@aria-label="Add a comment…"]')))
+            cmt.click()
+            cmt.send_keys(cmt_text)
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="post-comment-input-button"]'))).click()
+            self.wait_until_comment_cleared(cmt, timeout)
 
-                start = time.time()
-                end = 0
-                # wait until posted or until timeout
-                while cmt.text != '' and (end - start) < timeout:
-                    end = time.time()
+        except ElementClickInterceptedException:
+            self.driver.execute_script('arguments[0].click();', cmt)
+            self.wait_until_comment_cleared(cmt, timeout)
 
-                comment_success = True
-            except StaleElementReferenceException:
-                print("** Comment **: Couldn't capture the comment field. Re-capturing")
-                retry_count += 1
-        return comment_success
-   
+        except: 
+            return False
+
+        return True
+    
     def get_number_of_posts(self):
         """
         Returns number of post for an account or tag
@@ -299,3 +334,6 @@ def bmp_emoji_safe_text(text):
     """
     transformed = [ch for ch in text if ch <= '\uFFFF']
     return ''.join(transformed)
+
+
+
