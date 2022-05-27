@@ -198,6 +198,9 @@ class Insta:
         return True
     
     def wait_until_comment_cleared(self, element, timeout):
+        """
+        Waits until the comment textarea is cleared, or until timeout
+        """
         start = time.time()
         end = 0
         # wait until posted or until timeout
