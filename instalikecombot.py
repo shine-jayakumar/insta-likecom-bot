@@ -117,6 +117,8 @@ logger.addHandler(stdout_handler)
 
 DELAY = args.delay
 
+insta:Insta = None
+
 try:
     start = time.time()
 
