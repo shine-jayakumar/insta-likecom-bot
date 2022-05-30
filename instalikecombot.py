@@ -65,7 +65,7 @@ Examples:
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
 instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
+instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30 --headless
 """
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -91,6 +91,7 @@ parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time 
 
 parser.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
+parser.add_argument('-hl', '--headless',  action='store_true', help='headless mode')
 parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
 
 args = parser.parse_args()
@@ -136,7 +137,8 @@ try:
         username=args.username,
         password=args.password,
         timeout=args.eltimeout,
-        browser=browser
+        browser=browser,
+        headless=args.headless
         )
 
     logger.info(f"Setting target to: {args.target}")

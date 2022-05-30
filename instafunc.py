@@ -56,7 +56,7 @@ def retry(func):
 
 
 class Insta:
-    def __init__(self, username, password, timeout=30, browser='chrome'):
+    def __init__(self, username, password, timeout=30, browser='chrome', headless=False):
         # current working directory/driver
         self.browser = 'chrome'
         self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
@@ -66,6 +66,8 @@ class Insta:
             self.browser = 'firefox'
             # Firefox Options
             options = FirefoxOptions()
+            if headless:
+                options.add_argument("--headless")
             options.set_preference("dom.webnotifications.enabled", False)
             options.log.level = 'fatal'
 
@@ -77,6 +79,8 @@ class Insta:
         else:
             # Chrome Options
             options = ChromeOptions()
+            if headless:
+                options.add_argument("--headless")
             options.add_argument("--disable-notifications")
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
             options.add_argument("--log-level=3")
