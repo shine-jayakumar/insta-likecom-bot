@@ -64,7 +64,8 @@ def retry(func):
 
 class Insta:
     def __init__(self, username, password, timeout=30):
-        
+
+        self.browser = 'chrome'
         self.driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
         self.wait = WebDriverWait(self.driver, timeout)
         self.baseurl = "https://www.instagram.com"
