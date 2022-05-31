@@ -108,7 +108,7 @@ instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomme
 ```
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
 ```
-**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell.**
+**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell/Bash.**
 ```
 instalikecombot.py bob101 b@bpassw0rd1 "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
