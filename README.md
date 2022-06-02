@@ -9,10 +9,11 @@
 
 insta-likecom-bot is an instagram bot written in python to automatically like and comment on an account or tag.
 
+**This branch is created for heroku deployement with chromedriver and chrome browser.**
+
 **Table of Contents**
 - [Features](#Features "Features")
 - [Requirements](#Requirements "Requirements")
-- [Installation](#Installation "Installation")
 - [Options](#Options "Options")
 - [Usage](#Usage "Usage")
 - [Examples](#Examples "Examples")
@@ -28,7 +29,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Skip comments and just like a post
 - Build in random time delays
 - Specify time delays after each post
-- Supports Chrome and Firefox
+- Supports Chrome and Firefox (Currently supports chromedriver and chrome browser if deployed on heroku)
 
 ## Requirements
 - Python 3
@@ -36,10 +37,6 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 
 View the [requirements.txt](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/requirements.txt)
 
-## Installation
-```sh
-pip install -r requirements.txt
-```
 ## Options
 Required arguments
 | Argument | Description |
