@@ -1,4 +1,4 @@
-# insta-likecom-bot
+# insta-likecom-bot (heroku deployment with Chrome)
 ![MIT License](https://img.shields.io/github/license/shine-jayakumar/Covid19-Exploratory-Analysis-With-SQL)
 
 ### Automates likes and comments on an instagram account or tag
