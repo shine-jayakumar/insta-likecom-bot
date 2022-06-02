@@ -32,7 +32,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 
 ## Requirements
 - Python 3
-- Chrome Browser
+- Chrome Browser / Firefox
 
 View the [requirements.txt](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/requirements.txt)
 
