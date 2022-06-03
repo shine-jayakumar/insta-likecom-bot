@@ -29,6 +29,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Build in random time delays
 - Specify time delays after each post
 - Supports Chrome and Firefox
+- Headless mode
 
 ## Requirements
 - Python 3
