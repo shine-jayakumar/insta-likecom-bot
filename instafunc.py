@@ -185,7 +185,8 @@ class Insta:
         """
         like_button:WebElement = None
         try:
-            like_button = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="fr66n"]/button')))
+            # like_button = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="fr66n"]/button')))
+            like_button = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="_aamw"]/button')))
             like_button_span = like_button.find_element(By.XPATH, 'div/span')
             button_status = like_button_span.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label')
             # like only if not already liked
