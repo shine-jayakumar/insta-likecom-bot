@@ -233,7 +233,8 @@ class Insta:
             cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@aria-label="Add a comment…"]')))
             cmt.click()
             cmt.send_keys(cmt_text)
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="post-comment-input-button"]'))).click()
+            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="post-comment-input-button"]'))).click()
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@type="submit" and contains(@class,"_acan")]'))).click()
             self.wait_until_comment_cleared(cmt, timeout)
 
         except ElementClickInterceptedException:
