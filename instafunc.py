@@ -249,7 +249,8 @@ class Insta:
         Returns number of post for an account or tag
         """
         try:
-            num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="g47SY "]'))).text
+            # num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="g47SY "]'))).text
+            num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="posts"]/span'))).text
             num_of_posts = num_of_posts.replace(',','')
             return int(num_of_posts)
         except:
