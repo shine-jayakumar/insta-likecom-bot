@@ -29,10 +29,11 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Build in random time delays
 - Specify time delays after each post
 - Supports Chrome and Firefox
+- Headless mode
 
 ## Requirements
 - Python 3
-- Chrome Browser
+- Chrome Browser / Firefox
 
 View the [requirements.txt](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/requirements.txt)
 
@@ -108,7 +109,7 @@ instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomme
 ```
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
 ```
-**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell.**
+**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell/Bash.**
 ```
 instalikecombot.py bob101 b@bpassw0rd1 "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
