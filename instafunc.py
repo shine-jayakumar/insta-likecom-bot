@@ -276,7 +276,8 @@ class Insta:
         Clicks 'Not Now' button when prompted with 'Save Your Login Info?'
         """
         try:
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
+            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
+            self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.cmbtv button'))).click()
             return True
         except:
             return False
