@@ -158,7 +158,7 @@ try:
 
     logger.info("Login successful")
     logger.info("Skipping Save Login Info")
-    insta.dont_save_login_info()
+    logger.info(f'Do not save login info: {insta.dont_save_login_info()}')
 
     logger.info(f"Opening target {args.target}")
     if not insta.open_target():
