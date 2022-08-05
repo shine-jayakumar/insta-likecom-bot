@@ -60,6 +60,7 @@ class Insta:
         # current working directory/driver
         self.browser = 'chrome'
         self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
+        self.comment_disabled = False
 
         # Firefox
         if browser.lower() == 'firefox':
@@ -209,6 +210,17 @@ class Insta:
         while element.text != '' and (end - start) < timeout:
             end = time.time()
     
+    def is_comment_disabled(self):
+        """
+        Checks if comment is disabled or not
+        """
+        try:
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="Comments on this post have been limited."]')))
+            self.comment_disabled = True
+            return True
+        except:
+            return False
+
     @retry
     def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!'):
         """
@@ -222,6 +234,7 @@ class Insta:
 
         cmt_text = text
         cmt: WebElement = None
+
         # remove non-bmp characters (for chrome)
         if self.browser == 'chrome':
             cmt_text = bmp_emoji_safe_text(text) or fs_comment
@@ -241,11 +254,12 @@ class Insta:
             self.driver.execute_script('arguments[0].click();', cmt)
             self.wait_until_comment_cleared(cmt, timeout)
 
-        except: 
+        except:
             return False
 
         return True
     
+    @retry
     def get_number_of_posts(self):
         """
         Returns number of post for an account or tag
