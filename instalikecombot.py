@@ -164,8 +164,21 @@ try:
     if not insta.open_target():
         raise Exception(f"Invalid tag or account : {args.target}")
 
-    no_of_posts = insta.get_number_of_posts()
-    logger.info(f"No. of posts found: {no_of_posts}")
+    # getting number of posts
+    no_of_posts = None
+    max_tries = 3
+    tries = 0
+    while no_of_posts == None and tries < max_tries:
+        no_of_posts = insta.get_number_of_posts()
+        if no_of_posts != None:
+            logger.info(f"No. of posts found: {no_of_posts}")
+        else:
+            logger.error(f'Unable to find posts. Reloading the target')
+            insta.open_target()
+        tries += 1
+
+    if no_of_posts == None:
+        raise Exception('No posts found for the target')
 
     # exit if it's a private account
     if insta.is_private():

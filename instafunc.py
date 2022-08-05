@@ -259,7 +259,6 @@ class Insta:
 
         return True
     
-    @retry
     def get_number_of_posts(self):
         """
         Returns number of post for an account or tag
