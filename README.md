@@ -30,6 +30,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Specify time delays after each post
 - Supports Chrome and Firefox
 - Headless mode
+- Load username, password, and target from .env
 
 ## Requirements
 - Python 3
@@ -63,55 +64,63 @@ Optional Arguments
 ## Usage
 **To like and comment every post**
 ```
-instalikecombot.py username password target
+instalikecombot.py -u yourusername -p yourpassword -t thetarget
 ```
     
 **To specify number of posts to like**
 ```
-instalikecombot.py username password target -np NOOFPOSTS
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS
 ```
     
 **To specify a delay**
 ```
-instalikecombot.py username password target -d DELAY
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -d DELAY
 ```
 
 **To specify a file with comments**
 ```
-instalikecombot.py username password target -c FILE
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -c FILE
 ```
 
 **To add a text to the end of every comment**
 ```
-instalikecombot.py username password target -ps TEXT
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -ps TEXT
 ```
 
 **To leave no comments**
 ```
-instalikecombot.py username password target -nc
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -nc
 ```
 
 **To specify a browser**
 ```
-instalikecombot.py username password target -br firefox
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -br firefox
+```
+
+**Load username, password, and target from .env**
+```
+instalikecombot.py --loadenv
 ```
 
 ## Examples
 ```
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
 ```
 ```
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
 ```
 ```
-instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t #haiku -ps "Follow me @bob101" -c mycomments.txt
 ```
 ```
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30
+```
+```
+instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 ```
 **Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell/Bash.**
 ```
-instalikecombot.py bob101 b@bpassw0rd1 "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
 ## LICENSE
 [MIT](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/LICENSE)
