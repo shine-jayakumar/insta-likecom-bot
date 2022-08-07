@@ -59,13 +59,14 @@ def generate_random_comment(comments):
 # Argument parsing
 # ====================================================
 description = "Automates likes and comments on an instagram account or tag"
-usage = "instalikecombot.py [-h] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY] username password target"
+usage = "instalikecombot.py [-h] [-u --username] [-p --password] [-t --target] [-le --loadenv] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY] [-hl --headless]"
 examples="""
 Examples:
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
 instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
 instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30 --headless
+instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 """
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -102,6 +103,7 @@ IUSER = None
 IPASS = None
 TARGET = None
 
+# load username, password, target from env
 if args.loadenv:
     settings = getsettings()
     IUSER = settings['username']
@@ -111,6 +113,7 @@ if args.loadenv:
     if not IUSER or not IPASS or not TARGET:
         print('Error: username, password, and target are required.')
         sys.exit(1)
+# load username, password, target from arguments
 else:
     if not args.username or not args.password or not args.target:
         print('Error: username, password, and target are required.')
@@ -118,8 +121,6 @@ else:
     IUSER = args.username
     IPASS = args.password
     TARGET = args.target
-
-
 
 
 # ====================================================
