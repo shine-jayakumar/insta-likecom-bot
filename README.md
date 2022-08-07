@@ -97,7 +97,7 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -nc
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -br firefox
 ```
 
-**Load username, password, and target from .env**
+**To load username, password, and target from .env**
 ```
 instalikecombot.py --loadenv
 ```
