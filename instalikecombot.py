@@ -16,7 +16,7 @@ import sys
 from random import randint
 from instafunc import *
 import argparse
-
+from constants import getsettings
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
 "So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",
@@ -74,12 +74,12 @@ parser = argparse.ArgumentParser(
     epilog=examples,
     prog='instalikecombot')
 
-# required arguments
-parser.add_argument('username', type=str, help='Instagram username')
-parser.add_argument('password', type=str, help='Instagram password')
-parser.add_argument('target',   type=str, help='target (account or tag)')
 
 # optional arguments
+parser.add_argument('-u','--username', metavar='', type=str, help='Instagram username')
+parser.add_argument('-p','--password', metavar='', type=str, help='Instagram password')
+parser.add_argument('-t', '--target',  metavar='', type=str, help='target (account or tag)')
+
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
 
@@ -92,10 +92,35 @@ parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time 
 parser.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
 parser.add_argument('-hl', '--headless',  action='store_true', help='headless mode')
+parser.add_argument('-le', '--loadenv',  action='store_true', help='load credentials from .env')
 parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
 
 args = parser.parse_args()
 # ====================================================
+
+IUSER = None
+IPASS = None
+TARGET = None
+
+if args.loadenv:
+    settings = getsettings()
+    IUSER = settings['username']
+    IPASS = settings['password']
+    TARGET = settings['target']
+
+    if not IUSER or not IPASS or not TARGET:
+        print('Error: username, password, and target are required.')
+        sys.exit(1)
+else:
+    if not args.username or not args.password or not args.target:
+        print('Error: username, password, and target are required.')
+        sys.exit(1)
+    IUSER = args.username
+    IPASS = args.password
+    TARGET = args.target
+
+
+
 
 # ====================================================
 # Setting up logger
@@ -136,22 +161,22 @@ try:
 
     logger.info("Initializing instagram user")
     insta = Insta(
-        username=args.username,
-        password=args.password,
+        username=IUSER,
+        password=IPASS,
         timeout=args.eltimeout,
         browser=browser,
         headless=args.headless
         )
 
-    logger.info(f"Setting target to: {args.target}")
+    logger.info(f"Setting target to: {TARGET}")
 
     # if tag
-    if args.target.startswith('#'):
-        insta.target(args.target[1:], tag=True)
+    if TARGET.startswith('#'):
+        insta.target(TARGET[1:], tag=True)
     else:
-        insta.target(args.target)
+        insta.target(TARGET)
 
-    logger.info(f"Attempting to log in with {insta.username}")
+    logger.info(f"Attempting to log in with {IUSER}")
 
     if not insta.login():
         raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
@@ -160,9 +185,9 @@ try:
     logger.info("Skipping Save Login Info")
     logger.info(f'Do not save login info: {insta.dont_save_login_info()}')
 
-    logger.info(f"Opening target {args.target}")
+    logger.info(f"Opening target {TARGET}")
     if not insta.open_target():
-        raise Exception(f"Invalid tag or account : {args.target}")
+        raise Exception(f"Invalid tag or account : {TARGET}")
 
     # getting number of posts
     no_of_posts = None
@@ -182,7 +207,7 @@ try:
 
     # exit if it's a private account
     if insta.is_private():
-        raise Exception(f"This account is private. You may need to follow {args.target} to like their posts.")
+        raise Exception(f"This account is private. You may need to follow {TARGET} to like their posts.")
 
     insta.click_first_post()
 
