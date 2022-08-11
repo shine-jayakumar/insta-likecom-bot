@@ -266,7 +266,9 @@ class Insta:
         try:
             # num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="g47SY "]'))).text
             # classname changed
-            num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="posts"]/span'))).text
+            # num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="posts"]/span'))).text
+            # changed to class name as finding div with text 'posts' fails for different language
+            num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="_ac2a"]'))).text
             num_of_posts = num_of_posts.replace(',','')
             return int(num_of_posts)
         except:
