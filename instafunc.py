@@ -215,7 +215,9 @@ class Insta:
         Checks if comment is disabled or not
         """
         try:
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="Comments on this post have been limited."]')))
+            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="Comments on this post have been limited."]')))
+            wait = WebDriverWait(self.driver, timeout=1)
+            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aasr"]/div')))
             self.comment_disabled = True
             return True
         except:

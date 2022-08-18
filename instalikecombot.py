@@ -210,6 +210,7 @@ try:
     if insta.is_private():
         raise Exception(f"This account is private. You may need to follow {TARGET} to like their posts.")
 
+    logger.info('Opening first post')
     insta.click_first_post()
 
     post = 0
@@ -222,19 +223,23 @@ try:
 
     logger.info(f"Number of posts to like: {no_of_posts_to_like}")
 
-    # check if comments are disabled
-    comment_disabled = False
-    if not args.nocomments:
-        logger.info(f'Checking if comments are disabled')
-        comment_disabled = insta.is_comment_disabled()
-        if not comment_disabled:
-            logger.info('Comments are enabled')
-        else:
-            logger.info('Comments are disabled. Following the target may enable you to comment.')
+    # # check if comments are disabled
+    # comment_disabled = False
+    # if not args.nocomments:
+    #     logger.info(f'Checking if comments are disabled')
+    #     comment_disabled = insta.is_comment_disabled()
+    #     if not comment_disabled:
+    #         logger.info('Comments are enabled')
+    #     else:
+    #         logger.info('Comments are disabled. Following the target may enable you to comment.')
     
     while post < no_of_posts_to_like:
         logger.info(f"Liking post: {post + 1}")
         insta.like()
+
+        comment_disabled = True
+        comment_disabled = insta.is_comment_disabled()
+        logger.info(f'Comment disabled? {"Yes" if comment_disabled else "No"}')
 
         # don't comment if --nocomments is set
         # and if comments are enabled
