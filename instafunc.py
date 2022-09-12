@@ -29,7 +29,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 import os
 import time
-
+from sys import platform
 
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
@@ -85,6 +85,9 @@ class Insta:
             options.add_argument("--disable-notifications")
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
             options.add_argument("--log-level=3")
+            
+            if platform == 'linux' or platform == 'linux2':
+                options.add_argument('--disable-dev-shm-usage')
 
             # current working directory/driver/chrome
             self.driver = webdriver.Chrome(
