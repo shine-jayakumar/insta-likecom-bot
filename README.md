@@ -56,6 +56,7 @@ Optional Arguments
 | -np , --numofposts | number of posts to like |
 | -ps , --postscript |  additional text to add after every comment |
 | -c , --comments | file containing comments (one comment per line) |
+| -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
@@ -80,6 +81,11 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -d DELAY
 **To specify a file with comments**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -c FILE
+```
+
+**To specify only one comment**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -oc TEXT
 ```
 
 **To add a text to the end of every comment**
@@ -110,7 +116,10 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t #haiku -ps "Follow me @bob101" -c mycomments.txt
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+```
+```
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -oc "Hello there"
 ```
 ```
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30
