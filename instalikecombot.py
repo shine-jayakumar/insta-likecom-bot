@@ -86,6 +86,7 @@ parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additiona
 
 comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
+comments_group.add_argument('-oc', '--onecomment', type=str, metavar='', help='specify only one comment')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
 
 parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
@@ -156,6 +157,11 @@ try:
     if args.comments:
         COMMENTS = load_comments(args.comments)
         logger.info(f"Loaded comments from {args.comments}")
+
+    # only one comment
+    elif args.onecomment:
+        COMMENTS = args.onecomment
+        logger.info(f'Loading only one comment: {COMMENTS}')
     
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -244,7 +250,10 @@ try:
         # don't comment if --nocomments is set
         # and if comments are enabled
         if not args.nocomments and not comment_disabled:
-            random_comment = generate_random_comment(COMMENTS)
+            if args.onecomment:
+                random_comment = COMMENTS
+            else:
+                random_comment = generate_random_comment(COMMENTS)
                 
             # add ps to the comment
             if args.postscript:
