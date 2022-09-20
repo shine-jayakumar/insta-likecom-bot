@@ -265,10 +265,11 @@ try:
     logger.info("Script finished successfully")
 
 except Exception as ex:
-    logger.error(f"Script ended with error : {ex}")
+    logger.error(f"Script ended with error : {str(ex)}", exc_info=1)
 
 finally:
-    insta.quit()
+    if insta:
+        insta.quit()
     timediff = time.time() - start
     logger.info(f"Total time taken: {round(timediff, 4)} seconds")
     sys.exit()

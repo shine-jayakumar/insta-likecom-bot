@@ -131,7 +131,8 @@ class Insta:
         """
         try:
             # look for user avatar
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//img[@data-testid="user-avatar"]')))
+            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//img[@data-testid="user-avatar"]')))
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_acut"]/div/span/img')))
             return True
         except:
             return False
@@ -220,7 +221,7 @@ class Insta:
         try:
             # self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="Comments on this post have been limited."]')))
             wait = WebDriverWait(self.driver, timeout=1)
-            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aasr"]/div')))
+            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_ae63"]/div')))
             self.comment_disabled = True
             return True
         except:
@@ -298,7 +299,7 @@ class Insta:
         """
         try:
             # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
-            self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.cmbtv button'))).click()
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_ac8f"]/button'))).click()
             return True
         except:
             return False
