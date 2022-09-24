@@ -1,6 +1,7 @@
 # insta-likecom-bot
-![MIT License](https://img.shields.io/github/license/shine-jayakumar/Covid19-Exploratory-Analysis-With-SQL)
-
+![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
+![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
+![Version](https://img.shields.io/static/v1?label=version&message=v.1.4&color=blue)
 ### Automates likes and comments on an instagram account or tag
 
 <p align="center">
