@@ -10,6 +10,7 @@
 
 
 import logging
+from multiprocessing.pool import ApplyResult
 import time
 from datetime import datetime
 import sys
@@ -17,6 +18,8 @@ from random import randint
 from instafunc import *
 import argparse
 from constants import getsettings
+from applogger import AppLogger
+
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
 "So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",
@@ -127,19 +130,7 @@ else:
 # ====================================================
 # Setting up logger
 # ====================================================
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-formatter = logging.Formatter("%(asctime)s:%(name)s:%(lineno)d:%(levelname)s:%(message)s")
-file_handler = logging.FileHandler(f'instalikecombot.py_{datetime.now().strftime("%d_%m_%Y__%H_%M_%S")}.log', 'w', 'utf-8')
-file_handler.setFormatter(formatter)
-
-stdout_formatter = logging.Formatter("[*] => %(message)s")
-stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setFormatter(stdout_formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stdout_handler)
+logger = AppLogger(__name__).getlogger()
 #======================================================
 
 DELAY = args.delay
@@ -216,6 +207,7 @@ try:
     if insta.is_private():
         raise Exception(f"This account is private. You may need to follow {TARGET} to like their posts.")
 
+
     logger.info('Opening first post')
     insta.click_first_post()
 
@@ -228,16 +220,6 @@ try:
         no_of_posts_to_like = no_of_posts
 
     logger.info(f"Number of posts to like: {no_of_posts_to_like}")
-
-    # # check if comments are disabled
-    # comment_disabled = False
-    # if not args.nocomments:
-    #     logger.info(f'Checking if comments are disabled')
-    #     comment_disabled = insta.is_comment_disabled()
-    #     if not comment_disabled:
-    #         logger.info('Comments are enabled')
-    #     else:
-    #         logger.info('Comments are disabled. Following the target may enable you to comment.')
     
     while post < no_of_posts_to_like:
         logger.info(f"Liking post: {post + 1}")

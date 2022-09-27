@@ -31,6 +31,10 @@ import os
 import time
 from sys import platform
 
+from applogger import AppLogger
+
+logger = AppLogger(__name__).getlogger()
+
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
 
@@ -129,13 +133,20 @@ class Insta:
         """
         Validates login
         """
-        try:
-            # look for user avatar
-            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//img[@data-testid="user-avatar"]')))
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_acut"]/div/span/img')))
-            return True
-        except:
-            return False
+        user_profile_xpaths = [
+            '//div[@class="_acut"]/div/span/img',
+            '//img[@data-testid="user-avatar"]'
+            
+        ]
+        for xpath in user_profile_xpaths:
+            try:
+                logger.info(f'Validating login with xpath: {xpath}')
+                self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+                return True
+            except:
+                logger.error(f"Could not find user's profile with xpath: {xpath}")
+
+        return False
 
     def is_page_loaded(self):
         """
@@ -173,7 +184,6 @@ class Insta:
         """
         try:
             self.driver.get(self.baseurl)
-            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Log In"]'))).click()
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="username"]'))).send_keys(self.username)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="password"]'))).send_keys(self.password)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@type="submit"]'))).click()
@@ -297,12 +307,19 @@ class Insta:
         """
         Clicks 'Not Now' button when prompted with 'Save Your Login Info?'
         """
-        try:
-            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_ac8f"]/button'))).click()
-            return True
-        except:
-            return False
+        not_now_button_xpaths = [
+            '//button[text()="Not now"]',
+            '//div[@class="cmbtv"]/button',
+            '//div[@class="_ac8f"]/button'
+        ]
+        for xpath in not_now_button_xpaths:
+            try:
+                logger.info(f'Finding Not Now button with xpath: {xpath}')
+                self.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+                return True
+            except:
+                logger.error(f'Could not find Not Now button with xpath: {xpath}')
+        return False
 
     def next_post(self): 
         """
@@ -332,6 +349,22 @@ class Insta:
             self.driver.quit()
         except:
             print("** Failed to close browser**")
+    
+    def get_followers(self):
+        """
+        Gets followers from the target's page
+        This function is still under development - DO NOT USE
+        """
+        try:
+            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/followers")]'))).click()
+            followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+            print(followers_div)
+            user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+            print(user_divs)
+            return True
+        except:
+            return False
 
 
 def remove_blanks(lst):
