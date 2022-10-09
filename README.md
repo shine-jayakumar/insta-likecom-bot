@@ -60,7 +60,7 @@ Optional Arguments
 | -c , --comments | file containing comments (one comment per line) |
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
-| -ff', --findfollowers | like/comment on posts from target's followers |
+| -ff, --findfollowers | like/comment on posts from target's followers |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
