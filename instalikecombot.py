@@ -187,6 +187,12 @@ try:
     if not insta.open_target():
         raise Exception(f"Invalid tag or account : {TARGET}")
 
+    usernames = insta.get_followers()
+    print('Usernames found:')
+    print(usernames)
+    time.sleep(10)
+    sys.exit(1)
+
     # getting number of posts
     no_of_posts = None
     max_tries = 3

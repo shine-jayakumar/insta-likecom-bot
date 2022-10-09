@@ -350,21 +350,106 @@ class Insta:
         except:
             print("** Failed to close browser**")
     
+    def scroll_into_view(self, element):
+        """
+        Scrolls an element into view
+        """
+        self.driver.execute_script('arguments[0].scrollIntoView()', element)
+
+    def is_insta_username(self, word: str) -> bool:
+        """
+        Checks if a word is eligible for a valid instagram username
+        """
+        if not word:
+            return False
+        if len(word) > 30:
+            return False
+        if ' ' in word:
+            return False
+        
+        for letter in word:
+            # uppercase letter found
+            if letter.isupper():
+                return False
+            # if letter is not a digit,
+            # alpha, _ or .
+            if not letter.isdigit() and \
+                not letter.isalpha() and \
+                    letter != '_' and letter != '.':
+                    return False
+        return True
+    
+    def extract_username(self, text: str) -> str:
+        """
+        Extracts username from text
+        """
+        if text:
+            search_list = text.split('\n')
+            for word in search_list:
+                if self.is_insta_username(word):
+                    return word
+        return ''
+
     def get_followers(self):
         """
         Gets followers from the target's page
         This function is still under development - DO NOT USE
         """
-        try:
-            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/followers")]'))).click()
-            followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
-            print(followers_div)
-            user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
-            print(user_divs)
-            return True
-        except:
-            return False
+        logger.info('Opening followers list')
+        self.wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/followers")]'))).click()
+        followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+
+        # holds extracted usernames
+        usernames = []
+
+        div_read_start = 0
+        div_read_end = 0
+
+        num_previous_div = 0
+        num_updated_div = 1
+
+        while(num_updated_div > num_previous_div):    
+
+            time.sleep(2)
+
+            logger.info('Getting updated list of username divs')
+            try:
+                user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+            except StaleElementReferenceException:
+                followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+                user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+            
+            num_previous_div = num_updated_div
+            num_updated_div = len(user_divs)
+
+            if num_updated_div == num_previous_div:
+                try:
+                    user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                except StaleElementReferenceException:
+                    followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+                    user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                finally:
+                    num_updated_div = len(user_divs)
+
+            
+            div_read_start = div_read_end
+            div_read_end = len(user_divs)
+            
+            logger.info(f'Processing userdiv range: {div_read_start} - {div_read_end}')
+            for i in range(div_read_start, div_read_end):
+                # get all text from the div
+                alltext = user_divs[i].text
+                username = self.extract_username(alltext)
+
+                # add found username to the list
+                if username not in usernames:
+                    usernames.append(username)
+                    
+            logger.info(f'Total username count: {len(usernames)}')
+            logger.info('Scrolling')
+            self.scroll_into_view(user_divs[-1])
+        
+        return usernames
 
 
 def remove_blanks(lst):
