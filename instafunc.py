@@ -134,6 +134,7 @@ class Insta:
         Validates login
         """
         user_profile_xpaths = [
+            '//img[contains(@alt, " profile picture")]',
             '//div[@class="_acut"]/div/span/img',
             '//img[@data-testid="user-avatar"]'
             
