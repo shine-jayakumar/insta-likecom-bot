@@ -134,6 +134,7 @@ class Insta:
         Validates login
         """
         user_profile_xpaths = [
+            '//img[contains(@alt, " profile picture")]',
             '//div[@class="_acut"]/div/span/img',
             '//img[@data-testid="user-avatar"]'
             
@@ -360,11 +361,7 @@ class Insta:
         """
         Checks if a word is eligible for a valid instagram username
         """
-        if not word:
-            return False
-        if len(word) > 30:
-            return False
-        if ' ' in word:
+        if not word or len(word) > 30 or ' ' in word:
             return False
         
         for letter in word:
@@ -386,9 +383,9 @@ class Insta:
         if text:
             search_list = text.split('\n')
             for word in search_list:
-                if self.is_insta_username(word):
+                if word != '' and self.is_insta_username(word):
                     return word
-        return ''
+        return None
 
     def get_followers(self):
         """
@@ -442,7 +439,7 @@ class Insta:
                 username = self.extract_username(alltext)
 
                 # add found username to the list
-                if username not in usernames:
+                if username and username not in usernames:
                     usernames.append(username)
                     
             logger.info(f'Total username count: {len(usernames)}')
