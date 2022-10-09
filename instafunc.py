@@ -137,7 +137,6 @@ class Insta:
             '//img[contains(@alt, " profile picture")]',
             '//div[@class="_acut"]/div/span/img',
             '//img[@data-testid="user-avatar"]'
-            
         ]
         for xpath in user_profile_xpaths:
             try:
@@ -405,29 +404,34 @@ class Insta:
         num_previous_div = 0
         num_updated_div = 1
 
+        time.sleep(3)
+
         while(num_updated_div > num_previous_div):    
 
-            time.sleep(2)
-
             logger.info('Getting updated list of username divs')
-            try:
-                user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
-            except StaleElementReferenceException:
-                followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
-                user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
-            
-            num_previous_div = num_updated_div
-            num_updated_div = len(user_divs)
+            user_divs = None
 
-            if num_updated_div == num_previous_div:
+            max_tries = 5
+            tries = 0
+            did_not_find_more_divs = True
+
+            while tries < max_tries and did_not_find_more_divs:
                 try:
                     user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    num_previous_div = num_updated_div
+                    num_updated_div = len(user_divs)
+                    if num_updated_div > num_previous_div:
+                        did_not_find_more_divs = False
+                    else:
+                        self.scroll_into_view(user_divs[-1])
+                        time.sleep(2)
+                        tries += 1
+
                 except StaleElementReferenceException:
                     followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+                    time.sleep(2)
                     user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
-                finally:
-                    num_updated_div = len(user_divs)
-
+    
             
             div_read_start = div_read_end
             div_read_end = len(user_divs)
@@ -445,6 +449,7 @@ class Insta:
             logger.info(f'Total username count: {len(usernames)}')
             logger.info('Scrolling')
             self.scroll_into_view(user_divs[-1])
+            time.sleep(3)
         
         return usernames
 
