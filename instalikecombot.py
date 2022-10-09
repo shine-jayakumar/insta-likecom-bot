@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.1.5
+    insta-likecom-bot v.2.0
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -9,8 +9,6 @@
 """
 
 
-import logging
-from multiprocessing.pool import ApplyResult
 import time
 from datetime import datetime
 import sys
@@ -31,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.1.5'
+VERSION = 'v.2.0'
 
 def display_intro():
 
@@ -197,8 +195,8 @@ try:
     
     if args.findfollowers:
         followers = insta.get_followers()
-        logger.info(f'Found {len(followers)}')
         logger.info(followers)
+        logger.info(f'Found {len(followers)}')
         target_list = followers
     else:
         target_list = [TARGET]

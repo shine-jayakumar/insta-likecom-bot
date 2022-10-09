@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.1.5
+    insta-likecom-bot v.2.0
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
