@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.1.5
+    insta-likecom-bot v.2.0
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -9,8 +9,6 @@
 """
 
 
-import logging
-from multiprocessing.pool import ApplyResult
 import time
 from datetime import datetime
 import sys
@@ -31,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.1.5'
+VERSION = 'v.2.0'
 
 def display_intro():
 
@@ -86,6 +84,7 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
+parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
 
 comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
@@ -174,6 +173,12 @@ try:
     else:
         insta.target(TARGET)
 
+    # findfollowers with tag name
+    if args.findfollowers and TARGET.startswith('#'):
+        logger.error("Cannot use 'findfollowers' option with tags")
+        raise Exception("Cannot use 'findfollowers' option with tags")
+
+        
     logger.info(f"Attempting to log in with {IUSER}")
 
     if not insta.login():
@@ -185,73 +190,102 @@ try:
 
     logger.info(f"Opening target {TARGET}")
     if not insta.open_target():
+        logger.error(f'Invalid tag or account: {TARGET}')
         raise Exception(f"Invalid tag or account : {TARGET}")
-
-    # getting number of posts
-    no_of_posts = None
-    max_tries = 3
-    tries = 0
-    while no_of_posts == None and tries < max_tries:
-        no_of_posts = insta.get_number_of_posts()
-        if no_of_posts != None:
-            logger.info(f"No. of posts found: {no_of_posts}")
-        else:
-            logger.error(f'Unable to find posts. Reloading the target')
-            insta.open_target()
-        tries += 1
-
-    if no_of_posts == None:
-        raise Exception('No posts found for the target')
-
-    # exit if it's a private account
-    if insta.is_private():
-        raise Exception(f"This account is private. You may need to follow {TARGET} to like their posts.")
-
-
-    logger.info('Opening first post')
-    insta.click_first_post()
-
-    post = 0
-
-    # if user specified the number of posts to like
-    if args.numofposts:
-        no_of_posts_to_like = min(no_of_posts, args.numofposts)
-    else:
-        no_of_posts_to_like = no_of_posts
-
-    logger.info(f"Number of posts to like: {no_of_posts_to_like}")
     
-    while post < no_of_posts_to_like:
-        logger.info(f"Liking post: {post + 1}")
-        insta.like()
+    if args.findfollowers:
+        followers = insta.get_followers()
+        logger.info(followers)
+        logger.info(f'Found {len(followers)}')
+        target_list = followers
+    else:
+        target_list = [TARGET]
+    
+    for target in target_list:
+        
+        # if findfollowers option is set
+        # there would be multiple targets that
+        # need to be set and opened
+        if args.findfollowers:
+            # setting target
+            logger.info(f'Setting target to: {target}')
+            insta.target(target)
 
-        comment_disabled = True
-        comment_disabled = insta.is_comment_disabled()
-        logger.info(f'Comment disabled? {"Yes" if comment_disabled else "No"}')
+            # opening target
+            logger.info(f"[target: {target}] Opening target")
+            if not insta.open_target():
+                logger.error(f'[target: {target}] Invalid tag or account')
 
-        # don't comment if --nocomments is set
-        # and if comments are enabled
-        if not args.nocomments and not comment_disabled:
-            if args.onecomment:
-                random_comment = COMMENTS
+        # getting number of posts
+        no_of_posts = None
+        max_tries = 3
+        tries = 0
+        while no_of_posts == None and tries < max_tries:
+            no_of_posts = insta.get_number_of_posts()
+            if no_of_posts != None:
+                logger.info(f"[target: {target}] No. of posts found: {no_of_posts}")
             else:
-                random_comment = generate_random_comment(COMMENTS)
-                
-            # add ps to the comment
-            if args.postscript:
-                random_comment += " " + args.postscript
+                logger.error(f'[target: {target}, retry={tries+1}] Unable to find posts. Reloading the target')
+                insta.open_target()
+            tries += 1
 
-            logger.info(f"Commenting on the post")
-            if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
-                logger.info(f'Commented: {random_comment}')
+        # if not posts found
+        if no_of_posts == None or no_of_posts == 0:
+            logger.info(f'[target: {target}] No posts found for the target')
+            continue
 
-        logger.info("Moving on to the next post")
-        insta.next_post()
-        # delay specified in --delay or random delay
-        delay = DELAY or randint(1,10)
-        logger.info(f"Waiting for {delay} seconds")
-        time.sleep(delay)
-        post += 1
+        # it's a private account
+        logger.info(f'[target: {target}] Checking if {target} is a private account')
+        if insta.is_private():
+            logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
+            continue
+        
+        # open first post
+        logger.info(f'[target: {target}] Opening first post')
+        insta.click_first_post()
+
+        post = 0
+
+        # if user specified the number of posts to like
+        if args.numofposts:
+            no_of_posts_to_like = min(no_of_posts, args.numofposts)
+        else:
+            no_of_posts_to_like = no_of_posts
+
+        logger.info(f"[target: {target}] Number of posts to like: {no_of_posts_to_like}")
+
+        # loop to like and comment
+        while post < no_of_posts_to_like:
+            logger.info(f"[target: {target}] Liking post: {post + 1}")
+            insta.like()
+
+            comment_disabled = True
+            comment_disabled = insta.is_comment_disabled()
+            logger.info(f'[target: {target}] Comment disabled? {"Yes" if comment_disabled else "No"}')
+
+            # don't comment if --nocomments is set
+            # and if comments are enabled
+            if not args.nocomments and not comment_disabled:
+                if args.onecomment:
+                    random_comment = COMMENTS
+                else:
+                    random_comment = generate_random_comment(COMMENTS)
+                    
+                # add ps to the comment
+                if args.postscript:
+                    random_comment += " " + args.postscript
+
+                logger.info(f"[target: {target}] Commenting on the post")
+                if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
+                    logger.info(f'[target: {target}] Commented: {random_comment}')
+
+            logger.info(f"[target: {target}] Moving on to the next post")
+            insta.next_post()
+            # delay specified in --delay or random delay
+            delay = DELAY or randint(1,10)
+            logger.info(f"[target: {target}] Waiting for {delay} seconds")
+            time.sleep(delay)
+            post += 1
 
     logger.info("Script finished successfully")
 

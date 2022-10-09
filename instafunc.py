@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.1.5
+    insta-likecom-bot v.2.0
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -137,7 +137,6 @@ class Insta:
             '//img[contains(@alt, " profile picture")]',
             '//div[@class="_acut"]/div/span/img',
             '//img[@data-testid="user-avatar"]'
-            
         ]
         for xpath in user_profile_xpaths:
             try:
@@ -336,11 +335,17 @@ class Insta:
         """
         Checks if an account is private
         """
-        try:
-            self.driver.find_element(By.XPATH, '//*[text()="This Account is Private"]')
-            return True        
-        except:
-            return False
+        private_text_indicator = [
+            'This account is private',
+            'This Account is private',
+            'This Account is Private'            
+        ]
+        for text in private_text_indicator:
+            try:
+                self.driver.find_element(By.XPATH, f'//*[text()="{text}"]')
+                return True        
+            except:
+                logger.info(f'Failed to find text: {text}')
 
     def quit(self):
         """
@@ -351,21 +356,116 @@ class Insta:
         except:
             print("** Failed to close browser**")
     
+    def scroll_into_view(self, element):
+        """
+        Scrolls an element into view
+        """
+        self.driver.execute_script('arguments[0].scrollIntoView()', element)
+
+    def is_insta_username(self, word: str) -> bool:
+        """
+        Checks if a word is eligible for a valid instagram username
+        """
+        if not word or len(word) > 30 or ' ' in word:
+            return False
+        
+        for letter in word:
+            # uppercase letter found
+            if letter.isupper():
+                return False
+            # if letter is not a digit,
+            # alpha, _ or .
+            if not letter.isdigit() and \
+                not letter.isalpha() and \
+                    letter != '_' and letter != '.':
+                    return False
+        return True
+    
+    def extract_username(self, text: str) -> str:
+        """
+        Extracts username from text
+        """
+        if not text:
+            return None
+
+        username = text.split('https://www.instagram.com')[1]
+        username = username.split('/')[1]
+        return username
+        # if text:
+        #     search_list = text.split('\n')
+        #     for word in search_list:
+        #         if word != '' and self.is_insta_username(word):
+        #             return word
+
     def get_followers(self):
         """
         Gets followers from the target's page
         This function is still under development - DO NOT USE
         """
-        try:
-            # self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[text()="Not Now"]'))).click()
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/followers")]'))).click()
-            followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
-            print(followers_div)
-            user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
-            print(user_divs)
-            return True
-        except:
-            return False
+        logger.info('Opening followers list')
+        self.wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/followers")]'))).click()
+        followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+
+        # holds extracted usernames
+        usernames = []
+
+        div_read_start = 0
+        div_read_end = 0
+
+        num_previous_div = 0
+        num_updated_div = 1
+
+        time.sleep(3)
+
+        while(num_updated_div > num_previous_div):    
+
+            logger.info('Getting updated list of username divs')
+            username_links = None
+
+            max_tries = 5
+            tries = 0
+            did_not_find_more_divs = True
+
+            while tries < max_tries and did_not_find_more_divs:
+                try:
+                    # user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    username_links = followers_div.find_elements(By.TAG_NAME, 'a')
+                    num_previous_div = num_updated_div
+                    num_updated_div = len(username_links)
+                    if num_updated_div > num_previous_div:
+                        did_not_find_more_divs = False
+                    else:
+                        self.scroll_into_view(username_links[-1])
+                        time.sleep(2)
+                        tries += 1
+
+                except StaleElementReferenceException:
+                    followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
+                    time.sleep(2)
+                    # user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    username_links = followers_div.find_elements(By.TAG_NAME, 'a')
+    
+            
+            div_read_start = div_read_end
+            div_read_end = len(username_links)
+            
+            logger.info(f'Processing userdiv range: {div_read_start} - {div_read_end}')
+            for i in range(div_read_start, div_read_end):
+                # get all text from the div
+                # alltext = user_divs[i].text
+                username_link = username_links[i].get_attribute('href')
+                username = self.extract_username(username_link)
+
+                # add found username to the list
+                if username and username not in usernames:
+                    usernames.append(username)
+                    
+            logger.info(f'Total username count: {len(usernames)}')
+            logger.info('Scrolling')
+            self.scroll_into_view(username_links[-1])
+            time.sleep(3)
+        
+        return usernames
 
 
 def remove_blanks(lst):
