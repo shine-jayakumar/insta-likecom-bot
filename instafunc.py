@@ -335,11 +335,17 @@ class Insta:
         """
         Checks if an account is private
         """
-        try:
-            self.driver.find_element(By.XPATH, '//*[text()="This Account is Private"]')
-            return True        
-        except:
-            return False
+        private_text_indicator = [
+            'This account is private',
+            'This Account is private',
+            'This Account is Private'            
+        ]
+        for text in private_text_indicator:
+            try:
+                self.driver.find_element(By.XPATH, f'//*[text()="{text}"]')
+                return True        
+            except:
+                logger.info(f'Failed to find text: {text}')
 
     def quit(self):
         """
@@ -379,12 +385,17 @@ class Insta:
         """
         Extracts username from text
         """
-        if text:
-            search_list = text.split('\n')
-            for word in search_list:
-                if word != '' and self.is_insta_username(word):
-                    return word
-        return None
+        if not text:
+            return None
+
+        username = text.split('https://www.instagram.com')[1]
+        username = username.split('/')[1]
+        return username
+        # if text:
+        #     search_list = text.split('\n')
+        #     for word in search_list:
+        #         if word != '' and self.is_insta_username(word):
+        #             return word
 
     def get_followers(self):
         """
@@ -409,7 +420,7 @@ class Insta:
         while(num_updated_div > num_previous_div):    
 
             logger.info('Getting updated list of username divs')
-            user_divs = None
+            username_links = None
 
             max_tries = 5
             tries = 0
@@ -417,30 +428,33 @@ class Insta:
 
             while tries < max_tries and did_not_find_more_divs:
                 try:
-                    user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    # user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    username_links = followers_div.find_elements(By.TAG_NAME, 'a')
                     num_previous_div = num_updated_div
-                    num_updated_div = len(user_divs)
+                    num_updated_div = len(username_links)
                     if num_updated_div > num_previous_div:
                         did_not_find_more_divs = False
                     else:
-                        self.scroll_into_view(user_divs[-1])
+                        self.scroll_into_view(username_links[-1])
                         time.sleep(2)
                         tries += 1
 
                 except StaleElementReferenceException:
                     followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
                     time.sleep(2)
-                    user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    # user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
+                    username_links = followers_div.find_elements(By.TAG_NAME, 'a')
     
             
             div_read_start = div_read_end
-            div_read_end = len(user_divs)
+            div_read_end = len(username_links)
             
             logger.info(f'Processing userdiv range: {div_read_start} - {div_read_end}')
             for i in range(div_read_start, div_read_end):
                 # get all text from the div
-                alltext = user_divs[i].text
-                username = self.extract_username(alltext)
+                # alltext = user_divs[i].text
+                username_link = username_links[i].get_attribute('href')
+                username = self.extract_username(username_link)
 
                 # add found username to the list
                 if username and username not in usernames:
@@ -448,7 +462,7 @@ class Insta:
                     
             logger.info(f'Total username count: {len(usernames)}')
             logger.info('Scrolling')
-            self.scroll_into_view(user_divs[-1])
+            self.scroll_into_view(username_links[-1])
             time.sleep(3)
         
         return usernames

@@ -86,7 +86,7 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
-parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on target's followers")
+parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on target's followers' posts")
 
 comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
@@ -202,7 +202,6 @@ try:
         target_list = followers
     else:
         target_list = [TARGET]
-
     
     for target in target_list:
         
@@ -233,11 +232,12 @@ try:
             tries += 1
 
         # if not posts found
-        if no_of_posts == None:
+        if no_of_posts == None or no_of_posts == 0:
             logger.info(f'[target: {target}] No posts found for the target')
             continue
 
         # it's a private account
+        logger.info(f'[target: {target}] Checking if {target} is a private account')
         if insta.is_private():
             logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
             continue
@@ -281,7 +281,7 @@ try:
                 if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
                     logger.info(f'[target: {target}] Commented: {random_comment}')
 
-            logger.info("f[target: {target}] Moving on to the next post")
+            logger.info(f"[target: {target}] Moving on to the next post")
             insta.next_post()
             # delay specified in --delay or random delay
             delay = DELAY or randint(1,10)
