@@ -84,7 +84,7 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
-parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on target's followers' posts")
+parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
 
 comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')

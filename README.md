@@ -21,6 +21,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 
 ## Features
 - Likes and Comments on all the posts for an account/tag
+- Likes and Comments on posts from followers of an account
 - Specify the number of posts to like
 - Comes loaded with generic comments
 - Load your own comments
@@ -59,6 +60,7 @@ Optional Arguments
 | -c , --comments | file containing comments (one comment per line) |
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
+| -ff', --findfollowers | like/comment on posts from target's followers |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
@@ -68,12 +70,17 @@ Optional Arguments
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget
 ```
-    
+
 **To specify number of posts to like**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS
 ```
-    
+
+**To like and comment on posts from target's followers**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS -ff
+```
+
 **To specify a delay**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -d DELAY
@@ -112,6 +119,9 @@ instalikecombot.py --loadenv
 ## Examples
 ```
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
+```
+```
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 5 -ff
 ```
 ```
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
