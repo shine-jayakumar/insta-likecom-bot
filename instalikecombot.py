@@ -196,7 +196,7 @@ try:
     if args.findfollowers:
         followers = insta.get_followers()
         logger.info(followers)
-        logger.info(f'Found {len(followers)}')
+        logger.info(f'Found {len(followers)} followers')
         target_list = followers
     else:
         target_list = [TARGET]
@@ -239,6 +239,7 @@ try:
         if insta.is_private():
             logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
             continue
+        logger.info(f'[target: {target}] Account not private')
         
         # open first post
         logger.info(f'[target: {target}] Opening first post')

@@ -353,33 +353,8 @@ class Insta:
         """
         try:
             self.driver.quit()
-        except:
-            print("** Failed to close browser**")
-    
-    def scroll_into_view(self, element):
-        """
-        Scrolls an element into view
-        """
-        self.driver.execute_script('arguments[0].scrollIntoView()', element)
-
-    def is_insta_username(self, word: str) -> bool:
-        """
-        Checks if a word is eligible for a valid instagram username
-        """
-        if not word or len(word) > 30 or ' ' in word:
-            return False
-        
-        for letter in word:
-            # uppercase letter found
-            if letter.isupper():
-                return False
-            # if letter is not a digit,
-            # alpha, _ or .
-            if not letter.isdigit() and \
-                not letter.isalpha() and \
-                    letter != '_' and letter != '.':
-                    return False
-        return True
+        except Exception as ex:
+            logger.error(f'Failed to close browser: {str(ex)}')
     
     def extract_username(self, text: str) -> str:
         """
@@ -391,11 +366,6 @@ class Insta:
         username = text.split('https://www.instagram.com')[1]
         username = username.split('/')[1]
         return username
-        # if text:
-        #     search_list = text.split('\n')
-        #     for word in search_list:
-        #         if word != '' and self.is_insta_username(word):
-        #             return word
 
     def get_followers(self):
         """
@@ -435,15 +405,16 @@ class Insta:
                     if num_updated_div > num_previous_div:
                         did_not_find_more_divs = False
                     else:
-                        self.scroll_into_view(username_links[-1])
+                        logger.info('Scrolling')
+                        scroll_into_view(self.driver, username_links[-1])
                         time.sleep(2)
                         tries += 1
 
                 except StaleElementReferenceException:
+                    logger.error(f'StaleElementReferenceException exception occured while capturing username links')
+                    logger.info("Capturing div containing followers' list")
                     followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
                     time.sleep(2)
-                    # user_divs = followers_div.find_elements(By.TAG_NAME, 'div')
-                    username_links = followers_div.find_elements(By.TAG_NAME, 'a')
     
             
             div_read_start = div_read_end
@@ -462,7 +433,7 @@ class Insta:
                     
             logger.info(f'Total username count: {len(usernames)}')
             logger.info('Scrolling')
-            self.scroll_into_view(username_links[-1])
+            scroll_into_view(self.driver, username_links[-1])
             time.sleep(3)
         
         return usernames
@@ -503,4 +474,8 @@ def bmp_emoji_safe_text(text):
     return ''.join(transformed)
 
 
-
+def scroll_into_view(driver, element):
+    """
+    Scrolls an element into view
+    """
+    driver.execute_script('arguments[0].scrollIntoView()', element)
