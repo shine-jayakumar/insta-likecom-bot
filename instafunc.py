@@ -49,7 +49,7 @@ def retry(func):
         attempt = 1
         status = False
         while not status and attempt < max_tries:
-            print(f'[{func.__name__}]: Attempt - {attempt}')
+            logger.info(f'[{func.__name__}]: Attempt - {attempt}')
             status = func(*args, **kwargs)
             if status == 'skip_retry':
                 status = False
@@ -167,7 +167,7 @@ class Insta:
             self.driver.get(self.targeturl)
             # if unable to load the page
             if not self.is_page_loaded():
-                print("** Open Target **: Unable to load the page. Retrying...")
+                logger.info("[open_target] Unable to load the page. Retrying...")
                 time.sleep(1)
                 return False
 
