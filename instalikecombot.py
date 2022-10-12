@@ -291,7 +291,7 @@ try:
     logger.info("Script finished successfully")
 
 except Exception as ex:
-    logger.error(f"Script ended with error : {str(ex)}", exc_info=1)
+    logger.error(f"Script ended with error : {str(ex)}")
 
 finally:
     if insta:
