@@ -17,7 +17,9 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - [Options](#Options "Options")
 - [Usage](#Usage "Usage")
 - [Examples](#Examples "Examples")
+- [Report a Bug](#Issue "Report an Issue")
 - [License](#LICENSE "License")
+
 
 ## Features
 - Likes and Comments on all the posts for an account/tag
@@ -142,5 +144,9 @@ instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 ```
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
+
+## Issue
+Report a [bug or an issue](https://github.com/shine-jayakumar/insta-likecom-bot/issues/new)
+
 ## LICENSE
 [MIT](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/LICENSE)
