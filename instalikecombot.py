@@ -185,8 +185,8 @@ try:
         raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
 
     logger.info("Login successful")
-    logger.info("Skipping Save Login Info")
-    logger.info(f'Do not save login info: {insta.dont_save_login_info()}')
+    # logger.info("Skipping Save Login Info")
+    # logger.info(f'Do not save login info: {insta.dont_save_login_info()}')
 
     logger.info(f"Opening target {TARGET}")
     if not insta.open_target():
