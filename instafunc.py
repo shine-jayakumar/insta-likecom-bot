@@ -260,7 +260,9 @@ class Insta:
         # retry_count = 0
         # while retry_count < max_retry and not comment_success:
         try:
-            cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//form[@class="_aao9"]/textarea')))
+            
+            cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//form[@class="_aidk"]/textarea')))
+            # cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//form[@class="_aao9"]/textarea')))
             # cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@aria-label="Add a comment…"]')))
             cmt.click()
             cmt.send_keys(cmt_text)
