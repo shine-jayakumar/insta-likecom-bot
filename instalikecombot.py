@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.0
+    insta-likecom-bot v.2.2
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.1'
+VERSION = 'v.2.2'
 
 def display_intro():
 
