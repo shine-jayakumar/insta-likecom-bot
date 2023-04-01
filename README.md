@@ -25,6 +25,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Likes and Comments on all the posts for an account/tag
 - Likes and Comments on posts from followers of an account
 - Specify the number of posts to like
+- Filter post based on tags
 - Comes loaded with generic comments
 - Load your own comments
 - Comments supports emojis (full support with Firefox; only bmp characters with Chrome)
@@ -63,6 +64,9 @@ Optional Arguments
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
 | -ff, --findfollowers | like/comment on posts from target's followers |
+| -mt, --matchtags | read tags to match from a file |
+| -mn, --matchtagnum | minimum tag match count for post to be qualified |
+| -ma, --matchalltags | match all tags in matchtags |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |

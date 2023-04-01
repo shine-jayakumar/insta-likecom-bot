@@ -62,7 +62,7 @@ def retry(func):
 
 
 class Insta:
-    def __init__(self, username, password, timeout=30, browser='chrome', headless=False):
+    def __init__(self, username, password, timeout=30, browser='chrome', headless=False) -> None:
         # current working directory/driver
         self.browser = 'chrome'
         self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
@@ -109,7 +109,7 @@ class Insta:
         self.tag = None
         self.account = None
 
-    def target(self, accountname, tag=False):
+    def target(self, accountname: str, tag: bool=False) -> None:
         """
         Loads the target - account or hastag
         """
@@ -122,7 +122,7 @@ class Insta:
             self.tag = accountname
             self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
 
-    def validate_target(self):
+    def validate_target(self) -> bool:
         """
         Validates the target account or hashtag
         """
@@ -132,7 +132,7 @@ class Insta:
         except:
             return False
 
-    def validate_login(self):
+    def validate_login(self) -> bool:
         """
         Validates login
         """
@@ -151,7 +151,7 @@ class Insta:
 
         return False
 
-    def is_page_loaded(self):
+    def is_page_loaded(self) -> bool:
         """
         Checks if page is loaded successfully
         """
@@ -162,7 +162,7 @@ class Insta:
             return False
 
     @retry
-    def open_target(self):
+    def open_target(self) -> bool:
         """
         Opens the target account or hashtag
         """
@@ -181,7 +181,7 @@ class Insta:
             return False
         return True
 
-    def login(self):
+    def login(self) -> bool:
         """
         Initiates login with username and password
         """
@@ -197,7 +197,7 @@ class Insta:
         return True
 
     @retry
-    def like(self):
+    def like(self) -> bool:
         """
         Likes a post if not liked already
         """
@@ -217,7 +217,7 @@ class Insta:
             return False
         return True
     
-    def wait_until_comment_cleared(self, element, timeout):
+    def wait_until_comment_cleared(self, element, timeout) -> None:
         """
         Waits until the comment textarea is cleared, or until timeout
         """
@@ -227,7 +227,7 @@ class Insta:
         while element.text != '' and (end - start) < timeout:
             end = time.time()
     
-    def is_comment_disabled(self):
+    def is_comment_disabled(self) -> bool:
         """
         Checks if comment is disabled or not
         """
@@ -241,7 +241,7 @@ class Insta:
             return False
 
     @retry
-    def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!'):
+    def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!') -> bool:
         """
         Comments on a post
 
@@ -281,7 +281,7 @@ class Insta:
 
         return True
     
-    def get_number_of_posts(self):
+    def get_number_of_posts(self) -> int:
         """
         Returns number of post for an account or tag
         """
@@ -296,7 +296,7 @@ class Insta:
         except:
             return None
 
-    def click_first_post(self):
+    def click_first_post(self) -> bool:
         """
         Clicks on the first post found for an account
         """
@@ -308,7 +308,7 @@ class Insta:
         except:
             return False
 
-    def dont_save_login_info(self):
+    def dont_save_login_info(self) -> bool:
         """
         Clicks 'Not Now' button when prompted with 'Save Your Login Info?'
         """
@@ -326,7 +326,7 @@ class Insta:
                 logger.error(f'Could not find Not Now button with xpath: {xpath}')
         return False
 
-    def next_post(self): 
+    def next_post(self) -> bool: 
         """
         Moves to the next post
         """
@@ -336,7 +336,7 @@ class Insta:
         except:
             return False
 
-    def is_private(self):
+    def is_private(self) -> bool:
         """
         Checks if an account is private
         """
@@ -352,7 +352,7 @@ class Insta:
             except:
                 logger.info(f'Failed to find text: {text}')
 
-    def quit(self):
+    def quit(self) -> None:
         """
         Quit driver
         """
@@ -455,14 +455,14 @@ class Insta:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return tags
     
-    def get_tag_match_count(self, posttags: List, checktags: List, min_match: int = 3) -> bool:
+    def get_tag_match_count(self, posttags: List, matchtags: List, min_match: int = 3) -> bool:
         """
-        Checks if a minimum number of tags from checklist match
-        the tags in post
+        Checks if a minimum number of tags in matchtags match in
+        tags from post
         """
-        if not all([posttags, checktags]):
+        if not all([posttags, matchtags]):
             return False
-        return sum([tag in posttags for tag in checktags]) >= min_match
+        return sum([tag in posttags for tag in matchtags]) >= min_match
 
 
 def remove_blanks(lst: List) -> List:
@@ -472,7 +472,7 @@ def remove_blanks(lst: List) -> List:
     return [el for el in lst if el != '']
 
 
-def remove_carriage_ret(lst):
+def remove_carriage_ret(lst) -> List:
     """
     Remove carriage return - \r from a list
     """
@@ -491,7 +491,7 @@ def load_comments(fname: str) -> List:
         return comments
 
 
-def load_checktags(fname: str) -> List:
+def load_matchtags(fname: str) -> List:
     """
     Returns list of tags from a file
     """
@@ -499,13 +499,13 @@ def load_checktags(fname: str) -> List:
     try:
         with open(fname, 'r') as fh:
             tags = fh.read().split('\n')
-            tags = [tag.strip() for tag in tags]
+            tags = [tag.strip() for tag in tags if tag != '']
     except Exception as ex:
         logger.error(f'{ex.__class__.__name__} {str(ex)}')
     return tags
 
 
-def bmp_emoji_safe_text(text):
+def bmp_emoji_safe_text(text) -> str:
     """
     Returns bmp emoji safe text
     ChromeDriver only supports bmp emojis - unicode < FFFF
@@ -514,7 +514,7 @@ def bmp_emoji_safe_text(text):
     return ''.join(transformed)
 
 
-def scroll_into_view(driver, element):
+def scroll_into_view(driver, element) -> None:
     """
     Scrolls an element into view
     """

@@ -85,7 +85,11 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
-parser.add_argument('-ct', '--checktags', type=str, metavar='', help='read tags to match from a file')
+
+parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
+match_group = parser.add_mutually_exclusive_group()
+match_group.add_argument('-mn', '--matchtagnum', type=int, metavar='', help='minimum tag match count for post to be qualified')
+match_group.add_argument('-ma', '--matchalltags', action='store_true', help='match all tags in matchtags')
 
 comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
@@ -154,7 +158,15 @@ try:
         COMMENTS = args.onecomment
         logger.info(f'Loading only one comment: {COMMENTS}')
 
-    CHECKTAGS = load_checktags(args.checktags) if args.checktags else []
+    MATCHTAGS = load_matchtags(args.matchtags) if args.matchtags else []
+    MATCH_TAG_CNT = 3
+    if MATCHTAGS:
+        if args.matchtagnum:
+            MATCH_TAG_CNT = args.matchtagnum
+            if MATCH_TAG_CNT > len(MATCHTAGS):
+                raise Exception('Number of tags to match cannot be greater than total number of tags in matchtags')
+        elif args.matchalltags:
+            MATCH_TAG_CNT = len(MATCHTAGS)
     
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -244,6 +256,9 @@ try:
             continue
         logger.info(f'[target: {target}] Account not private')
         
+        logger.info(f'MATCHTAGS: {MATCHTAGS}')
+        logger.info(f'Match at least: {MATCH_TAG_CNT} tag(s)')
+        
         # open first post
         logger.info(f'[target: {target}] Opening first post')
         insta.click_first_post()
@@ -260,11 +275,14 @@ try:
 
         # loop to like and comment
         while post < no_of_posts_to_like:
-            
-            if CHECKTAGS:
+
+            if MATCHTAGS:
+                # get tags from post
                 posttags = insta.get_post_tags()
                 logger.info(f'Tags: {posttags}')
-                if not insta.get_tag_match_count(posttags=posttags, checktags=CHECKTAGS):
+
+                # minimum tag match
+                if not insta.get_tag_match_count(posttags=posttags, matchtags=MATCHTAGS, min_match=MATCH_TAG_CNT):
                     logger.info('Irrelavent post')
                     logger.info(f"[target: {target}] Moving on to the next post")
                     insta.next_post()
