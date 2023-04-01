@@ -63,10 +63,10 @@ description = "Automates likes and comments on an instagram account or tag"
 usage = "instalikecombot.py [-h] [-u --username] [-p --password] [-t --target] [-le --loadenv] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY] [-hl --headless]"
 examples="""
 Examples:
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk -np 20
-instalikecombot.py bob101 b@bpassw0rd1 #haiku -ps "Follow me @bob101" -c mycomments.txt
-instalikecombot.py bob101 b@bpassw0rd1 elonmusk --delay 5 --numofposts 30 --headless
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t '#haiku' -ps "Follow me @bob101" -c mycomments.txt
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30 --headless
 instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 """
 parser = argparse.ArgumentParser(
@@ -85,6 +85,7 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
+parser.add_argument('-ct', '--checktags', type=str, metavar='', help='read tags to match from a file')
 
 comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
@@ -152,6 +153,8 @@ try:
     elif args.onecomment:
         COMMENTS = args.onecomment
         logger.info(f'Loading only one comment: {COMMENTS}')
+
+    CHECKTAGS = load_checktags(args.checktags) if args.checktags else []
     
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -257,6 +260,17 @@ try:
 
         # loop to like and comment
         while post < no_of_posts_to_like:
+            
+            if CHECKTAGS:
+                posttags = insta.get_post_tags()
+                logger.info(f'Tags: {posttags}')
+                if not insta.get_tag_match_count(posttags=posttags, checktags=CHECKTAGS):
+                    logger.info('Irrelavent post')
+                    logger.info(f"[target: {target}] Moving on to the next post")
+                    insta.next_post()
+                    time.sleep(DELAY or randint(1,10))                    
+                    continue
+            
             logger.info(f"[target: {target}] Liking post: {post + 1}")
             insta.like()
 

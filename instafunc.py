@@ -32,6 +32,8 @@ import time
 from sys import platform
 
 from applogger import AppLogger
+from typing import List
+
 
 logger = AppLogger(__name__).getlogger()
 
@@ -370,7 +372,7 @@ class Insta:
         username = username.split('/')[1]
         return username
 
-    def get_followers(self):
+    def get_followers(self) -> List:
         """
         Gets followers from the target's page
         This function is still under development - DO NOT USE
@@ -440,9 +442,30 @@ class Insta:
             time.sleep(3)
         
         return usernames
+    
+    def get_post_tags(self) -> List:
+        """
+        Gets tags present in current post
+        """
+        tags = []
+        try:
+            tags_links = self.driver.find_elements(By.XPATH, '//a[contains(@href, "/explore/tags")]')
+            tags = [taglink.text for taglink in tags_links]
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return tags
+    
+    def get_tag_match_count(self, posttags: List, checktags: List, min_match: int = 3) -> bool:
+        """
+        Checks if a minimum number of tags from checklist match
+        the tags in post
+        """
+        if not all([posttags, checktags]):
+            return False
+        return sum([tag in posttags for tag in checktags]) >= min_match
 
 
-def remove_blanks(lst):
+def remove_blanks(lst: List) -> List:
     """
     Removes empty elements from a list
     """
@@ -456,7 +479,7 @@ def remove_carriage_ret(lst):
     return list(map(lambda el: el.replace('\r',''), lst))
 
 
-def load_comments(fname):
+def load_comments(fname: str) -> List:
     """
     Reads comments from a file and returns a list of comments
     """
@@ -466,6 +489,20 @@ def load_comments(fname):
         comments = remove_carriage_ret(lines)
         comments = remove_blanks(comments)
         return comments
+
+
+def load_checktags(fname: str) -> List:
+    """
+    Returns list of tags from a file
+    """
+    tags = []
+    try:
+        with open(fname, 'r') as fh:
+            tags = fh.read().split('\n')
+            tags = [tag.strip() for tag in tags]
+    except Exception as ex:
+        logger.error(f'{ex.__class__.__name__} {str(ex)}')
+    return tags
 
 
 def bmp_emoji_safe_text(text):
