@@ -85,6 +85,7 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
+parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='number of followers to process (default=all)', default=None)
 
 parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
 match_group = parser.add_mutually_exclusive_group()
@@ -209,7 +210,7 @@ try:
         raise Exception(f"Invalid tag or account : {TARGET}")
     
     if args.findfollowers:
-        followers = insta.get_followers()
+        followers = insta.get_followers(args.followersamount)
         logger.info(followers)
         logger.info(f'Found {len(followers)} followers')
         target_list = followers
