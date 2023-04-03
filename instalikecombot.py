@@ -168,6 +168,9 @@ try:
                 raise Exception('Number of tags to match cannot be greater than total number of tags in matchtags')
         elif args.matchalltags:
             MATCH_TAG_CNT = len(MATCHTAGS)
+
+        logger.info(f'MATCHTAGS: {MATCHTAGS}')
+        logger.info(f'Match at least: {MATCH_TAG_CNT} tag(s)')
     
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -210,6 +213,7 @@ try:
         raise Exception(f"Invalid tag or account : {TARGET}")
     
     if args.findfollowers:
+        logger.info(f'Finding followers of {args.target}')
         followers = insta.get_followers(args.followersamount)
         logger.info(followers)
         logger.info(f'Found {len(followers)} followers')
@@ -257,8 +261,6 @@ try:
             continue
         logger.info(f'[target: {target}] Account not private')
         
-        logger.info(f'MATCHTAGS: {MATCHTAGS}')
-        logger.info(f'Match at least: {MATCH_TAG_CNT} tag(s)')
         
         # open first post
         logger.info(f'[target: {target}] Opening first post')

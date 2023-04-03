@@ -375,8 +375,10 @@ class Insta:
     def get_followers(self, amount: int = None) -> List:
         """
         Gets followers from the target's page
-        This function is still under development - DO NOT USE
         """
+        if amount:
+            logger.info(f'Restricting followers search to: {amount}')
+            
         logger.info('Opening followers list')
         self.wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "/followers")]'))).click()
         followers_div = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_aano"]/div/div')))
