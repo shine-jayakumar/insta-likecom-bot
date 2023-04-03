@@ -372,7 +372,7 @@ class Insta:
         username = username.split('/')[1]
         return username
 
-    def get_followers(self) -> List:
+    def get_followers(self, amount: int = None) -> List:
         """
         Gets followers from the target's page
         This function is still under development - DO NOT USE
@@ -392,7 +392,9 @@ class Insta:
 
         time.sleep(3)
 
-        while(num_updated_div > num_previous_div):    
+        running = True
+
+        while(num_updated_div > num_previous_div and running):    
 
             logger.info('Getting updated list of username divs')
             username_links = None
@@ -435,6 +437,11 @@ class Insta:
                 # add found username to the list
                 if username and username not in usernames:
                     usernames.append(username)
+
+                # check if we have reached the desired amount
+                if amount is not None and len(usernames) >= amount:
+                    running = False
+                    break
                     
             logger.info(f'Total username count: {len(usernames)}')
             logger.info('Scrolling')

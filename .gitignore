@@ -3,3 +3,4 @@ __pycache__
 driver
 .env
 env
+venv
