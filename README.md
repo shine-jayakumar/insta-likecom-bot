@@ -64,6 +64,7 @@ Optional Arguments
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
 | -ff, --findfollowers | like/comment on posts from target's followers |
+| -fa, --followersamount | number of followers to process (default=all) |
 | -mt, --matchtags | read tags to match from a file |
 | -mn, --matchtagnum | minimum tag match count for post to be qualified |
 | -ma, --matchalltags | match all tags in matchtags |
