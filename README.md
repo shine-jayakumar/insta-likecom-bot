@@ -41,6 +41,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Comments supports emojis (full support with Firefox; only bmp characters with Chrome)
 - Add a PS to the comments
 - Skip comments and just like a post
+- Like comments from other users
 - Build in random time delays
 - Specify time delays after each post
 - Supports Chrome and Firefox
@@ -73,6 +74,7 @@ Optional Arguments
 | -c , --comments | file containing comments (one comment per line) |
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
+| -lc, --likecomments | like top n user comments per post |
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
 | -mt, --matchtags | read tags to match from a file |
@@ -123,6 +125,11 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -ps TEXT
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -nc
 ```
 
+**To like comments from other users**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls 5
+```
+
 **To specify a browser**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -br firefox
@@ -155,9 +162,15 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 
 ```
 instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 ```
-**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell/Bash.**
+```
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5
+```
+**Note: Enclose tagnames (#haiku) in double-quotes/single-quotes when running the script in PowerShell/Bash.**
 ```
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+```
+```
+instalikecombot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
 
 ## Issue
