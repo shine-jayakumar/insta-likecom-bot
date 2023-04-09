@@ -24,15 +24,18 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.remote.webelement import WebElement
 
+from selenium.webdriver import ActionChains
+
 # Added for FireFox support
 from webdriver_manager.firefox import GeckoDriverManager
+
 
 import os
 import time
 from sys import platform
 
 from applogger import AppLogger
-from typing import List
+from typing import List, Tuple
 
 
 logger = AppLogger(__name__).getlogger()
@@ -102,6 +105,8 @@ class Insta:
                 options=options)
 
         self.wait = WebDriverWait(self.driver, timeout)
+        self.ac = ActionChains(self.driver)
+
         self.baseurl = "https://www.instagram.com"
         self.targeturl = self.baseurl
         self.username = username
@@ -472,6 +477,43 @@ class Insta:
         if not all([posttags, matchtags]):
             return False
         return sum([tag in posttags for tag in matchtags]) >= min_match
+
+    def get_post_comment_elements(self) -> List:
+        """
+        Returns list of comment elements for a post
+        """
+        comments = []
+        try:
+            self.wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return comments
+
+    def get_user_and_comment_from_element(self, comment_el) -> Tuple:
+        """
+        Returns username and their comment from a comment element
+        """
+        username = ''
+        comment = ''
+        try:
+            username = comment_el.find_element(By.CSS_SELECTOR, '._a9zc').text
+            comment = comment_el.find_element(By.CSS_SELECTOR, '._a9zs').text
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return (username, comment)
+    
+    def like_comment(self, comment_el) -> bool:
+        """
+        Likes a post comment
+        """
+        try:
+            self.ac.double_click(comment_el).perform()
+            return True
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return False
+
+
 
 
 def remove_blanks(lst: List) -> List:
