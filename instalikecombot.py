@@ -345,7 +345,7 @@ try:
 
 except Exception as ex:
     logger.error(f"Script ended with error")
-    logger.error(f'{ex.__class__.__name__} - {str(ex)}')
+    logger.error(f'{ex.__class__.__name__} - {str(ex)}', exc_info=1)
 
 finally:
     if insta:

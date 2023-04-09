@@ -500,22 +500,19 @@ class Insta:
         """
         Likes post comments
         """
-        # @retry
-        # def comment_like(el):
-        #     try:
-        #         el.find_element(By.CSS_SELECTOR, '._aamf').click()
-        #         return True
-        #     except Exception as ex:
-        #         return False
-
-        comment_elements = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
+        wait = WebDriverWait(self.driver, 5)
+        try:
+            comment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
+        except Exception:
+            logger.error(f'Comments could not be found')
+            return []
+        
         if not comment_elements:
             return []
+        
         successful_comments = []
         try:
             for com_el in comment_elements[:max_comments]:
-                # self.ac.double_click(com_el).perform()
-                # comment_like(com_el)
                 com_el.find_element(By.CSS_SELECTOR, '._aamf').click()
                 successful_comments.append(self.get_user_and_comment_from_element(com_el))    
                 time.sleep(0.5)
