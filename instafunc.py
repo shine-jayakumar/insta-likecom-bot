@@ -24,15 +24,19 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.remote.webelement import WebElement
 
+from selenium.webdriver import ActionChains
+
 # Added for FireFox support
 from webdriver_manager.firefox import GeckoDriverManager
+
 
 import os
 import time
 from sys import platform
 
 from applogger import AppLogger
-from typing import List
+from typing import List, Tuple
+from functools import wraps
 
 
 logger = AppLogger(__name__).getlogger()
@@ -46,6 +50,7 @@ def retry(func):
     Adds retry functionality to functions
     """
     # wrapper function
+    @wraps(func)
     def wrapper(*args, **kwargs):
         max_tries = 5
         attempt = 1
@@ -102,6 +107,8 @@ class Insta:
                 options=options)
 
         self.wait = WebDriverWait(self.driver, timeout)
+        self.ac = ActionChains(self.driver)
+
         self.baseurl = "https://www.instagram.com"
         self.targeturl = self.baseurl
         self.username = username
@@ -234,7 +241,7 @@ class Insta:
         try:
             # self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="Comments on this post have been limited."]')))
             wait = WebDriverWait(self.driver, timeout=1)
-            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_ae63"]/div')))
+            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="_ae63"]')))
             self.comment_disabled = True
             return True
         except:
@@ -472,6 +479,46 @@ class Insta:
         if not all([posttags, matchtags]):
             return False
         return sum([tag in posttags for tag in matchtags]) >= min_match
+
+    def get_user_and_comment_from_element(self, comment_el) -> Tuple:
+        """
+        Returns username and their comment from a comment element
+        """
+        if not comment_el:
+            return ('','')
+    
+        username = ''
+        comment = ''
+        try:
+            username = comment_el.find_element(By.CSS_SELECTOR, '._a9zc').text
+            comment = comment_el.find_element(By.CSS_SELECTOR, '._a9zs').text
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return (username, comment)
+    
+    def like_comments(self, max_comments: int = 5) -> List[Tuple]:
+        """
+        Likes post comments
+        """
+        wait = WebDriverWait(self.driver, 5)
+        try:
+            comment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
+        except Exception:
+            logger.error(f'Comments could not be found')
+            return []
+        
+        if not comment_elements:
+            return []
+        
+        successful_comments = []
+        try:
+            for com_el in comment_elements[:max_comments]:
+                com_el.find_element(By.CSS_SELECTOR, '._aamf').click()
+                successful_comments.append(self.get_user_and_comment_from_element(com_el))    
+                time.sleep(0.5)
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return successful_comments
 
 
 def remove_blanks(lst: List) -> List:

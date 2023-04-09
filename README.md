@@ -2,6 +2,14 @@
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
 ![Version](https://img.shields.io/static/v1?label=version&message=v.2.1&color=blue)
+![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
+![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
+![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
+![LastCommit](https://img.shields.io/github/last-commit/shine-jayakumar/insta-likecom-bot)
+![TotalCommits](https://badgen.net/github/commits/shine-jayakumar/insta-likecom-bot)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/shine-jayakumar/insta-likecom-bot/issues)
+
+
 ### Automates likes and comments on an instagram account or tag
 
 
@@ -20,6 +28,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - [Examples](#Examples "Examples")
 - [Report a Bug](#Issue "Report an Issue")
 - [License](#LICENSE "License")
+- [Donations](#Donations "Donations")
 
 
 ## Features
@@ -32,6 +41,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Comments supports emojis (full support with Firefox; only bmp characters with Chrome)
 - Add a PS to the comments
 - Skip comments and just like a post
+- Like comments from other users
 - Build in random time delays
 - Specify time delays after each post
 - Supports Chrome and Firefox
@@ -64,6 +74,7 @@ Optional Arguments
 | -c , --comments | file containing comments (one comment per line) |
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
+| -lc, --likecomments | like top n user comments per post |
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
 | -mt, --matchtags | read tags to match from a file |
@@ -114,6 +125,11 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -ps TEXT
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -nc
 ```
 
+**To like comments from other users**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls 5
+```
+
 **To specify a browser**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -br firefox
@@ -146,9 +162,15 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 
 ```
 instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 ```
-**Note: Enclose tagnames (#haiku) in double-quotes when running the script in PowerShell/Bash.**
+```
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5
+```
+**Note: Enclose tagnames (#haiku) in double-quotes/single-quotes when running the script in PowerShell/Bash.**
 ```
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+```
+```
+instalikecombot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
 
 ## Issue
@@ -156,3 +178,6 @@ Report a [bug or an issue](https://github.com/shine-jayakumar/insta-likecom-bot/
 
 ## LICENSE
 [MIT](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/LICENSE)
+
+## Donations
+<a href="https://www.buymeacoffee.com/shinej" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 200px !important;" ></a>

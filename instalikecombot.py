@@ -86,6 +86,7 @@ parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of
 parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
 parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='number of followers to process (default=all)', default=None)
+parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
 
 parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
 match_group = parser.add_mutually_exclusive_group()
@@ -172,6 +173,11 @@ try:
         logger.info(f'MATCHTAGS: {MATCHTAGS}')
         logger.info(f'Match at least: {MATCH_TAG_CNT} tag(s)')
     
+
+    LIKE_NCOMMENTS = args.likecomments if args.likecomments else 0
+    if LIKE_NCOMMENTS:
+        logger.info(f'Max. comments to like: {LIKE_NCOMMENTS}')
+
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
 
@@ -295,6 +301,17 @@ try:
             logger.info(f"[target: {target}] Liking post: {post + 1}")
             insta.like()
 
+            # Added as per issue # 35
+            # liking user comments
+            if LIKE_NCOMMENTS:
+                successful_comments = insta.like_comments(max_comments=LIKE_NCOMMENTS)
+                if successful_comments:
+                    for username, comment in successful_comments:
+                        logger.info(f'[target: {target}] Liked [({username}) - {comment}]')
+                else:
+                    logger.info('No comments found for this post')
+
+                    
             comment_disabled = True
             comment_disabled = insta.is_comment_disabled()
             logger.info(f'[target: {target}] Comment disabled? {"Yes" if comment_disabled else "No"}')
@@ -314,6 +331,7 @@ try:
                 logger.info(f"[target: {target}] Commenting on the post")
                 if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
                     logger.info(f'[target: {target}] Commented: {random_comment}')
+            
 
             logger.info(f"[target: {target}] Moving on to the next post")
             insta.next_post()
@@ -326,7 +344,8 @@ try:
     logger.info("Script finished successfully")
 
 except Exception as ex:
-    logger.error(f"Script ended with error : {str(ex)}")
+    logger.error(f"Script ended with error")
+    logger.error(f'{ex.__class__.__name__} - {str(ex)}', exc_info=1)
 
 finally:
     if insta:
