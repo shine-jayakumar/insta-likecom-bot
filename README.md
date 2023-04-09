@@ -20,6 +20,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - [Examples](#Examples "Examples")
 - [Report a Bug](#Issue "Report an Issue")
 - [License](#LICENSE "License")
+- [Donations](#Donations "Donations")
 
 
 ## Features
@@ -156,3 +157,6 @@ Report a [bug or an issue](https://github.com/shine-jayakumar/insta-likecom-bot/
 
 ## LICENSE
 [MIT](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/LICENSE)
+
+## Donations
+<a href="https://www.buymeacoffee.com/shinej" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 200px !important;" ></a>
