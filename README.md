@@ -2,6 +2,14 @@
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
 ![Version](https://img.shields.io/static/v1?label=version&message=v.2.1&color=blue)
+![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
+![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
+![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
+![LastCommit](https://img.shields.io/github/last-commit/shine-jayakumar/insta-likecom-bot)
+![TotalCommits](https://badgen.net/github/commits/shine-jayakumar/insta-likecom-bot)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/shine-jayakumar/insta-likecom-bot/issues)
+
+
 ### Automates likes and comments on an instagram account or tag
 
 
