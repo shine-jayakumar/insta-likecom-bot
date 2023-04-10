@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.2.2
+    insta-likecom-bot v.2.3
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -31,12 +31,15 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 
 import os
+import re
 import time
+from datetime import datetime
 from sys import platform
 
 from applogger import AppLogger
 from typing import List, Tuple
 from functools import wraps
+
 
 
 logger = AppLogger(__name__).getlogger()
@@ -500,11 +503,20 @@ class Insta:
         """
         Likes post comments
         """
+        def comment_not_liked(com_el):
+            """ Check if like button is not already clicked """
+            try:
+                # like button svg
+                return com_el.find_element(By.CSS_SELECTOR, '._aamf svg')\
+                    .get_attribute('aria-label').lower() == 'like'
+            except Exception as ex:
+                logger.error(str(ex))
+                return False
+            
         wait = WebDriverWait(self.driver, 5)
         try:
             comment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
         except Exception:
-            logger.error(f'Comments could not be found')
             return []
         
         if not comment_elements:
@@ -512,13 +524,50 @@ class Insta:
         
         successful_comments = []
         try:
-            for com_el in comment_elements[:max_comments]:
-                com_el.find_element(By.CSS_SELECTOR, '._aamf').click()
-                successful_comments.append(self.get_user_and_comment_from_element(com_el))    
-                time.sleep(0.5)
+            total_comments_liked = 0
+            for com_el in comment_elements:
+                if comment_not_liked(com_el):
+                    # like button
+                    com_el.find_element(By.CSS_SELECTOR, '._aamf').click()
+                    successful_comments.append(self.get_user_and_comment_from_element(com_el))    
+                    total_comments_liked += 1
+                    time.sleep(0.5)
+                else:
+                    user,comment = self.get_user_and_comment_from_element(com_el)
+                    logger.info(f'Already Liked: [({user}) - {comment}]')
+                if total_comments_liked == max_comments: break
+
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return successful_comments
+
+    def get_post_date(self) -> Tuple[str,float]:
+        """
+        Returns post date (%Y-%m-%d %H:%M:%S, timestamp)
+        """
+        try:
+            dt = self.driver.find_element(By.XPATH, '//time[@class="_aaqe"]').get_attribute('datetime')
+            if not dt:
+                logger.error('Date not found (xpath: //time[@class="_aaqe"])')
+                return ('','')
+            # %Y-%m-%d %H:%M:%S
+            fmt_dt = re.sub(r'(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}).+', r'\1 \2', dt)
+            ts = datetime.strptime(fmt_dt, '%Y-%m-%d %H:%M:%S').timestamp()
+            return (fmt_dt, ts)
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return ('','')
+
+    def post_within_last(self, ts: float, multiplier: int, tparam: str = 'd') -> bool:
+        """
+        Checks if the post is within last n days
+        """
+        if not ts:
+            return False
+        if tparam.lower() == 'd':
+            current_ts = datetime.now().timestamp()
+            return current_ts - ts <= multiplier*60*60*24
+        return False
 
 
 def remove_blanks(lst: List) -> List:

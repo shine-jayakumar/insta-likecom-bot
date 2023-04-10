@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.3
+    insta-likecom-bot v.2.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.3'
+VERSION = 'v.2.4'
 
 def display_intro():
 
@@ -87,6 +87,7 @@ parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additiona
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
 parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='number of followers to process (default=all)', default=None)
 parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
+parser.add_argument('-il', '--inlast', type=int, metavar='', help='Target post within last n days (default=all)')
 
 parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
 match_group = parser.add_mutually_exclusive_group()
@@ -177,6 +178,9 @@ try:
     LIKE_NCOMMENTS = args.likecomments if args.likecomments else 0
     if LIKE_NCOMMENTS:
         logger.info(f'Max. comments to like: {LIKE_NCOMMENTS}')
+
+    # multipler*secs*mins*hours
+    INLAST = args.inlast if args.inlast else None
 
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -298,6 +302,15 @@ try:
                     time.sleep(DELAY or randint(1,10))                    
                     continue
             
+            if INLAST:
+                # get post date
+                postdate, ts = insta.get_post_date()
+                if not insta.post_within_last(ts=ts, multiplier=INLAST):
+                    logger.info(f'Post [{postdate}] is older than {INLAST} day(s). Skipping')
+                    insta.next_post()
+                    time.sleep(DELAY or randint(1,10))
+                    continue
+
             logger.info(f"[target: {target}] Liking post: {post + 1}")
             insta.like()
 
