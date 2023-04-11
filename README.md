@@ -36,7 +36,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Likes and Comments on posts from followers of an account
 - Specify the number of posts to like
 - Filter post based on tags
-- Filter posts within last n days
+- Filter posts within last n years, months, days, hours, mins, secs
 - Comes loaded with generic comments
 - Load your own comments
 - Comments supports emojis (full support with Firefox; only bmp characters with Chrome)
@@ -78,7 +78,7 @@ Optional Arguments
 | -lc, --likecomments | like top n user comments per post |
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
-| -il, --inlast | Target post within last n days (default=all) |
+| -il, --inlast | Target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
 | -mt, --matchtags | read tags to match from a file |
 | -mn, --matchtagnum | minimum tag match count for post to be qualified |
 | -ma, --matchalltags | match all tags in matchtags |
@@ -134,7 +134,15 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls 5
 ```
 **To filter posts within last 2 days**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 2
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 2d
+```
+**To filter posts within last 5 months**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 5M
+```
+**To filter posts within last 3 years**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 3y
 ```
 **To target most recent posts**
 ```
@@ -177,7 +185,7 @@ instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 -il 3
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 -il 3h
 ```
 **Note: Enclose tagnames (#haiku) in double-quotes/single-quotes when running the script in PowerShell/Bash.**
 ```

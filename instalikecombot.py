@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.5
+    insta-likecom-bot v.2.6
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.5'
+VERSION = 'v.2.6'
 
 def display_intro():
 
@@ -68,6 +68,7 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t '#haiku' -ps "Follow me @bob101" -c mycomments.txt
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30 --headless
 instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --inlast 3M
 """
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -87,7 +88,7 @@ parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additiona
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
 parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='number of followers to process (default=all)', default=None)
 parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
-parser.add_argument('-il', '--inlast', type=int, metavar='', help='Target post within last n days (default=all)')
+parser.add_argument('-il', '--inlast', type=str, metavar='', help='Target post within last n years (y), months (M), days (d), hours (h), mins (m), secs (s)')
 
 parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
 match_group = parser.add_mutually_exclusive_group()
@@ -181,11 +182,16 @@ try:
     if LIKE_NCOMMENTS:
         logger.info(f'Max. comments to like: {LIKE_NCOMMENTS}')
 
-    # multipler*secs*mins*hours
-    INLAST = args.inlast if args.inlast else None
 
     if args.mostrecent:
         logger.info('Targetting most recent posts')
+    
+    INLAST_MULTIPLIER, INLAST_TPARAM = (None, None)
+    if args.inlast:
+        INLAST_MULTIPLIER, INLAST_TPARAM = parse_inlast(args.inlast)
+        if not all([INLAST_MULTIPLIER, INLAST_TPARAM]):
+            raise Exception('Invalid inlast value')
+        logger.info(f'Filtering posts posted within last {args.inlast}')
 
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -313,11 +319,12 @@ try:
                     time.sleep(DELAY or randint(1,10))                    
                     continue
             
-            if INLAST:
+            if args.inlast:
                 # get post date
                 postdate, ts = insta.get_post_date()
-                if not insta.post_within_last(ts=ts, multiplier=INLAST):
-                    logger.info(f'Post [{postdate}] is older than {INLAST} day(s). Skipping')
+                
+                if not insta.post_within_last(ts=ts, multiplier=INLAST_MULTIPLIER, tparam=INLAST_TPARAM):
+                    logger.info(f'Post [{postdate}] is older than {INLAST_MULTIPLIER} {TParam[INLAST_TPARAM].value}{"s" if INLAST_MULTIPLIER>1 else ""}. Skipping')
                     insta.next_post()
                     time.sleep(DELAY or randint(1,10))
                     continue
@@ -368,7 +375,7 @@ try:
 
 except Exception as ex:
     logger.error(f"Script ended with error")
-    logger.error(f'{ex.__class__.__name__} - {str(ex)}', exc_info=1)
+    logger.error(f'Error: [{ex.__class__.__name__}] - {str(ex)}')
 
 finally:
     if insta:

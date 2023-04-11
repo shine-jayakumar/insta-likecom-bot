@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.2.4
+    insta-likecom-bot v.2.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -39,13 +39,32 @@ from sys import platform
 from applogger import AppLogger
 from typing import List, Tuple
 from functools import wraps
-
+from enum import Enum
 
 
 logger = AppLogger(__name__).getlogger()
 
 # suppress webdriver manager logs
 os.environ['WDM_LOG_LEVEL'] = '0'
+
+
+class Seconds(Enum):
+    Year: int = 31536000
+    Month: int = 2592000
+    Day: int = 86400
+    Hour: int = 3600
+    Min: int = 60
+    Sec: int = 1
+
+
+class TParam(Enum):
+    y: str = 'year'
+    M: str = 'month'
+    d: str = 'day'
+    h: str = 'hour'
+    m: str = 'min'
+    s: str = 'sec'
+
 
 
 def retry(func):
@@ -573,17 +592,23 @@ class Insta:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return ('','')
 
-    def post_within_last(self, ts: float, multiplier: int, tparam: str = 'd') -> bool:
+    def post_within_last(self, ts: float, multiplier: int, tparam: str) -> bool:
         """
         Checks if the post is within last n days
         """
         if not ts:
             return False
-        if tparam.lower() == 'd':
-            current_ts = datetime.now().timestamp()
-            return current_ts - ts <= multiplier*60*60*24
-        return False
+        current_ts = datetime.utcnow().timestamp()
+ 
+        if tparam == 'y': return current_ts - ts <= multiplier * Seconds.Year.value
+        if tparam == 'M': return current_ts - ts <= multiplier * Seconds.Month.value
+        if tparam == 'd': return current_ts - ts <= multiplier * Seconds.Day.value
+        if tparam == 'h': return current_ts - ts <= multiplier * Seconds.Hour.value
+        if tparam == 'm': return current_ts - ts <= multiplier * Seconds.Min.value
+        if tparam == 's': return current_ts - ts <= multiplier * Seconds.Sec.value
 
+        return False
+    
 
 def remove_blanks(lst: List) -> List:
     """
@@ -639,3 +664,31 @@ def scroll_into_view(driver, element) -> None:
     Scrolls an element into view
     """
     driver.execute_script('arguments[0].scrollIntoView()', element)
+
+
+def parse_inlast(inlast: str) -> tuple:
+        """
+        Parses inlast value and returns (multiplier, tparam)
+        tparams: 
+            y -> year
+            M -> month
+            d -> day
+            h -> hour
+            m -> min
+            s -> sec
+        Ex: inlast -> 1h
+            multiplier -> 1; tparam: h
+        """
+        if not inlast:
+            return ()
+        
+        multiplier, tparam = (None,None)
+        try:
+            match = re.match(r'(\d+)(y|M|d|h|m|s)', inlast)
+            if not match:
+                return ()
+            multiplier, tparam = match.groups()
+            multiplier = int(multiplier)
+        except:
+            return ()
+        return (multiplier, tparam)
