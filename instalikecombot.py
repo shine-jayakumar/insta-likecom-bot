@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.4
+    insta-likecom-bot v.2.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.4'
+VERSION = 'v.2.5'
 
 def display_intro():
 
@@ -98,6 +98,8 @@ comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
 comments_group.add_argument('-oc', '--onecomment', type=str, metavar='', help='specify only one comment')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
+
+parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
 
 parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
 
@@ -181,6 +183,9 @@ try:
 
     # multipler*secs*mins*hours
     INLAST = args.inlast if args.inlast else None
+
+    if args.mostrecent:
+        logger.info('Targetting most recent posts')
 
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
@@ -274,7 +279,13 @@ try:
         
         # open first post
         logger.info(f'[target: {target}] Opening first post')
-        insta.click_first_post()
+        if args.mostrecent:
+            # if not able to open find most recent
+            if not insta.click_first_post_most_recent(): 
+                logger.info('Unable to find most recent posts. Continuing with top posts.')
+                insta.click_first_post()
+        else:
+            insta.click_first_post()
 
         post = 0
 
@@ -313,7 +324,7 @@ try:
 
             logger.info(f"[target: {target}] Liking post: {post + 1}")
             insta.like()
-
+            
             # Added as per issue # 35
             # liking user comments
             if LIKE_NCOMMENTS:
@@ -345,7 +356,6 @@ try:
                 if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
                     logger.info(f'[target: {target}] Commented: {random_comment}')
             
-
             logger.info(f"[target: {target}] Moving on to the next post")
             insta.next_post()
             # delay specified in --delay or random delay
