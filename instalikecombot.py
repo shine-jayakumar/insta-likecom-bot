@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.4
+    insta-likecom-bot v.2.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.4'
+VERSION = 'v.2.5'
 
 def display_intro():
 
@@ -186,7 +186,7 @@ try:
 
     if args.mostrecent:
         logger.info('Targetting most recent posts')
-        
+
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
 
@@ -356,7 +356,6 @@ try:
                 if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
                     logger.info(f'[target: {target}] Commented: {random_comment}')
             
-
             logger.info(f"[target: {target}] Moving on to the next post")
             insta.next_post()
             # delay specified in --delay or random delay
