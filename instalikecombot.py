@@ -99,6 +99,8 @@ comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file
 comments_group.add_argument('-oc', '--onecomment', type=str, metavar='', help='specify only one comment')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
 
+parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
+
 parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
 
 parser.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
@@ -274,7 +276,10 @@ try:
         
         # open first post
         logger.info(f'[target: {target}] Opening first post')
-        insta.click_first_post()
+        if args.mostrecent:
+            insta.click_first_post_most_recent()
+        else:
+            insta.click_first_post()
 
         post = 0
 
@@ -313,7 +318,7 @@ try:
 
             logger.info(f"[target: {target}] Liking post: {post + 1}")
             insta.like()
-
+            
             # Added as per issue # 35
             # liking user comments
             if LIKE_NCOMMENTS:

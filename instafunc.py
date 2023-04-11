@@ -318,6 +318,21 @@ class Insta:
         except:
             return False
 
+    def click_first_post_most_recent(self) -> bool:
+        """
+        Clicks on the first post under most recent
+        """
+        try:
+            # most recent div
+            most_recent_div_el = self.wait.until(EC.presence_of_element_located(
+                (By.XPATH, '//h2[contains(text(),"Most recent")]//following-sibling::div')))
+            # first post
+            most_recent_div_el.find_element(By.CSS_SELECTOR, '._aagw').click()
+            return True
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+            return False
+
     def dont_save_login_info(self) -> bool:
         """
         Clicks 'Not Now' button when prompted with 'Save Your Login Info?'
