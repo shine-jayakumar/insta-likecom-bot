@@ -82,6 +82,7 @@ Optional Arguments
 | -mt, --matchtags | read tags to match from a file |
 | -mn, --matchtagnum | minimum tag match count for post to be qualified |
 | -ma, --matchalltags | match all tags in matchtags |
+| -mr, --mostrecent | target most recent posts |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
@@ -134,6 +135,10 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls 5
 **To filter posts within last 2 days**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 2
+```
+**To target most recent posts**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -mr
 ```
 
 **To specify a browser**

@@ -184,6 +184,9 @@ try:
     # multipler*secs*mins*hours
     INLAST = args.inlast if args.inlast else None
 
+    if args.mostrecent:
+        logger.info('Targetting most recent posts')
+        
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
 
@@ -277,7 +280,10 @@ try:
         # open first post
         logger.info(f'[target: {target}] Opening first post')
         if args.mostrecent:
-            insta.click_first_post_most_recent()
+            # if not able to open find most recent
+            if not insta.click_first_post_most_recent(): 
+                logger.info('Unable to find most recent posts. Continuing with top posts.')
+                insta.click_first_post()
         else:
             insta.click_first_post()
 
