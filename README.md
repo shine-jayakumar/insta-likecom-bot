@@ -26,6 +26,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - [Options](#Options "Options")
 - [Usage](#Usage "Usage")
 - [Examples](#Examples "Examples")
+- [Version Updates](#Version-Updates "Version Updates")
 - [Report a Bug](#Issue "Report an Issue")
 - [License](#LICENSE "License")
 - [Donations](#Donations "Donations")
@@ -214,6 +215,14 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101"
 ```
 instalikecombot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
+## Version Updates
+Version **v.2.7** (latest)
+
+Feature addition:
+- added option -ls, --likestory - to like stories
+- added option -cs, --commentstory - to comment on stories
+- added option -rr, --reloadrepeat - to reload target n times
+
 
 ## Issue
 Report a [bug or an issue](https://github.com/shine-jayakumar/insta-likecom-bot/issues/new)
