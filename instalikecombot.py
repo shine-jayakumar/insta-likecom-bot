@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.6
+    insta-likecom-bot v.2.7
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -29,7 +29,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.6'
+VERSION = 'v.2.7'
 
 def display_intro():
 
@@ -88,7 +88,13 @@ parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additiona
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
 parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='number of followers to process (default=all)', default=None)
 parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
-parser.add_argument('-il', '--inlast', type=str, metavar='', help='Target post within last n years (y), months (M), days (d), hours (h), mins (m), secs (s)')
+parser.add_argument('-il', '--inlast', type=str, metavar='', help='target post within last n years (y), months (M), days (d), hours (h), mins (m), secs (s)')
+
+parser.add_argument('-ls', '--likestory', action='store_true', help='like stories')
+parser.add_argument('-cs', '--commentstory', action='store_true', help='comments on stories (no comments if option not used)')
+
+parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
+parser.add_argument('-rr', '--reloadrepeat', type=int, metavar='', help='reload the target n times (used with -mr)')
 
 parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
 match_group = parser.add_mutually_exclusive_group()
@@ -100,10 +106,7 @@ comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file
 comments_group.add_argument('-oc', '--onecomment', type=str, metavar='', help='specify only one comment')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
 
-parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
-
 parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
-
 parser.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
 parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
 parser.add_argument('-hl', '--headless',  action='store_true', help='headless mode')
@@ -256,6 +259,21 @@ try:
             logger.info(f"[target: {target}] Opening target")
             if not insta.open_target():
                 logger.error(f'[target: {target}] Invalid tag or account')
+                continue
+        
+        # like and comment on stories
+        if args.likestory and insta.open_story():
+            insta.pause_story()
+            total_stories = insta.get_total_stories()
+
+            for _ in range(total_stories):     
+                insta.like_story()
+                time.sleep(1)
+                if args.commentstory:
+                    insta.comment_on_story(generate_random_comment(COMMENTS))
+                    time.sleep(1)
+                insta.next_story()
+            time.sleep(2)
 
         # getting number of posts
         no_of_posts = None
@@ -284,17 +302,20 @@ try:
         
         
         # open first post
-        logger.info(f'[target: {target}] Opening first post')
+        
         if args.mostrecent:
             # if not able to open find most recent
+            logger.info(f'[target: {target} (Most Recent)] Opening first post')
             if not insta.click_first_post_most_recent(): 
                 logger.info('Unable to find most recent posts. Continuing with top posts.')
+                # first post of Most Recent
                 insta.click_first_post()
         else:
+            # first post of Top Posts
+            logger.info(f'[target: {target} (Top Posts)] Opening first post')
             insta.click_first_post()
 
-        post = 0
-
+        
         # if user specified the number of posts to like
         if args.numofposts:
             no_of_posts_to_like = min(no_of_posts, args.numofposts)
@@ -302,7 +323,9 @@ try:
             no_of_posts_to_like = no_of_posts
 
         logger.info(f"[target: {target}] Number of posts to like: {no_of_posts_to_like}")
-
+        
+        post = 0
+        reloadrepeat_cnt = 1
         # loop to like and comment
         while post < no_of_posts_to_like:
 
@@ -342,7 +365,7 @@ try:
                 else:
                     logger.info('No comments found for this post')
 
-                    
+            # comments disabled or not                  
             comment_disabled = True
             comment_disabled = insta.is_comment_disabled()
             logger.info(f'[target: {target}] Comment disabled? {"Yes" if comment_disabled else "No"}')
@@ -370,6 +393,27 @@ try:
             logger.info(f"[target: {target}] Waiting for {delay} seconds")
             time.sleep(delay)
             post += 1
+
+            # already viewed max no. of posts and reloadrepeat is specified
+            if args.reloadrepeat and post >= no_of_posts_to_like and \
+                reloadrepeat_cnt <= args.reloadrepeat:
+                logger.info(f'[target: {target}] Reloading target [reload count:{reloadrepeat_cnt}]')
+                post = 0
+                reloadrepeat_cnt += 1
+                # reload target
+                insta.open_target()
+                logger.info(f'[target: {target}] Waiting...')
+                time.sleep(5)
+                if args.mostrecent:
+                    # if not able to open find most recent
+                    logger.info(f'[target: {target} (Most Recent)] Opening first post')
+                    if not insta.click_first_post_most_recent(): 
+                        logger.info('Unable to find most recent posts. Continuing with top posts.')
+                        # first post of Most Recent
+                        insta.click_first_post()
+
+
+
 
     logger.info("Script finished successfully")
 

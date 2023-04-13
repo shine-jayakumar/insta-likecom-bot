@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.2.6&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.2.7&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -32,8 +32,11 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 
 
 ## Features
-- Likes and Comments on all the posts for an account/tag
-- Likes and Comments on posts from followers of an account
+- Like and Comment on all the posts for an account/tag
+- Like and Comment on posts from followers of an account
+- Like and React/Comment on stories
+- Target Most Recent posts
+- Reloading target to view latest posts
 - Specify the number of posts to like
 - Filter post based on tags
 - Filter posts within last n years, months, days, hours, mins, secs
@@ -43,7 +46,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Add a PS to the comments
 - Skip comments and just like a post
 - Like comments from other users
-- Build in random time delays
+- Built in random time delays
 - Specify time delays after each post
 - Supports Chrome and Firefox
 - Headless mode
@@ -78,11 +81,14 @@ Optional Arguments
 | -lc, --likecomments | like top n user comments per post |
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
-| -il, --inlast | Target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
+| -il, --inlast | target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
+| -ls, --likestory | like stories |
+| -cs, --commentstory | comment on stories (no comments if option not used) |
+| -mr, --mostrecent | target most recent posts |
+| -rr, --reloadrepeat | reload the target n times (used with -mr) |
 | -mt, --matchtags | read tags to match from a file |
 | -mn, --matchtagnum | minimum tag match count for post to be qualified |
 | -ma, --matchalltags | match all tags in matchtags |
-| -mr, --mostrecent | target most recent posts |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
@@ -91,6 +97,11 @@ Optional Arguments
 **To like and comment every post**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget
+```
+
+**To like and comment on stories**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls -cs
 ```
 
 **To specify number of posts to like**
@@ -132,21 +143,30 @@ instalikecombot.py -u yourusername -p yourpassword -t thetarget -nc
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls 5
 ```
+
 **To filter posts within last 2 days**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 2d
 ```
+
 **To filter posts within last 5 months**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 5M
 ```
+
 **To filter posts within last 3 years**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 3y
 ```
+
 **To target most recent posts**
 ```
 instalikecombot.py -u yourusername -p yourpassword -t thetarget -mr
+```
+
+**To reload target 5 times with most recent posts**
+```
+instalikecombot.py -u yourusername -p yourpassword -t thetarget -mr -rr 5
 ```
 
 **To specify a browser**

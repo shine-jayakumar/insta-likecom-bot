@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.2.5
+    insta-likecom-bot v.2.6
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -349,7 +349,7 @@ class Insta:
             most_recent_div_el.find_element(By.CSS_SELECTOR, '._aagw').click()
             return True
         except Exception as ex:
-            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+            logger.error(f'[most_recent] Error: {ex.__class__.__name__}')
             return False
 
     def dont_save_login_info(self) -> bool:
@@ -608,6 +608,84 @@ class Insta:
         if tparam == 's': return current_ts - ts <= multiplier * Seconds.Sec.value
 
         return False
+
+    def open_story(self) -> bool:
+        """
+        Opens story for a user
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH, f'//img[contains(@alt, "{self.account}")]'))).click()
+            return True
+        except Exception as ex:
+            logger.error(f'[open_story] Error: {ex.__class__.__name__}')
+        return False
+    
+    def pause_story(self) -> bool:
+        """
+        Pauses a story
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._ac0m'))).find_element(By.CSS_SELECTOR, '._abl-').click()
+            return True
+        except Exception as ex:
+            logger.error(f'[pause_story] Error: {ex.__class__.__name__}')
+        return False
+    
+    def like_story(self) -> bool:
+        """
+        Pauses a story
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._abx4'))).find_element(By.CSS_SELECTOR, '._abl-').click()
+            return True
+        except Exception as ex:
+            logger.error(f'[like_story] Error: {ex.__class__.__name__}')
+        return False
+
+    def next_story(self):
+        """
+        Moves to next story
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(@aria-label, "Next")]'))).click()
+            return True
+        except Exception as ex:
+            logger.error(f'[next_story] Error: {ex.__class__.__name__}')
+        return False
+    
+    def get_total_stories(self) -> int:
+        """
+        Get total stories
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            return len(wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._ac3r')))
+                       .find_elements(By.CSS_SELECTOR, '._ac3n'))
+        except Exception as ex:
+            logger.error(f'[get_total_stories] Error: {ex.__class__.__name__}')
+        return 0
+    
+    def comment_on_story(self, text) -> bool:
+        """
+        Comments on a story
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+
+            cmt = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._ac12'))).find_element(By.CSS_SELECTOR, '._abx2')
+            cmt.click()
+            time.sleep(0.5)
+            cmt.send_keys(text)
+            cmt.send_keys(Keys.ENTER)
+            return True
+        except Exception as ex:
+            logger.error(f'[comment_on_story] Error: {ex.__class__.__name__}')
+        return False
+
     
 
 def remove_blanks(lst: List) -> List:
