@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.2.7
+    insta-likecom-bot v.2.8
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -14,6 +14,7 @@ from datetime import datetime
 import sys
 from random import randint
 from instafunc import *
+from stats import Stats
 import argparse
 from constants import getsettings
 from applogger import AppLogger
@@ -29,7 +30,7 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
 
-VERSION = 'v.2.7'
+VERSION = 'v.2.8'
 
 def display_intro():
 
@@ -92,6 +93,7 @@ parser.add_argument('-il', '--inlast', type=str, metavar='', help='target post w
 
 parser.add_argument('-ls', '--likestory', action='store_true', help='like stories')
 parser.add_argument('-cs', '--commentstory', action='store_true', help='comments on stories (no comments if option not used)')
+parser.add_argument('-os', '--onlystory', action='store_true', help='target only stories and not posts')
 
 parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
 parser.add_argument('-rr', '--reloadrepeat', type=int, metavar='', help='reload the target n times (used with -mr)')
@@ -149,6 +151,8 @@ logger = AppLogger(__name__).getlogger()
 DELAY = args.delay
 
 insta:Insta = None
+
+stats = Stats()
 
 try:
     start = time.time()
@@ -245,6 +249,8 @@ try:
     else:
         target_list = [TARGET]
     
+    stats.accounts = len(target_list)
+
     for target in target_list:
         
         # if findfollowers option is set
@@ -261,19 +267,37 @@ try:
                 logger.error(f'[target: {target}] Invalid tag or account')
                 continue
         
-        # like and comment on stories
-        if args.likestory and insta.open_story():
-            insta.pause_story()
-            total_stories = insta.get_total_stories()
+        # check if account is private
+        private_account = insta.is_private()
+        if private_account:
+            stats.private_accounts += 1
+            logger.info(f'[target: {target}] Private account')
 
-            for _ in range(total_stories):     
-                insta.like_story()
-                time.sleep(1)
-                if args.commentstory:
-                    insta.comment_on_story(generate_random_comment(COMMENTS))
+        # like and comment on stories
+        if args.likestory and not private_account:
+            if insta.is_story_present():
+                insta.open_story()
+                insta.pause_story()
+                total_stories = insta.get_total_stories()
+                stats.stories += total_stories
+
+                for _ in range(total_stories):     
+                    insta.like_story()
+                    stats.story_likes += 1
+
                     time.sleep(1)
-                insta.next_story()
+                    if args.commentstory:
+                        insta.comment_on_story(generate_random_comment(COMMENTS))
+                        stats.story_comments += 1
+                        time.sleep(1)
+                    insta.next_story()
+            else:
+                logger.info(f'[target: {target}] No stories found')
             time.sleep(2)
+
+        # only stories to be processed
+        if args.onlystory and args.likestory:
+            continue
 
         # getting number of posts
         no_of_posts = None
@@ -294,11 +318,15 @@ try:
             continue
 
         # it's a private account
-        logger.info(f'[target: {target}] Checking if {target} is a private account')
-        if insta.is_private():
+        if private_account:
             logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
             continue
-        logger.info(f'[target: {target}] Account not private')
+
+        # logger.info(f'[target: {target}] Checking if {target} is a private account')
+        # if insta.is_private():
+        #     logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
+        #     continue
+        # logger.info(f'[target: {target}] Account not private')
         
         
         # open first post
@@ -354,12 +382,14 @@ try:
 
             logger.info(f"[target: {target}] Liking post: {post + 1}")
             insta.like()
+            stats.likes += 1
             
             # Added as per issue # 35
             # liking user comments
             if LIKE_NCOMMENTS:
                 successful_comments = insta.like_comments(max_comments=LIKE_NCOMMENTS)
                 if successful_comments:
+                    stats.comment_likes += 1
                     for username, comment in successful_comments:
                         logger.info(f'[target: {target}] Liked [({username}) - {comment}]')
                 else:
@@ -384,6 +414,7 @@ try:
 
                 logger.info(f"[target: {target}] Commenting on the post")
                 if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
+                    stats.comments += 1
                     logger.info(f'[target: {target}] Commented: {random_comment}')
             
             logger.info(f"[target: {target}] Moving on to the next post")
@@ -416,6 +447,13 @@ try:
 
 
     logger.info("Script finished successfully")
+    logger.info(f'Total accounts: {stats.accounts}')
+    logger.info(f'Total post likes: {stats.likes}')
+    logger.info(f'Total post comments: {stats.comments}')
+    logger.info(f'Total post comment likes: {stats.comment_likes}')
+    logger.info(f'Total stories: {stats.stories}')
+    logger.info(f'Total story likes: {stats.story_likes}')
+    logger.info(f'Total story comments: {stats.story_comments}')
 
 except Exception as ex:
     logger.error(f"Script ended with error")

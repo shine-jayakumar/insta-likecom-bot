@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.2.7&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.2.8&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -36,6 +36,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Like and Comment on all the posts for an account/tag
 - Like and Comment on posts from followers of an account
 - Like and React/Comment on stories
+- Target only stories
 - Target Most Recent posts
 - Reloading target to view latest posts
 - Specify the number of posts to like
@@ -85,6 +86,7 @@ Optional Arguments
 | -il, --inlast | target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
 | -ls, --likestory | like stories |
 | -cs, --commentstory | comment on stories (no comments if option not used) |
+| -os, --onlystory | target only stories and not posts |
 | -mr, --mostrecent | target most recent posts |
 | -rr, --reloadrepeat | reload the target n times (used with -mr) |
 | -mt, --matchtags | read tags to match from a file |
@@ -216,7 +218,18 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101"
 instalikecombot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
 ## Version Updates
-Version **v.2.7** (latest)
+Version **v.2.8** (latest)
+
+Feature addition:
+- added option -os, --onlystory - target only stories
+
+Bug Fixes:
+- Private account check before opening stories
+- Check if story is present
+
+<br/>
+
+Version **v.2.7**
 
 Feature addition:
 - added option -ls, --likestory - to like stories
