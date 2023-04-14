@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.2.6
+    insta-likecom-bot v.2.7
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -392,9 +392,11 @@ class Insta:
         for text in private_text_indicator:
             try:
                 self.driver.find_element(By.XPATH, f'//*[text()="{text}"]')
+                logger.info(f'[is_private] text=>({text}) found.')
                 return True        
             except:
-                logger.info(f'Failed to find text: {text}')
+                logger.info(f'[is_private]: text=>({text}) not found')
+        return False
 
     def quit(self) -> None:
         """
@@ -607,6 +609,18 @@ class Insta:
         if tparam == 'm': return current_ts - ts <= multiplier * Seconds.Min.value
         if tparam == 's': return current_ts - ts <= multiplier * Seconds.Sec.value
 
+        return False
+
+    def is_story_present(self):
+        """
+        Checks if story is present
+        """
+        wait = WebDriverWait(self.driver, 5)
+        try:
+            is_disabled = wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "_aarf")]'))).get_attribute('aria-disabled')
+            return is_disabled == 'false'
+        except Exception as ex:
+            logger.error(f'[is_story_present] Could not locate story. Account may be private')
         return False
 
     def open_story(self) -> bool:
