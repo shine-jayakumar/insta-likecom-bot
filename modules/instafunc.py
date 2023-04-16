@@ -6,7 +6,7 @@
 
     Author: Shine Jayakumar
     Github: https://github.com/shine-jayakumar
-
+    Copyright (c) 2023 Shine Jayakumar
     LICENSE: MIT
 """
 
@@ -36,11 +36,12 @@ import time
 from datetime import datetime
 from sys import platform
 
-from applogger import AppLogger
+from modules.applogger import AppLogger
 from typing import List, Tuple
 from functools import wraps
 from enum import Enum
 import random
+from modules.constants import APP_VERSION
 
 
 logger = AppLogger(__name__).getlogger()
@@ -701,7 +702,6 @@ class Insta:
             logger.error(f'[comment_on_story] Error: {ex.__class__.__name__}')
         return False
 
-    
 
 def remove_blanks(lst: List) -> List:
     """
@@ -831,3 +831,29 @@ def get_random_index(total_items: int, arg: int, all_specifier=float('inf')) -> 
         arg = total_items
     return random.sample(range(total_items), total_items)
 
+
+def generate_random_comment(comments):
+    """
+    Returns a random comment from a list of comments
+    """
+    return comments[random.randint(0, len(comments)-1)]
+
+
+def display_intro():
+
+    intro = f"""
+     ___ _  _ ___ _____ _      _    ___ _  _____ ___ ___  __  __     ___  ___ _____ 
+    |_ _| \| / __|_   _/_\ ___| |  |_ _| |/ | __/ __/ _ \|  \/  |___| _ )/ _ |_   _|
+     | || .` \__ \ | |/ _ |___| |__ | || ' <| _| (_| (_) | |\/| |___| _ | (_) || |  
+    |___|_|\_|___/ |_/_/ \_\  |____|___|_|\_|___\___\___/|_|  |_|   |___/\___/ |_|  
+    
+    insta-likecom-bot {APP_VERSION}
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+    
+    """
+    print(intro)

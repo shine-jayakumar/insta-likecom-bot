@@ -4,121 +4,23 @@
 
     Author: Shine Jayakumar
     Github: https://github.com/shine-jayakumar
-
+    Copyright (c) 2023 Shine Jayakumar
     LICENSE: MIT
 """
 
 
 import time
-from datetime import datetime
 import sys
-from random import randint
-from instafunc import *
-from stats import Stats
-import argparse
-from constants import getsettings
-from applogger import AppLogger
+from modules.instafunc import *
+from modules.stats import Stats
+from modules.constants import getsettings, COMMENTS
+from modules.applogger import AppLogger
+from modules.argparsing import parser
 
-
-COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
-"So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",
-"Beyond amazing 😍", "You’re the goat", "This is fire 🔥", "Keep grinding 💪", "Insane bro 🔥",
-"The shocker! 😮", "Such a beauty 😍❤️", "Hell yeah 🔥", "Straight like that! 🔥", "Classy dude",
-"Keep doing what you doing 🙌", "Freaking gorgeous 😍", "Keep going 💪", "You’re fabulous ❤️",
-"This made my day 😍", "You’re literally unreal 😮", "I'm so obssessed", "Always popping off",
-"Just like that 🔥", "Good vibes only ❤️", "This is mood ❤️", "The vibes are immaculate", "I adore you 🌺",
-"You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
-"This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
-
-VERSION = 'v.2.8'
-
-def display_intro():
-
-    intro = f"""
-     ___ _  _ ___ _____ _      _    ___ _  _____ ___ ___  __  __     ___  ___ _____ 
-    |_ _| \| / __|_   _/_\ ___| |  |_ _| |/ | __/ __/ _ \|  \/  |___| _ )/ _ |_   _|
-     | || .` \__ \ | |/ _ |___| |__ | || ' <| _| (_| (_) | |\/| |___| _ | (_) || |  
-    |___|_|\_|___/ |_/_/ \_\  |____|___|_|\_|___\___\___/|_|  |_|   |___/\___/ |_|  
-    
-    insta-likecom-bot {VERSION}
-    Automates likes and comments on an instagram account or tag
-
-    Author: Shine Jayakumar
-    Github: https://github.com/shine-jayakumar
-    
-    """
-    print(intro)
-
-
-def generate_random_comment(comments):
-    """
-    Returns a random comment from a list of comments
-    """
-    return comments[randint(0, len(comments)-1)]
-
-
-# ====================================================
-# Argument parsing
-# ====================================================
-description = "Automates likes and comments on an instagram account or tag"
-usage = "instalikecombot.py [-h] [-u --username] [-p --password] [-t --target] [-le --loadenv] [-np NOOFPOSTS] [-ps TEXT] [-c FILE | -nc] [-d DELAY] [-hl --headless]"
-examples="""
-Examples:
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t '#haiku' -ps "Follow me @bob101" -c mycomments.txt
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30 --headless
-instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --inlast 3M
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5,60
-"""
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    description=description,
-    usage=usage,
-    epilog=examples,
-    prog='instalikecombot')
-
-
-# optional arguments
-parser.add_argument('-u','--username', metavar='', type=str, help='Instagram username')
-parser.add_argument('-p','--password', metavar='', type=str, help='Instagram password')
-parser.add_argument('-t', '--target',  metavar='', type=str, help='target (account or tag)')
-
-parser.add_argument('-np', '--numofposts', type=int, metavar='', help='number of posts to like')
-parser.add_argument('-ps', '--postscript', type=str, metavar='', help='additional text to add after every comment')
-parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
-parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='number of followers to process (default=all)', default=None)
-parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
-parser.add_argument('-il', '--inlast', type=str, metavar='', help='target post within last n years (y), months (M), days (d), hours (h), mins (m), secs (s)')
-
-parser.add_argument('-vs', '--viewstory', action='store_true', help='view stories')
-parser.add_argument('-ls', '--likestory', type=int, nargs='?', help='like stories (default=all)', const=float('inf'))
-parser.add_argument('-cs', '--commentstory', type=int, nargs='?', help='comments on stories (no comments if option not used)', const=float('inf'))
-parser.add_argument('-os', '--onlystory', action='store_true', help='target only stories and not posts')
-
-parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
-parser.add_argument('-rr', '--reloadrepeat', type=int, metavar='', help='reload the target n times (used with -mr)')
-
-parser.add_argument('-mt', '--matchtags', type=str, metavar='', help='read tags to match from a file')
-match_group = parser.add_mutually_exclusive_group()
-match_group.add_argument('-mn', '--matchtagnum', type=int, metavar='', help='minimum tag match count for post to be qualified')
-match_group.add_argument('-ma', '--matchalltags', action='store_true', help='match all tags in matchtags')
-
-comments_group = parser.add_mutually_exclusive_group()
-comments_group.add_argument('-c', '--comments', type=str, metavar='', help='file containing comments (one comment per line)')
-comments_group.add_argument('-oc', '--onecomment', type=str, metavar='', help='specify only one comment')
-comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
-
-parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
-parser.add_argument('-d', '--delay', type=str, metavar='', help='time to wait during post switch default=(1,10)', default='1,10')
-parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
-parser.add_argument('-hl', '--headless',  action='store_true', help='headless mode')
-parser.add_argument('-le', '--loadenv',  action='store_true', help='load credentials from .env')
-parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
 
 args = parser.parse_args()
-# ====================================================
+logger = AppLogger(__name__).getlogger()
+
 
 IUSER = None
 IPASS = None
@@ -143,12 +45,6 @@ else:
     IPASS = args.password
     TARGET = args.target
 
-
-# ====================================================
-# Setting up logger
-# ====================================================
-logger = AppLogger(__name__).getlogger()
-#======================================================
 
 DELAY = parse_delay(args.delay)
 
