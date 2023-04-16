@@ -70,6 +70,7 @@ instalikecombot.py -u bob101 -p b@bpassw0rd1 -t '#haiku' -ps "Follow me @bob101"
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30 --headless
 instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --inlast 3M
+instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5,60
 """
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -91,8 +92,9 @@ parser.add_argument('-fa', '--followersamount', type=int, metavar='', help='numb
 parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
 parser.add_argument('-il', '--inlast', type=str, metavar='', help='target post within last n years (y), months (M), days (d), hours (h), mins (m), secs (s)')
 
-parser.add_argument('-ls', '--likestory', action='store_true', help='like stories')
-parser.add_argument('-cs', '--commentstory', action='store_true', help='comments on stories (no comments if option not used)')
+parser.add_argument('-vs', '--viewstory', action='store_true', help='view stories')
+parser.add_argument('-ls', '--likestory', type=int, nargs='?', help='like stories (default=all)', const=float('inf'))
+parser.add_argument('-cs', '--commentstory', type=int, nargs='?', help='comments on stories (no comments if option not used)', const=float('inf'))
 parser.add_argument('-os', '--onlystory', action='store_true', help='target only stories and not posts')
 
 parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
@@ -109,7 +111,7 @@ comments_group.add_argument('-oc', '--onecomment', type=str, metavar='', help='s
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
 
 parser.add_argument('-et', '--eltimeout',  type=str, metavar='', help='max time to wait for elements to be loaded (default=30)', default=30)
-parser.add_argument('-d', '--delay', type=int, metavar='', help='time to wait during post switch')
+parser.add_argument('-d', '--delay', type=str, metavar='', help='time to wait during post switch default=(1,10)', default='1,10')
 parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)', default='chrome')
 parser.add_argument('-hl', '--headless',  action='store_true', help='headless mode')
 parser.add_argument('-le', '--loadenv',  action='store_true', help='load credentials from .env')
@@ -148,7 +150,7 @@ else:
 logger = AppLogger(__name__).getlogger()
 #======================================================
 
-DELAY = args.delay
+DELAY = parse_delay(args.delay)
 
 insta:Insta = None
 
@@ -160,7 +162,8 @@ try:
     display_intro()
 
     logger.info("Script started")
-
+    logger.info(f'Delay: {DELAY[0]}{"-" + str(DELAY[1]) if len(DELAY) > 1 else ""} secs')
+    
     # load comments from file
     if args.comments:
         COMMENTS = load_comments(args.comments)
@@ -273,23 +276,26 @@ try:
             stats.private_accounts += 1
             logger.info(f'[target: {target}] Private account')
 
-        # like and comment on stories
-        if args.likestory and not private_account:
+        # view, like and comment on stories
+        if args.viewstory and not private_account:
             if insta.is_story_present():
                 insta.open_story()
                 insta.pause_story()
                 total_stories = insta.get_total_stories()
                 stats.stories += total_stories
 
-                for _ in range(total_stories):     
-                    insta.like_story()
-                    stats.story_likes += 1
+                like_stories_at = get_random_index(total_items=total_stories, arg=args.likestory)
+                comment_stories_at = get_random_index(total_items=total_stories, arg=args.commentstory)
+                for story_idx in range(total_stories):
+                    if args.likestory and story_idx in like_stories_at:
+                        insta.like_story()
+                        stats.story_likes += 1
+                        time.sleep(get_delay(delay=(2,10)))
 
-                    time.sleep(1)
-                    if args.commentstory:
+                    if args.commentstory and story_idx in comment_stories_at:
                         insta.comment_on_story(generate_random_comment(COMMENTS))
                         stats.story_comments += 1
-                        time.sleep(1)
+                        time.sleep(get_delay(delay=(2,10)))
                     insta.next_story()
             else:
                 logger.info(f'[target: {target}] No stories found')
@@ -320,17 +326,9 @@ try:
         # it's a private account
         if private_account:
             logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
-            continue
-
-        # logger.info(f'[target: {target}] Checking if {target} is a private account')
-        # if insta.is_private():
-        #     logger.info(f"[target: {target}] This account is private. You may need to follow {target} to like their posts.")
-        #     continue
-        # logger.info(f'[target: {target}] Account not private')
-        
+            continue        
         
         # open first post
-        
         if args.mostrecent:
             # if not able to open find most recent
             logger.info(f'[target: {target} (Most Recent)] Opening first post')
@@ -367,7 +365,8 @@ try:
                     logger.info('Irrelavent post')
                     logger.info(f"[target: {target}] Moving on to the next post")
                     insta.next_post()
-                    time.sleep(DELAY or randint(1,10))                    
+                    # time.sleep(DELAY or randint(1,10))
+                    time.sleep(get_delay(DELAY))
                     continue
             
             if args.inlast:
@@ -377,7 +376,8 @@ try:
                 if not insta.post_within_last(ts=ts, multiplier=INLAST_MULTIPLIER, tparam=INLAST_TPARAM):
                     logger.info(f'Post [{postdate}] is older than {INLAST_MULTIPLIER} {TParam[INLAST_TPARAM].value}{"s" if INLAST_MULTIPLIER>1 else ""}. Skipping')
                     insta.next_post()
-                    time.sleep(DELAY or randint(1,10))
+                    # time.sleep(DELAY or randint(1,10))
+                    time.sleep(get_delay(DELAY))
                     continue
 
             logger.info(f"[target: {target}] Liking post: {post + 1}")
@@ -420,7 +420,8 @@ try:
             logger.info(f"[target: {target}] Moving on to the next post")
             insta.next_post()
             # delay specified in --delay or random delay
-            delay = DELAY or randint(1,10)
+            # delay = DELAY or randint(1,10)
+            delay = get_delay(DELAY)
             logger.info(f"[target: {target}] Waiting for {delay} seconds")
             time.sleep(delay)
             post += 1
@@ -442,8 +443,6 @@ try:
                         logger.info('Unable to find most recent posts. Continuing with top posts.')
                         # first post of Most Recent
                         insta.click_first_post()
-
-
 
 
     logger.info("Script finished successfully")

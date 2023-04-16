@@ -40,6 +40,7 @@ from applogger import AppLogger
 from typing import List, Tuple
 from functools import wraps
 from enum import Enum
+import random
 
 
 logger = AppLogger(__name__).getlogger()
@@ -620,7 +621,7 @@ class Insta:
             is_disabled = wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "_aarf")]'))).get_attribute('aria-disabled')
             return is_disabled == 'false'
         except Exception as ex:
-            logger.error(f'[is_story_present] Could not locate story. Account may be private')
+            logger.error(f'[is_story_present] Could not locate story')
         return False
 
     def open_story(self) -> bool:
@@ -784,3 +785,49 @@ def parse_inlast(inlast: str) -> tuple:
         except:
             return ()
         return (multiplier, tparam)
+
+
+def parse_delay(delay:str, default: tuple = (1,10)) -> tuple:
+    """
+    Parses delay value and returns start and end range
+    """
+    if not delay:
+        return default
+
+    match = re.match(r'(\d+),\s*(\d+)', delay)
+    if match:
+        st, en = map(int, match.groups())
+        if st > en:
+            logger.error(f'[parse_delay] Invalid delay range. Defaulting to {default}')
+            return default
+        if max(st,en) > 100 or min(st,en) < 1:
+            logger.error(f'[parse_delay] Invalid delay range. Defaulting to {default}')
+            return default
+        if st == en:
+            return (default[0],en)
+        return (st, en)
+    
+    match = re.match(r'\d+', delay)
+    if match:
+        st = int(match.group(0))
+        return (st,) if st > 0 and st <= 100 else default
+    return default    
+
+
+def get_delay(delay: tuple, default: tuple = (1,10)):
+    """ Returns a random delay value between (st,en) """
+    if not delay:
+        return random.randint(default[0], default[1])
+    if len(delay) < 2:
+        return delay[0]
+    return random.randint(delay[0], delay[1])
+
+
+def get_random_index(total_items: int, arg: int, all_specifier=float('inf')) -> list:
+    """
+    Generates random index numbers based on value of argname
+    """
+    if not arg or arg == all_specifier or arg > total_items:
+        arg = total_items
+    return random.sample(range(total_items), total_items)
+
