@@ -10,7 +10,7 @@ from instafunc import (
     load_comments, load_matchtags)
 
 from typing import Dict, List
-
+from functools import wraps
 
 logger = AppLogger('profile').getlogger()
 
@@ -42,6 +42,19 @@ def defaultval(val, default=None):
 
 class Profile:
 
+    def dupargs_validator(func):
+        """
+        Duplicate argument validator
+        """
+        @wraps(func)
+        def validator(self, *args, **kwargs):
+            profileargs = func(self, *args, **kwargs)
+            if self.args and profileargs:
+                if set(self.args).intersection(profileargs):
+                    raise Exception('Duplicate instance of arguments in profile and parameters')
+            return profileargs
+        return validator
+    
     def __init__(self, args = None, profile_path: str = '') -> None:
         
         if not any([args, profile_path]):
@@ -93,6 +106,7 @@ class Profile:
 
         self.profile: str = ''
        
+    @dupargs_validator
     def load_profile(self, path: str) -> Dict:
         """
         Reads profile and loads variables
@@ -106,7 +120,7 @@ class Profile:
             return profile
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} - {str(ex)}')
-            return {}
+        return {}
 
     def load_credentials(self) -> None:
         """
