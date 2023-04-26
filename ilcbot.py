@@ -31,7 +31,7 @@ if args.loadenv:
     settings = getsettings()
     IUSER = settings['username']
     IPASS = settings['password']
-    TARGET = settings['target']
+    TARGET = parse_targets_multi(targets = settings['target'])
 
     if not IUSER or not IPASS or not TARGET:
         print('Error: username, password, and target are required.')
@@ -43,13 +43,10 @@ else:
         sys.exit(1)
     IUSER = args.username
     IPASS = args.password
-    TARGET = args.target
+    TARGET = parse_targets_multi(targets = args.target)
 
-
-DELAY = parse_delay(args.delay)
 
 insta:Insta = None
-
 stats = Stats()
 
 try:
@@ -58,18 +55,20 @@ try:
     display_intro()
 
     logger.info("Script started")
+    DELAY = parse_delay(args.delay)
     logger.info(f'Delay: {DELAY[0]}{"-" + str(DELAY[1]) if len(DELAY) > 1 else ""} secs')
     
+    # PARSING COMMENTS
     # load comments from file
     if args.comments:
         COMMENTS = load_comments(args.comments)
         logger.info(f"Loaded comments from {args.comments}")
-
     # only one comment
     elif args.onecomment:
         COMMENTS = args.onecomment
         logger.info(f'Loading only one comment: {COMMENTS}')
 
+    # PARSING MATCHTAGS
     MATCHTAGS = load_matchtags(args.matchtags) if args.matchtags else []
     MATCH_TAG_CNT = 3
     if MATCHTAGS:
@@ -84,14 +83,16 @@ try:
         logger.info(f'Match at least: {MATCH_TAG_CNT} tag(s)')
     
 
+    # PARSING LIKE COMMENTS
     LIKE_NCOMMENTS = args.likecomments if args.likecomments else 0
     if LIKE_NCOMMENTS:
         logger.info(f'Max. comments to like: {LIKE_NCOMMENTS}')
 
-
+    # PARSING MOST RECENT
     if args.mostrecent:
         logger.info('Targetting most recent posts')
     
+    # PARSING INLAST DATE FILTER
     INLAST_MULTIPLIER, INLAST_TPARAM = (None, None)
     if args.inlast:
         INLAST_MULTIPLIER, INLAST_TPARAM = parse_inlast(args.inlast)
@@ -99,55 +100,84 @@ try:
             raise Exception('Invalid inlast value')
         logger.info(f'Filtering posts posted within last {args.inlast}')
 
+    # CHOOSING BROWSER
     browser = args.browser
     logger.info(f"Downloading webdriver for your version of {browser.capitalize()}")
 
+    # INSTANTIATING Insta class
     logger.info("Initializing instagram user")
     insta = Insta(
         username=IUSER,
         password=IPASS,
         timeout=args.eltimeout,
         browser=browser,
-        headless=args.headless
-        )
-
-    logger.info(f"Setting target to: {TARGET}")
-
-    # if tag
-    if TARGET.startswith('#'):
-        insta.target(TARGET[1:], tag=True)
-    else:
-        insta.target(TARGET)
+        headless=args.headless,
+        profile=args.profile
+    )
 
     # findfollowers with tag name
-    if args.findfollowers and TARGET.startswith('#'):
+    if args.findfollowers and is_hashtag_present(TARGET):
         logger.error("Cannot use 'findfollowers' option with tags")
         raise Exception("Cannot use 'findfollowers' option with tags")
 
-        
-    logger.info(f"Attempting to log in with {IUSER}")
+    # if profile was specified
+    if args.profile:
+        logger.info(f'Using profile: {args.profile}')
+        logger.info('Launching Instagram')
+        insta.launch_insta()
 
-    if not insta.login():
-        raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
+        logger.info('Checking if user is already logged in')
+        # check if already logged in
+        if not insta.validate_login():
+            logger.info('User not logged in. Attempting to login')
+            if not insta.login(validate=False):
+                raise Exception('Failed to login to Instagram')
+            
+            if insta.is_2factor_present():
+                logger.info('Script paused for 10 seconds (waiting for code)')
+                time.sleep(10)
 
-    logger.info("Login successful")
-    # logger.info("Skipping Save Login Info")
-    # logger.info(f'Do not save login info: {insta.dont_save_login_info()}')
+            logger.info('Validating login')
+            if not insta.validate_login():
+                raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
+            logger.info('Logged in successfully')
 
-    logger.info(f"Opening target {TARGET}")
-    if not insta.open_target():
-        logger.error(f'Invalid tag or account: {TARGET}')
-        raise Exception(f"Invalid tag or account : {TARGET}")
-    
-    if args.findfollowers:
-        logger.info(f'Finding followers of {args.target}')
-        followers = insta.get_followers(args.followersamount)
-        logger.info(followers)
-        logger.info(f'Found {len(followers)} followers')
-        target_list = followers
+            logger.info('Attempting to save login information')
+            # attempt to save login info
+            if not insta.save_login_info():
+                raise Exception('Could not find Save Login Info dialog box')
+            logger.info('Login information saved for the profile')
+            time.sleep(2)
+
+    # attempt to login in only if profile wasn't loaded
+    # in which case, script will save the Login Info
     else:
-        target_list = [TARGET]
-    
+        logger.info(f"Attempting to log in with {IUSER}")
+        if not insta.login():
+            raise Exception("Failed to login. Incorrect username/password, or 2 factor verification is active.")
+        logger.info("Login successful")
+
+    # EXTRACTING FOLLOWERS
+    target_list = []
+    # extracting followers from multiple targets
+    if args.findfollowers:
+        for target in TARGET:
+            logger.info(f"Setting target to: {target}")
+            insta.target(target)
+
+            logger.info(f"Opening target {TARGET}")
+            if not insta.open_target():
+                logger.error(f'Invalid tag or account: {TARGET}')
+                raise Exception(f"Invalid tag or account : {TARGET}")
+            
+            logger.info(f'Finding followers of {args.target}')
+            followers = insta.get_followers(amount = args.followersamount)
+            logger.info(followers)
+            logger.info(f'Found {len(followers)} followers')
+            target_list.extend(followers)
+    else:
+        target_list = TARGET
+
     stats.accounts = len(target_list)
 
     for target in target_list:

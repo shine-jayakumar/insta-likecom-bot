@@ -91,7 +91,7 @@ def retry(func):
 
 
 class Insta:
-    def __init__(self, username, password, timeout=30, browser='chrome', headless=False) -> None:
+    def __init__(self, username, password, timeout=30, browser='chrome', headless=False, profile:str = None) -> None:
         # current working directory/driver
         self.browser = 'chrome'
         self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
@@ -117,6 +117,8 @@ class Insta:
             options = ChromeOptions()
             if headless:
                 options.add_argument("--headless")
+            if profile:
+                options.add_argument(f'user-data-dir={profile}')
             options.add_argument("--disable-notifications")
             options.add_argument("--start-maximized")
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -167,15 +169,16 @@ class Insta:
         """
         Validates login
         """
+        wait = WebDriverWait(self.driver, 5)
         user_profile_xpaths = [
             '//img[contains(@alt, " profile picture")]',
             '//div[@class="_acut"]/div/span/img',
             '//img[@data-testid="user-avatar"]'
         ]
-        for xpath in user_profile_xpaths:
+        for atmpt_cnt, xpath in enumerate(user_profile_xpaths, start=1):
             try:
-                logger.info(f'Validating login with xpath: {xpath}')
-                self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+                logger.info(f'[Attempt# {atmpt_cnt}] Validating login')
+                wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
                 return True
             except:
                 logger.error(f"Could not find user's profile with xpath: {xpath}")
@@ -207,12 +210,25 @@ class Insta:
 
             # if not a valid account or tag
             elif not self.validate_target():
+                logger.error('Not a valid target')
                 return 'skip_retry'
         except:
             return False
         return True
-
-    def login(self) -> bool:
+    
+    @retry
+    def launch_insta(self) -> bool:
+        """
+        Opens instagram
+        """
+        try:
+            self.driver.get(self.baseurl)
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+            return False
+        return True
+    
+    def login(self, validate=True) -> bool:
         """
         Initiates login with username and password
         """
@@ -221,8 +237,14 @@ class Insta:
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="username"]'))).send_keys(self.username)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="password"]'))).send_keys(self.password)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@type="submit"]'))).click()
-            if not self.validate_login():
-                return False
+
+            if self.is_2factor_present():
+                logger.info('2 factor authentication active. Enter your authentication code to continue')
+                time.sleep(10)
+
+            if validate:
+                if not self.validate_login():
+                    return False
         except:
             return False
         return True
@@ -371,6 +393,19 @@ class Insta:
             except:
                 logger.error(f'Could not find Not Now button with xpath: {xpath}')
         return False
+    
+    def save_login_info(self) -> bool:
+        """
+        Saves login information
+        """
+        # wait = WebDriverWait(self.driver, 10)
+        try:
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(text(),"Save Your Login Info")]')))
+            self.driver.find_element(By.XPATH, '//button[contains(text(),"Save Info")]').click()
+            return True
+        except:
+            logger.error(f'Save Login Info dialog box not found')
+        return False
 
     def next_post(self) -> bool: 
         """
@@ -398,6 +433,18 @@ class Insta:
                 return True        
             except:
                 logger.info(f'[is_private]: text=>({text}) not found')
+        return False
+    
+    def is_2factor_present(self) -> bool:
+        """
+        Checks if 2 factor verification screen is present
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="verificationCodeDescription"]')))
+            return True
+        except Exception as ex:
+            logger.error('Could not locate 2 factor authentication screen')
         return False
 
     def quit(self) -> None:
@@ -837,6 +884,23 @@ def generate_random_comment(comments):
     Returns a random comment from a list of comments
     """
     return comments[random.randint(0, len(comments)-1)]
+
+
+def parse_targets_multi(targets: str) -> List[str]:
+    """
+    Parses target string to retrieve multiple targets
+    """
+    return [target.strip() for target in targets.split(',')]
+
+
+def is_hashtag_present(targets: List) -> bool:
+    """
+    Checks if one of the targets is a hashtag
+    """
+    for target in targets:
+        if target.startswith('#'):
+            return True
+    return False
 
 
 def display_intro():

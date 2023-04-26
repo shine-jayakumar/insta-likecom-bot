@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-u",
+                "shinej08",
+                "-p",
+                "Iw!lln0tt3lly0u@123",
+                "-t",
+                "#photography",
+                "-d",
+                "10,30",
+                "-np",
+                "1",
+                "-vs",
+                "-ls",
+                "2",
+                "-bp",
+                "/home/shine/.config/google-chrome/Profile 1"
+            ]
+        }
+    ]
+}

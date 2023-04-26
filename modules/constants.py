@@ -1,9 +1,10 @@
 
 from dotenv import load_dotenv
+import json
 import os
 
 
-APP_VERSION = 'v.2.8'
+APP_VERSION = 'v.3.0'
 
 
 INSTA_USER = None
