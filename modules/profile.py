@@ -1,312 +1,419 @@
-# profile.py
-# Profile class to parse and hold credentials and settings
+""" 
+    profile.py - profile class for insta-likecom-bot
 
+    insta-likecom-bot v.3.0
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+"""
 import json
-import os
 from modules.applogger import AppLogger
-from instafunc import (
-    parse_inlast, parse_targets_multi, 
-    parse_delay, is_hashtag_present,
-    load_comments, load_matchtags)
+from modules.exceptions import *
+from modules.constants import COMMENTS
+from typing import List, Tuple
+import re
+from os.path import exists as pathexists
 
-from typing import Dict, List
-from functools import wraps
 
 logger = AppLogger('profile').getlogger()
 
 
-def to_int(val, field:str = '') -> int:
-    """ Returns val as int """
-    if not val:
-        return None
-    if isinstance(val, int):
-        return val
-    if isinstance(val, str) and val.isnumeric():
-        return int(val)
-    raise TypeError(f"Invalid value for {field}")
-
-
-def to_list(val, splitby: str = '') -> List:
-    """ Returns val as list """
-    if isinstance(val, list):
-        return val
-    if splitby and isinstance(val, str):
-        return val.split(splitby)
-    return list(val)
-
-
-def defaultval(val, default=None):
-    """ Returns default value in absence of val """
-    return val if val else default
-
-
 class Profile:
+    """
+    Profile class to parse command-line arguments and
+    arguments in profile json file
+    """
 
     def dupargs_validator(func):
         """
         Duplicate argument validator
         """
-        @wraps(func)
         def validator(self, *args, **kwargs):
             profileargs = func(self, *args, **kwargs)
-            if self.args and profileargs:
-                if set(self.args).intersection(profileargs):
-                    raise Exception('Duplicate instance of arguments in profile and parameters')
+            if profileargs:
+                dupargs = []
+                for arg, val in profileargs.items():
+                    arg_in_cmdargs = self.args.get(arg, None)
+                    if val and arg_in_cmdargs and arg_in_cmdargs != val:
+                        dupargs.append(arg)
+                if dupargs:
+                    raise DuplicateArgumentError(f'Duplicate instances of arguments: {dupargs}')
             return profileargs
         return validator
     
-    def __init__(self, args = None, profile_path: str = '') -> None:
-        
-        if not any([args, profile_path]):
-            raise Exception('Profile path or parsed argument parameter is required')
+    def __init__(self, args = None) -> None:
+        """
+        Loads arguments from command-line arguments and profile json file
+        and create a profile
+        """        
+        if not args:
+            raise Exception('Argument parameter is required')
         
         self.args = vars(args)
-        self.profileargs = self.load_profile(profile_path)
+        self.profileargs = self._load_profile(self.args.get('profile',''))
+        self._load_params()
+        self._init_args()
 
-        if not self.profileargs:
-            raise Exception('Invalid profile file')
+        if not all([self.username, self.password, self.target]):
+            raise MandatoryParamsMissingError('Manadatory params - username, password, target missing')
 
-        self.username: str  = ''
-        self.password = ''
-        self.target: List[str] = []
-
-        self.numofposts: int = None
-        self.postscript: str = ''
-        
-        self.findfollowers: bool = None
-        self.followersamount: int = None
-
-        self.likecomments: int = None
-        
-        self.inlast: str = ''
-
-        self.viewstory: bool = None
-        self.likestory: int = float('inf')
-        self.commentstory: int = float('inf')
-        self.onlystory: bool = None
-
-        self.mostrecent: bool = None
-        self.reloadrepeat: int = None
-
-        self.matchtags: List[str] = []
-        self.ignoretags: List[str] = []
-        self.matchtagnum: int = 3
-        self.matchalltags: bool = None
-
-        self.comments: List[str] = []
-        self.onecomment: str = ''
-        self.nocomments: bool = None
-
-        self.brprofile: str = None
-        self.eltimeout: int = None
-        self.delay: str = None
-
-        self.browser: str = 'chrome'
-        self.headless: bool = None
-
-        self.profile: str = ''
+        if self.findfollowers and is_hashtag_present(self.target):
+            raise ConflictingParamsError(f"'findfollowers' cannot be used with hashtags")
        
     @dupargs_validator
-    def load_profile(self, path: str) -> Dict:
+    def _load_profile(self, path: str) -> dict:
         """
         Reads profile and loads variables
         """        
+        if not path:
+            return {}
+        profile = {}
         try:       
-            profile = {}   
             with open(path) as fh:
                 profile = json.load(fh)
-            if not profile:
-                raise Exception('Invalid profile file')
-            return profile
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} - {str(ex)}')
-        return {}
 
-    def load_credentials(self) -> None:
-        """
-        Loads credentials from parsed arguments or profile file
-        """
-        if self.profile:
-            self.username = self.profile.get('username', None)
-            self.password = self.profile.get('password', None)
-        else:
-            self.username = self.args.username
-            self.password = self.args.password
-
-        if not all([self.username, self.password]):
-            raise Exception('Username and Password parameter cannot be blank')
-    
-    def load_target(self) -> None:
-        """
-        Loads targets from profile path or parsed arguments
-        """
-        if self.profile:
-            self.target = parse_targets_multi(targetlist=self.profile.target)
-        else:
-            self.target = parse_targets_multi(targetlist=self.args.target)
-        if not self.target:
-            raise Exception('Target cannot be blank')
-    
-    def load_numposts(self) -> None:
-        """
-        Loads number of posts
-        """
-        if self.profile:
-            self.numofposts = to_int(self.profile.get('numofposts', None))
-        else:
-            self.numofposts = self.args.numofposts
-
-    def load_postscript(self) -> None:
-        """
-        Loads postscript
-        """
-        if self.profile:
-            self.postscript = self.profile.get('postscript', None)
-        else:
-            self.postscript = self.args.postscript
-    
-    def load_findfollowers(self) -> None:
-        """ Loads findfollowers """
-
-        def is_hashtag_present(targets: List):
-            for target in targets:
-                if target.startswith('#'):
-                    return True
-            return False
+        if not profile:
+            raise InvalidProfileFileError(f'Invalid profile file - {path}')
         
-        if self.profile:
-            self.findfollowers = self.profile.get('findfollowers', None)
-        else:
-            self.findfollowers = self.args.findfollowers
-        if self.findfollowers and is_hashtag_present(self.target):
-            raise Exception("Cannot use 'findfollowers' option with tags")
+        return profile
     
-    def load_followersamount(self) -> None:
-        """ Loads followersamount """
-        if self.profile:
-            self.followersamount = to_int(self.profile.get('followersamount', None))
-        else:
-            self.followersamount = self.args.followersamount
+    def _load_params(self) -> None:
+        if self.args:
+            for param, value in self.args.items():
+                setattr(self, param, value)
 
-    def load_likecomments(self) -> None:
-        """ Loads likecomments """
-        if self.profile:
-            self.likecomments = to_int(self.profile.get('likecomments', None))
-        else:
-            self.likecomments = self.args.likecomments
-    
-    def load_inlast(self) -> None:
-        """ Loads inlast filter """
-        if self.profile:
-            self.inlast = self.profile.get('inlast', '')
-        else:
-            self.inlast = self.args.inlast
-    
-    def load_viewstory(self) -> None:
-        """ Loads viewstory """
-        if self.profile:
-            self.viewstory = self.profile.get('viewstory', None)
-        else:
-            self.viewstory = self.args.viewstory
+        if self.profileargs:
+            for param, value in self.profileargs.items():
+                setattr(self, param, value)
 
-    def load_likestory(self) -> None:
-        """ Loads likestory """
-        if self.profile:
-            self.likestory = to_int(self.profile.get('likestory', None))
-        else:
-            self.likestory = self.args.likestory
+    def _init_args(self) -> None:
+        """ Runs methods to initialize args """
+        args = list(self.args.keys())
+        args = [arg for arg in args if arg not in ('profile', 'username', 'password')]
+        for arg in args:
+            parser_func = getattr(self, f'_parse_{arg}', None)
+            if parser_func:
+                parser_func()
 
-    def load_commentstory(self) -> None:
-        """ Loads commentstory """
-        if self.profile:
-            self.commentstory = to_int(self.profile.get('commentstory', None))
-        else:
-            self.commentstory = self.args.commentstory
-    
-    def load_onlystory(self) -> None:
-        """ Loads onlystory """
-        if self.profile:
-            self.onlystory = self.profile.get('onlystory', None)
-        else:
-            self.onlystory = self.args.onlystory
-    
-    def load_mostrecent(self) -> None:
-        """ Loads mostrecent """
-        if self.profile:
-            self.mostrecent = self.profile.get('mostrecent', None)
-        else:
-            self.mostrecent = self.args.mostrecent
-    
-    def load_reloadrepeat(self) -> None:
-        """ Loads reloadrepeat """
-        if self.profile:
-            self.reloadrepeat = to_int(self.profile.get('reloadrepeat', None))
-        else:
-            self.reloadrepeat = self.args.reloadrepeat
+        self.__dict__.pop('args', None)
+        self.__dict__.pop('profileargs', None)
 
-    def load_matchtags(self) -> None:
-        """ Loads matchtags """
-        if self.profile:
-            self.matchtags = to_list(self.profile.get('matchtags', ''), splitby=',')
-        else:
-            self.matchtags = load_matchtags(self.args.matchtags)\
-                  if self.args.matchtags else None            
+    def _parse_target(self) -> None:
+        """ Loads target """
+        if self.target:
+            if isinstance(self.target, str):
+                targets_from_file = parse_targets_multi(fname=self.target)
+                if targets_from_file:
+                    self.target = [targets_from_file]
+                else:
+                    self.target = [self.target]
+            elif isinstance(self.target, list):
+                self.target: List[str] = [str(target).strip() for target in self.target if target]
+
+    def _parse_numofposts(self) -> None:
+        """ Parses numofposts """
+        if self.numofposts:
+            self.numofposts: int = to_int(self.numofposts, 'numofposts')
     
-    def load_matchtagnum(self) -> None:
-        """ Loads matchtagnum """
-        if self.profile:
-            self.matchtagnum = to_int(self.profile.get('matchtagnum', 3))
-        else:
-            self.matchtagnum = self.args.matchtagnum if \
-                self.args.matchtagnum else 3
+    def _parse_postscript(self) -> None:
+        """ Loads postscript """
+        if self.postscript:
+            self.postscript = str(self.postscript)
     
-    def load_matchalltags(self) -> None:
-        """ Loads matchalltags """
-        if self.profile:
-            if self.matchtagnum:
-                raise Exception("'matchtagnum' and 'matchtagall' cannot be used together")
-            self.matchalltags = self.profile.get('matchalltags', None)
-        else:
-            self.matchalltags = self.args.matchalltags
+    def _parse_findfollowers(self) -> None:
+        """ Parses findfollowers """
+        if self.findfollowers:
+            self.findfollowers: bool = True
     
-    def load_comments(self) -> None:
+    def _parse_followersamount(self) -> None:
+        """ Parses followersamount """
+        if self.followersamount:
+            self.followersamount: int = to_int(self.followersamount, 'followersamount')
+    
+    def _parse_viewstory(self) -> None:
+        """ Parses viewstory """
+        if self.viewstory:
+            self.viewstory: bool = True
+    
+    def _parse_likestory(self) -> None:
+        """ Parses likestory """
+        if self.likestory and self.likestory != float('inf'):
+            self.likestory: int = to_int(self.likestory, 'likestory')
+        else:
+            self.likestory = float('inf')
+    
+    def _parse_commentstory(self) -> None:
+        """ Parses commentstory """
+        if self.commentstory:
+            self.commentstory: int = to_int(self.commentstory, 'commentstory')
+        else:
+            self.commentstory = float('inf')
+
+    def _parse_onlystory(self) -> None:
+        """ Parses onlystory """
+        if self.onlystory:
+            self.onlystory: bool = True
+    
+    def _parse_comments(self) -> None:
         """ Loads comments """
-        if self.profile:
-            self.comments = to_list(self.profile.get('comments', ''))
-        else:
-            self.comments = self.args.comments
         if self.comments:
-            self.comments = load_comments(self.comments)
+            if isinstance(self.comments, str):
+                self.comments: List[str] = load_comments(self.comments)
+            elif isinstance(self.comments, list):
+                self.comments: List[str] = [str(cmt).strip() for cmt in self.comments]
+        else:
+            self.comments: List[str] = COMMENTS
     
-    def load_onecomment(self) -> None:
+    def _parse_onecomment(self) -> None:
         """ Loads onecomment """
-        if self.profile:
-            self.onecomment = self.profile.get('onecomment', '')
-        else:
-            self.onecomment = self.args.onecomment
-    
-    def load_nocomments(self) -> None:
+        if self.onecomment:
+            self.onecomment = str(self.onecomment)
+
+    def _parse_nocomments(self) -> None:
         """ Loads nocomments """
-        if self.profile:
-            if self.onecomment:
-                raise Exception("'onecomment' cannot be used with 'nocomments'")
-            if self.comments:
-                raise Exception("'comments' cannot be used with 'nocomments'")
-            self.nocomments = self.profile.get('nocomments', None)
+        if self.nocomments:
+            self.nocomments: bool = True
+    
+    def _parse_matchtags(self) -> None:
+        """ Load matchtags """
+        if self.matchtags:
+            if isinstance(self.matchtags, str):
+                tags_from_file = load_tags(self.matchtags)
+                if tags_from_file:
+                    self.matchtags: List[str] = [tags_from_file]
+                else:
+                    self.matchtags = [self.matchtags]
+            elif isinstance(self.matchtags, list):
+                self.matchtags = [str(tag).strip() for tag in self.matchtags]
         else:
-            self.nocomments = self.args.nocomments
+            self.matchtags: List[str] = []
     
+    def _parse_ignoretags(self) -> None:
+        """ Loads ignoretags """
+        if self.ignoretags:
+            if isinstance(self.ignoretags, str):
+                tags_from_file = load_tags(self.ignoretags)
+                if tags_from_file:
+                    self.ignoretags: List[str] = [tags_from_file]
+                else:
+                    self.ignoretags = [self.ignoretags]
+            elif isinstance(self.ignoretags, list):
+                self.ignoretags: List[str] = [str(tag).strip() for tag in self.ignoretags]
+        else:
+            self.ignoretags: List[str] = []
 
-
-
+    def _parse_matchtagnum(self) -> None:
+        """ Loads matchtagnum """
+        if self.matchtagnum:
+            self.matchtagnum: int = to_int(self.matchtagnum, 'matchtagnum')
+            if self.matchtags and self.matchtagnum > len(self.matchtags):
+                raise ValueError("'matchtagnum' cannot be greater than number of matchtags")
+        if self.matchalltags:
+            self.matchtagnum: int = len(self.matchtags)
+        else:
+            self.matchtagnum: int = 3
     
-    
-    
+    def _parse_matchalltags(self) -> None:
+        """ Loads matchalltags """
+        if self.matchalltags:
+            self.matchalltags: bool = True
 
+    def _parse_likecomments(self) -> None:
+        """ Loads likecomments """
+        if self.likecomments:
+            self.likecomments: int = to_int(self.likecomments, 'likecomments')
     
-
-
+    def _parse_mostrecent(self) -> None:
+        """ Loads mostrecent """
+        if self.mostrecent:
+            self.mostrecent: bool = True
+    
+    def _parse_reloadrepeat(self) -> None:
+        """ Loads reloadrepeat """
+        if self.reloadrepeat:
+            self.reloadrepeat: int = to_int(self.reloadrepeat, 'reloadrepeat')
         
+    def _parse_inlast(self) -> None:
+        """ Loads inlast """
+        if self.inlast:
+            self.inlast_multiplier: int = None
+            self.inlast_tparam: str = None
+            parsed_inlast = parse_inlast(self.inlast)
+            if not parsed_inlast:
+                raise ValueError(f"Invalid value '{self.inlast}' received for 'inlast' parameter")
+            self.inlast_multiplier, self.inlast_tparam = parsed_inlast
+    
+    def _parse_brprofile(self) -> None:
+        """ Loads brprofile """
+        if self.brprofile and not pathexists(self.brprofile):
+            raise InvalidBrowserProfileError(f"Invalid browser profile - {self.brprofile}")
+
+    def _parse_eltimeout(self) -> None:
+        """ Loads eltimeout """
+        if self.eltimeout:
+            self.eltimeout: int = to_int(self.eltimeout, 'eltimeout')
+        else:
+            self.eltimeout: int = 30
+    
+    def _parse_delay(self) -> None:
+        """ Parses delay """
+        if self.delay:
+            self.delay: Tuple[int] = parse_delay(self.delay)
+        else:
+            self.delay: Tuple[int] = (1,10)
+    
+    def _parse_browser(self) -> None:
+        """ Parses browser """
+        if self.browser:
+            if self.browser.lower() not in ('chrome', 'firefox'):
+                raise InvalidBrowserError("Invalid browser specified in 'browser' parameter")
+            self.browser = self.browser.lower()
+        else:
+            self.browser = 'chrome'
+    
+    def _parse_headless(self) -> None:
+        """ Parses headless """
+        if self.headless:
+            self.headless: bool = True
+    
+
+def remove_blanks(lst: List) -> List:
+    """
+    Removes empty elements from a list
+    """
+    return [el for el in lst if el != '']
+
+
+def remove_carriage_ret(lst) -> List:
+    """
+    Remove carriage return - \r from a list
+    """
+    return list(map(lambda el: el.replace('\r',''), lst))
+
+
+def to_int(val, field):
+    """ Converts val to int """
+    if isinstance(val, int):
+        return val
+    if isinstance(val, str) and val.isnumeric():
+        return int(val)
+    raise ValueError(f"'{field}' expects a numeric type")
+   
+
+def load_comments(fname: str) -> List:
+    """
+    Reads comments from a file and returns a list of comments
+    """
+    try:
+        with open(fname,'rb') as fh:
+            content = fh.read()
+            lines = content.decode('utf-8').split('\n')
+            comments = remove_carriage_ret(lines)
+            comments = remove_blanks(comments)
+            return comments
+    except Exception as ex:
+        logger.error(f'Error opening file: {fname}')
+        return []
+
+
+def load_tags(fname: str) -> List:
+    """
+    Returns list of tags from a file
+    """
+    tags = []
+    try:
+        with open(fname, 'r') as fh:
+            tags = fh.read().split('\n')
+            tags = [tag.strip() for tag in tags if tag != '']
+    except Exception as ex:
+        logger.error(f'Error opening file: {fname}')
+    return tags
+
+
+def parse_inlast(inlast: str) -> tuple:
+        """
+        Parses inlast value and returns (multiplier, tparam)
+        tparams: 
+            y -> year
+            M -> month
+            d -> day
+            h -> hour
+            m -> min
+            s -> sec
+        Ex: inlast -> 1h
+            multiplier -> 1; tparam: h
+        """
+        if not inlast:
+            return ()
+        
+        multiplier, tparam = (None,None)
+        try:
+            match = re.match(r'(\d+)(y|M|d|h|m|s)', inlast)
+            if not match:
+                return ()
+            multiplier, tparam = match.groups()
+            multiplier = int(multiplier)
+        except:
+            return ()
+        return (multiplier, tparam)
+
+
+def parse_delay(delay:str, default: tuple = (1,10)) -> tuple:
+    """
+    Parses delay value and returns start and end range
+    """
+    if not delay:
+        return default
+
+    match = re.match(r'(\d+),\s*(\d+)', delay)
+    if match:
+        st, en = map(int, match.groups())
+        if st > en:
+            logger.error(f'[parse_delay] Invalid delay range. Defaulting to {default}')
+            return default
+        if max(st,en) > 100 or min(st,en) < 1:
+            logger.error(f'[parse_delay] Invalid delay range. Defaulting to {default}')
+            return default
+        if st == en:
+            return (default[0],en)
+        return (st, en)
+    
+    match = re.match(r'\d+$', delay)
+    if match:
+        st = int(match.group(0))
+        return (st,) if st > 0 and st <= 100 else default
+    
+    raise ValueError(f"Invalid value received for 'delay' parameter: {delay}")
+
+
+def parse_targets_multi(fname: str) -> List[str]:
+    """
+    Parses target string to retrieve multiple targets
+    """
+    try:
+        targets = []
+        with open(fname) as fh:
+            targets = fh.read().split('\n')
+            targets = [target.strip() for target in targets if target]
+        return targets
+    except Exception as ex:
+        logger.error(f'Error opening file: {fname}')
+    return []
+
+
+def is_hashtag_present(targets: List) -> bool:
+    """
+    Checks if one of the targets is a hashtag
+    """
+    for target in targets:
+        if target.startswith('#'):
+            return True
+    return False
 
         
 

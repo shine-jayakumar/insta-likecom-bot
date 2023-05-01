@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.2.7
+    insta-likecom-bot v.3.0
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -146,14 +146,21 @@ class Insta:
         """
         Loads the target - account or hastag
         """
-        # account
-        if not tag:
+        if accountname.startswith('#'):
+            self.tag = accountname[1:]
+            self.targeturl = f"{self.baseurl}/explore/tags/{accountname[1:]}"
+        else:
             self.account = accountname
             self.targeturl = f"{self.baseurl}/{accountname}"
-        # tag
-        else:
-            self.tag = accountname
-            self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
+
+        # # account
+        # if not tag:
+        #     self.account = accountname
+        #     self.targeturl = f"{self.baseurl}/{accountname}"
+        # # tag
+        # else:
+        #     self.tag = accountname
+        #     self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
 
     def validate_target(self) -> bool:
         """
@@ -181,7 +188,8 @@ class Insta:
                 wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
                 return True
             except:
-                logger.error(f"Could not find user's profile with xpath: {xpath}")
+                # logger.error(f"Could not find user's profile with xpath: {xpath}")
+                logger.error(f'Failed to validate login')
 
         return False
 
@@ -210,8 +218,8 @@ class Insta:
 
             # if not a valid account or tag
             elif not self.validate_target():
-                logger.error('Not a valid target')
-                return 'skip_retry'
+                logger.error('Failed to validate target')
+                return False
         except:
             return False
         return True
@@ -764,32 +772,6 @@ def remove_carriage_ret(lst) -> List:
     return list(map(lambda el: el.replace('\r',''), lst))
 
 
-def load_comments(fname: str) -> List:
-    """
-    Reads comments from a file and returns a list of comments
-    """
-    with open(fname,'rb') as fh:
-        content = fh.read()
-        lines = content.decode('utf-8').split('\n')
-        comments = remove_carriage_ret(lines)
-        comments = remove_blanks(comments)
-        return comments
-
-
-def load_matchtags(fname: str) -> List:
-    """
-    Returns list of tags from a file
-    """
-    tags = []
-    try:
-        with open(fname, 'r') as fh:
-            tags = fh.read().split('\n')
-            tags = [tag.strip() for tag in tags if tag != '']
-    except Exception as ex:
-        logger.error(f'{ex.__class__.__name__} {str(ex)}')
-    return tags
-
-
 def bmp_emoji_safe_text(text) -> str:
     """
     Returns bmp emoji safe text
@@ -806,62 +788,7 @@ def scroll_into_view(driver, element) -> None:
     driver.execute_script('arguments[0].scrollIntoView()', element)
 
 
-def parse_inlast(inlast: str) -> tuple:
-        """
-        Parses inlast value and returns (multiplier, tparam)
-        tparams: 
-            y -> year
-            M -> month
-            d -> day
-            h -> hour
-            m -> min
-            s -> sec
-        Ex: inlast -> 1h
-            multiplier -> 1; tparam: h
-        """
-        if not inlast:
-            return ()
-        
-        multiplier, tparam = (None,None)
-        try:
-            match = re.match(r'(\d+)(y|M|d|h|m|s)', inlast)
-            if not match:
-                return ()
-            multiplier, tparam = match.groups()
-            multiplier = int(multiplier)
-        except:
-            return ()
-        return (multiplier, tparam)
-
-
-def parse_delay(delay:str, default: tuple = (1,10)) -> tuple:
-    """
-    Parses delay value and returns start and end range
-    """
-    if not delay:
-        return default
-
-    match = re.match(r'(\d+),\s*(\d+)', delay)
-    if match:
-        st, en = map(int, match.groups())
-        if st > en:
-            logger.error(f'[parse_delay] Invalid delay range. Defaulting to {default}')
-            return default
-        if max(st,en) > 100 or min(st,en) < 1:
-            logger.error(f'[parse_delay] Invalid delay range. Defaulting to {default}')
-            return default
-        if st == en:
-            return (default[0],en)
-        return (st, en)
-    
-    match = re.match(r'\d+', delay)
-    if match:
-        st = int(match.group(0))
-        return (st,) if st > 0 and st <= 100 else default
-    return default    
-
-
-def get_delay(delay: tuple, default: tuple = (1,10)):
+def get_delay(delay: tuple, default: tuple = (1,10)) -> Tuple[int]:
     """ Returns a random delay value between (st,en) """
     if not delay:
         return random.randint(default[0], default[1])
@@ -884,23 +811,6 @@ def generate_random_comment(comments):
     Returns a random comment from a list of comments
     """
     return comments[random.randint(0, len(comments)-1)]
-
-
-def parse_targets_multi(targets: str) -> List[str]:
-    """
-    Parses target string to retrieve multiple targets
-    """
-    return [target.strip() for target in targets.split(',')]
-
-
-def is_hashtag_present(targets: List) -> bool:
-    """
-    Checks if one of the targets is a hashtag
-    """
-    for target in targets:
-        if target.startswith('#'):
-            return True
-    return False
 
 
 def display_intro():
