@@ -271,7 +271,7 @@ ilcbot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c m
     "password":"passw0rd",
     "target": ["#haikus", "#photography"],
     "numofposts": "3",
-    "matchtags": ["#haiku", "##haikus", "##haikupoetry"],
+    "matchtags": ["#haiku", "#haikus", "#haikupoetry"],
     "ignoretags": ["#shorts"],
     "comments": "comments.txt",
     "viewstory": true,
@@ -281,6 +281,16 @@ ilcbot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c m
     "likecomments": 2,
     "nocomments": true,
     "brprofile" : "/dir/dir1/Profile 1"
+}
+```
+```
+{   
+    "username": "bob01",
+    "password":"passw0rd",
+    "target": "#photography",
+    "numofposts": 2,
+    "comments": ["Beautiful!", "Amazing!", "I can relate to this"],
+    "delay": "5,20"
 }
 ```
 **Sample target files**
