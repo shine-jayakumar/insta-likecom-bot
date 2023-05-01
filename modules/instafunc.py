@@ -1,12 +1,12 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.2.7
+    insta-likecom-bot v.3.0
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
     Github: https://github.com/shine-jayakumar
-
+    Copyright (c) 2023 Shine Jayakumar
     LICENSE: MIT
 """
 
@@ -36,10 +36,12 @@ import time
 from datetime import datetime
 from sys import platform
 
-from applogger import AppLogger
+from modules.applogger import AppLogger
 from typing import List, Tuple
 from functools import wraps
 from enum import Enum
+import random
+from modules.constants import APP_VERSION
 
 
 logger = AppLogger(__name__).getlogger()
@@ -89,7 +91,7 @@ def retry(func):
 
 
 class Insta:
-    def __init__(self, username, password, timeout=30, browser='chrome', headless=False) -> None:
+    def __init__(self, username, password, timeout=30, browser='chrome', headless=False, profile:str = None) -> None:
         # current working directory/driver
         self.browser = 'chrome'
         self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
@@ -115,6 +117,8 @@ class Insta:
             options = ChromeOptions()
             if headless:
                 options.add_argument("--headless")
+            if profile:
+                options.add_argument(f'user-data-dir={profile}')
             options.add_argument("--disable-notifications")
             options.add_argument("--start-maximized")
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -142,14 +146,21 @@ class Insta:
         """
         Loads the target - account or hastag
         """
-        # account
-        if not tag:
+        if accountname.startswith('#'):
+            self.tag = accountname[1:]
+            self.targeturl = f"{self.baseurl}/explore/tags/{accountname[1:]}"
+        else:
             self.account = accountname
             self.targeturl = f"{self.baseurl}/{accountname}"
-        # tag
-        else:
-            self.tag = accountname
-            self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
+
+        # # account
+        # if not tag:
+        #     self.account = accountname
+        #     self.targeturl = f"{self.baseurl}/{accountname}"
+        # # tag
+        # else:
+        #     self.tag = accountname
+        #     self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
 
     def validate_target(self) -> bool:
         """
@@ -165,18 +176,20 @@ class Insta:
         """
         Validates login
         """
+        wait = WebDriverWait(self.driver, 5)
         user_profile_xpaths = [
             '//img[contains(@alt, " profile picture")]',
             '//div[@class="_acut"]/div/span/img',
             '//img[@data-testid="user-avatar"]'
         ]
-        for xpath in user_profile_xpaths:
+        for atmpt_cnt, xpath in enumerate(user_profile_xpaths, start=1):
             try:
-                logger.info(f'Validating login with xpath: {xpath}')
-                self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+                logger.info(f'[Attempt# {atmpt_cnt}] Validating login')
+                wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
                 return True
             except:
-                logger.error(f"Could not find user's profile with xpath: {xpath}")
+                # logger.error(f"Could not find user's profile with xpath: {xpath}")
+                logger.error(f'Failed to validate login')
 
         return False
 
@@ -205,12 +218,25 @@ class Insta:
 
             # if not a valid account or tag
             elif not self.validate_target():
-                return 'skip_retry'
+                logger.error('Failed to validate target')
+                return False
         except:
             return False
         return True
-
-    def login(self) -> bool:
+    
+    @retry
+    def launch_insta(self) -> bool:
+        """
+        Opens instagram
+        """
+        try:
+            self.driver.get(self.baseurl)
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+            return False
+        return True
+    
+    def login(self, validate=True) -> bool:
         """
         Initiates login with username and password
         """
@@ -219,8 +245,14 @@ class Insta:
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="username"]'))).send_keys(self.username)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="password"]'))).send_keys(self.password)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '//button[@type="submit"]'))).click()
-            if not self.validate_login():
-                return False
+
+            if self.is_2factor_present():
+                logger.info('2 factor authentication active. Enter your authentication code to continue')
+                time.sleep(10)
+
+            if validate:
+                if not self.validate_login():
+                    return False
         except:
             return False
         return True
@@ -369,6 +401,19 @@ class Insta:
             except:
                 logger.error(f'Could not find Not Now button with xpath: {xpath}')
         return False
+    
+    def save_login_info(self) -> bool:
+        """
+        Saves login information
+        """
+        # wait = WebDriverWait(self.driver, 10)
+        try:
+            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(text(),"Save Your Login Info")]')))
+            self.driver.find_element(By.XPATH, '//button[contains(text(),"Save Info")]').click()
+            return True
+        except:
+            logger.error(f'Save Login Info dialog box not found')
+        return False
 
     def next_post(self) -> bool: 
         """
@@ -396,6 +441,18 @@ class Insta:
                 return True        
             except:
                 logger.info(f'[is_private]: text=>({text}) not found')
+        return False
+    
+    def is_2factor_present(self) -> bool:
+        """
+        Checks if 2 factor verification screen is present
+        """
+        wait = WebDriverWait(self.driver, 10)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="verificationCodeDescription"]')))
+            return True
+        except Exception as ex:
+            logger.error('Could not locate 2 factor authentication screen')
         return False
 
     def quit(self) -> None:
@@ -620,7 +677,7 @@ class Insta:
             is_disabled = wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "_aarf")]'))).get_attribute('aria-disabled')
             return is_disabled == 'false'
         except Exception as ex:
-            logger.error(f'[is_story_present] Could not locate story. Account may be private')
+            logger.error(f'[is_story_present] Could not locate story')
         return False
 
     def open_story(self) -> bool:
@@ -700,7 +757,6 @@ class Insta:
             logger.error(f'[comment_on_story] Error: {ex.__class__.__name__}')
         return False
 
-    
 
 def remove_blanks(lst: List) -> List:
     """
@@ -714,32 +770,6 @@ def remove_carriage_ret(lst) -> List:
     Remove carriage return - \r from a list
     """
     return list(map(lambda el: el.replace('\r',''), lst))
-
-
-def load_comments(fname: str) -> List:
-    """
-    Reads comments from a file and returns a list of comments
-    """
-    with open(fname,'rb') as fh:
-        content = fh.read()
-        lines = content.decode('utf-8').split('\n')
-        comments = remove_carriage_ret(lines)
-        comments = remove_blanks(comments)
-        return comments
-
-
-def load_matchtags(fname: str) -> List:
-    """
-    Returns list of tags from a file
-    """
-    tags = []
-    try:
-        with open(fname, 'r') as fh:
-            tags = fh.read().split('\n')
-            tags = [tag.strip() for tag in tags if tag != '']
-    except Exception as ex:
-        logger.error(f'{ex.__class__.__name__} {str(ex)}')
-    return tags
 
 
 def bmp_emoji_safe_text(text) -> str:
@@ -758,29 +788,46 @@ def scroll_into_view(driver, element) -> None:
     driver.execute_script('arguments[0].scrollIntoView()', element)
 
 
-def parse_inlast(inlast: str) -> tuple:
-        """
-        Parses inlast value and returns (multiplier, tparam)
-        tparams: 
-            y -> year
-            M -> month
-            d -> day
-            h -> hour
-            m -> min
-            s -> sec
-        Ex: inlast -> 1h
-            multiplier -> 1; tparam: h
-        """
-        if not inlast:
-            return ()
-        
-        multiplier, tparam = (None,None)
-        try:
-            match = re.match(r'(\d+)(y|M|d|h|m|s)', inlast)
-            if not match:
-                return ()
-            multiplier, tparam = match.groups()
-            multiplier = int(multiplier)
-        except:
-            return ()
-        return (multiplier, tparam)
+def get_delay(delay: tuple, default: tuple = (1,10)) -> Tuple[int]:
+    """ Returns a random delay value between (st,en) """
+    if not delay:
+        return random.randint(default[0], default[1])
+    if len(delay) < 2:
+        return delay[0]
+    return random.randint(delay[0], delay[1])
+
+
+def get_random_index(total_items: int, arg: int, all_specifier=float('inf')) -> list:
+    """
+    Generates random index numbers based on value of argname
+    """
+    if not arg or arg == all_specifier or arg > total_items:
+        arg = total_items
+    return random.sample(range(total_items), total_items)
+
+
+def generate_random_comment(comments):
+    """
+    Returns a random comment from a list of comments
+    """
+    return comments[random.randint(0, len(comments)-1)]
+
+
+def display_intro():
+
+    intro = f"""
+     ___ _  _ ___ _____ _      _    ___ _  _____ ___ ___  __  __     ___  ___ _____ 
+    |_ _| \| / __|_   _/_\ ___| |  |_ _| |/ | __/ __/ _ \|  \/  |___| _ )/ _ |_   _|
+     | || .` \__ \ | |/ _ |___| |__ | || ' <| _| (_| (_) | |\/| |___| _ | (_) || |  
+    |___|_|\_|___/ |_/_/ \_\  |____|___|_|\_|___\___\___/|_|  |_|   |___/\___/ |_|  
+    
+    insta-likecom-bot {APP_VERSION}
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+    
+    """
+    print(intro)

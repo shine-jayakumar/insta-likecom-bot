@@ -4,3 +4,4 @@ driver
 .env
 env
 venv
+.vscode

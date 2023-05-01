@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.2.8&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.3.0&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -27,6 +27,7 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - [Usage](#Usage "Usage")
 - [Examples](#Examples "Examples")
 - [Version Updates](#Version-Updates "Version Updates")
+- [Frequenty Asked Questions](#FAQs "FAQs")
 - [Report a Bug](#Issue "Report an Issue")
 - [License](#LICENSE "License")
 - [Donations](#Donations "Donations")
@@ -52,7 +53,8 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Specify time delays after each post
 - Supports Chrome and Firefox
 - Headless mode
-- Load username, password, and target from .env
+- Supports profile - load parameters from a json file
+- Supports browser profile - save credentials to skip login
 
 ## Requirements
 - Python 3
@@ -70,7 +72,7 @@ Required arguments
 | ------ | ------ |
 | username | Instagram username |
 | password | Instagram password |
-| target | An instagram account or tag |
+| target | An instagram account or tag|
 
 Optional Arguments
 | Option | Description |
@@ -95,130 +97,232 @@ Optional Arguments
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
+| -pr, --profile | loads profile from a json file |
+| -bp, --brprofile | loads chrome profile from a path | 
 
 ## Usage
 **To like and comment every post**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget
+ilcbot.py -u yourusername -p yourpassword -t thetarget
 ```
 
 **To like and comment on stories**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls -cs
+ilcbot.py -u yourusername -p yourpassword -t thetarget -ls -cs
 ```
 
 **To specify number of posts to like**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS
+ilcbot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS
 ```
 
 **To like and comment on posts from target's followers**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS -ff
+ilcbot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS -ff
 ```
 
 **To specify a delay**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -d DELAY
+ilcbot.py -u yourusername -p yourpassword -t thetarget -d DELAY
+```
+```
+ilcbot.py -u yourusername -p yourpassword -t thetarget -d start,end
 ```
 
 **To specify a file with comments**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -c FILE
+ilcbot.py -u yourusername -p yourpassword -t thetarget -c FILE
 ```
 
 **To specify only one comment**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -oc TEXT
+ilcbot.py -u yourusername -p yourpassword -t thetarget -oc TEXT
 ```
 
 **To add a text to the end of every comment**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -ps TEXT
+ilcbot.py -u yourusername -p yourpassword -t thetarget -ps TEXT
 ```
 
 **To leave no comments**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -nc
+ilcbot.py -u yourusername -p yourpassword -t thetarget -nc
 ```
 
 **To like comments from other users**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -ls 5
+ilcbot.py -u yourusername -p yourpassword -t thetarget -ls 5
 ```
 
 **To filter posts within last 2 days**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 2d
+ilcbot.py -u yourusername -p yourpassword -t thetarget -il 2d
 ```
 
 **To filter posts within last 5 months**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 5M
+ilcbot.py -u yourusername -p yourpassword -t thetarget -il 5M
 ```
 
 **To filter posts within last 3 years**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -il 3y
+ilcbot.py -u yourusername -p yourpassword -t thetarget -il 3y
 ```
 
 **To target most recent posts**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -mr
+ilcbot.py -u yourusername -p yourpassword -t thetarget -mr
 ```
 
 **To reload target 5 times with most recent posts**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -mr -rr 5
+ilcbot.py -u yourusername -p yourpassword -t thetarget -mr -rr 5
+```
+
+**To filter posts based on tags**
+```
+ilcbot.py -u yourusername -p yourpassword -t thetarget --matchtags tags.txt
 ```
 
 **To specify a browser**
 ```
-instalikecombot.py -u yourusername -p yourpassword -t thetarget -br firefox
+ilcbot.py -u yourusername -p yourpassword -t thetarget -br firefox
 ```
 
-**To load username, password, and target from .env**
+**To specify a profile**
 ```
-instalikecombot.py --loadenv
+ilcbot.py -pr profile1.json
+```
+
+**To specify a browser profile**
+```
+ilcbot.py -u yourusername -p yourpassword -t thetarget -bp '/path/to/Profile 1'
 ```
 
 ## Examples
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 5 -ff
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 5 -ff
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -oc "Hello there"
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -oc "Hello there"
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30
 ```
 ```
-instalikecombot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
+ilcbot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" --delay 2,20
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5
+ilcbot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
 ```
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 -il 3h
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5
 ```
+```
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 -il 3h
+```
+```
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 --matchtags tags.txt --ignoretags ignoretags.txt
+```
+```
+ilcbot.py -pr profile1.json
+```
+```
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 --brprofile '/path/to/Profile 1'
+```
+
 **Note: Enclose tagnames (#haiku) in double-quotes/single-quotes when running the script in PowerShell/Bash.**
 ```
-instalikecombot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
 ```
-instalikecombot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+ilcbot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
 ```
+**Sample profiles**
+```
+{   
+    "username": "bob01",
+    "password":"passw0rd",
+    "target": "targets.txt",
+    "numofposts": "3",
+    "matchtags": "tags.txt",
+    "ignoretags": "ignore.txt",
+    "comments": "comments.txt",
+    "viewstory": true,
+    "likestory": 1,
+    "inlast": "3d",
+    "delay": "5",
+    "likecomments": 2,
+    "nocomments": true
+}
+```
+```
+{   
+    "username": "bob01",
+    "password":"passw0rd",
+    "target": ["#haikus", "#photography"],
+    "numofposts": "3",
+    "matchtags": ["#haiku", "##haikus", "##haikupoetry"],
+    "ignoretags": ["#shorts"],
+    "comments": "comments.txt",
+    "viewstory": true,
+    "likestory": 1,
+    "inlast": "3d",
+    "delay": "5",
+    "likecomments": 2,
+    "nocomments": true,
+    "brprofile" : "/dir/dir1/Profile 1"
+}
+```
+**Sample target files**
+<br/>
+targets.txt
+```
+#haiku
+#photography
+bob01
+elonmusk
+```
+**Sample file with tags**
+<br/>
+tagstomatch.txt
+```
+#gym
+#fitness
+#stayfit
+#healthylife
+#workout
+```
+
+
+
 ## Version Updates
-Version **v.2.8** (latest)
+Version **v.3.0** (latest)
+
+Feature addition:
+- Supports Chrome browser profile - saves credentials
+- Supports profiles - loads arguments from a json file
+- Supports multiple targets - accepts file, list, or single value
+- Delay parameter can accept a range (2-20) or single value (20)
+- Ignoretags parameter - skip posts with specific tags present
+- Matchtags, Ignoretags parameter accepts tags from a file, list, or as a single value
+
+Changes:
+- Script renamed to 'ilcbot.py'
+- loadenv parameter deprecated
+
+<br/>
+
+Version **v.2.8** 
 
 Feature addition:
 - added option -os, --onlystory - target only stories
@@ -236,6 +340,14 @@ Feature addition:
 - added option -cs, --commentstory - to comment on stories
 - added option -rr, --reloadrepeat - to reload target n times
 
+<br/>
+
+## FAQs
+
+- [How to find Chrome profile path?](https://chromium.googlesource.com/chromium/src/+/master/docs/user_data_dir.md#:~:text=user%20data%20directory.-,Current%20Location,path%20to%20the%20profile%20directory.)
+
+
+<br/>
 
 ## Issue
 Report a [bug or an issue](https://github.com/shine-jayakumar/insta-likecom-bot/issues/new)
