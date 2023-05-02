@@ -1,7 +1,7 @@
 """ 
     profile.py - profile class for insta-likecom-bot
 
-    insta-likecom-bot v.3.0
+    insta-likecom-bot v.3.0.1
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -109,7 +109,7 @@ class Profile:
             if isinstance(self.target, str):
                 targets_from_file = parse_targets_multi(fname=self.target)
                 if targets_from_file:
-                    self.target = [targets_from_file]
+                    self.target = targets_from_file
                 else:
                     self.target = [self.target]
             elif isinstance(self.target, list):
@@ -142,17 +142,17 @@ class Profile:
     
     def _parse_likestory(self) -> None:
         """ Parses likestory """
-        if self.likestory and self.likestory != float('inf'):
+        if self.likestory:
             self.likestory: int = to_int(self.likestory, 'likestory')
         else:
-            self.likestory = float('inf')
+            self.likestory = 0
     
     def _parse_commentstory(self) -> None:
         """ Parses commentstory """
         if self.commentstory:
             self.commentstory: int = to_int(self.commentstory, 'commentstory')
         else:
-            self.commentstory = float('inf')
+            self.commentstory = 0
 
     def _parse_onlystory(self) -> None:
         """ Parses onlystory """
@@ -185,7 +185,7 @@ class Profile:
             if isinstance(self.matchtags, str):
                 tags_from_file = load_tags(self.matchtags)
                 if tags_from_file:
-                    self.matchtags: List[str] = [tags_from_file]
+                    self.matchtags: List[str] = tags_from_file
                 else:
                     self.matchtags = [self.matchtags]
             elif isinstance(self.matchtags, list):
@@ -199,7 +199,7 @@ class Profile:
             if isinstance(self.ignoretags, str):
                 tags_from_file = load_tags(self.ignoretags)
                 if tags_from_file:
-                    self.ignoretags: List[str] = [tags_from_file]
+                    self.ignoretags: List[str] = tags_from_file
                 else:
                     self.ignoretags = [self.ignoretags]
             elif isinstance(self.ignoretags, list):

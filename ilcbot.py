@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.3.0
+    insta-likecom-bot v.3.0.1
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -20,9 +20,9 @@ from modules.exceptions import *
 
 
 
-args = parser.parse_args()
+args = parser.parse_args(['-pr', 'prf1.json'])
 
-logger = AppLogger(__name__).getlogger()
+logger = AppLogger('ilcbot').getlogger()
 
 try:
     profile = Profile(args=args)
@@ -114,7 +114,7 @@ try:
         logger.info("Login successful")
 
     # EXTRACTING FOLLOWERS
-    target_list = []
+    target_list = profile.target
     # extracting followers from multiple targets
     if profile.findfollowers:
         for target in profile.target:
@@ -131,8 +131,6 @@ try:
             logger.info(followers)
             logger.info(f'Found {len(followers)} followers')
             target_list.extend(followers)
-    else:
-        target_list = profile.target
 
     stats.accounts = len(target_list)
 
@@ -162,8 +160,8 @@ try:
                 total_stories = insta.get_total_stories()
                 stats.stories += total_stories
 
-                like_stories_at = get_random_index(total_items=total_stories, arg=profile.likestory)
-                comment_stories_at = get_random_index(total_items=total_stories, arg=profile.commentstory)
+                like_stories_at = get_random_index(total_items=total_stories, nreq=profile.likestory)
+                comment_stories_at = get_random_index(total_items=total_stories, nreq=profile.commentstory)
                 for story_idx in range(total_stories):
                     if profile.likestory and story_idx in like_stories_at:
                         insta.like_story()
@@ -337,7 +335,7 @@ try:
 
 except Exception as ex:
     logger.error(f"Script ended with error")
-    logger.error(f'Error: [{ex.__class__.__name__}] - {str(ex)}')
+    logger.error(f'Error: [{ex.__class__.__name__}] - {str(ex)}',exc_info=1)
 
 finally:
     if insta:
