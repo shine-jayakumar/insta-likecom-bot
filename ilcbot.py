@@ -20,7 +20,7 @@ from modules.exceptions import *
 
 
 
-args = parser.parse_args(['-pr', 'prf1.json'])
+args = parser.parse_args()
 
 logger = AppLogger('ilcbot').getlogger()
 
