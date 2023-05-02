@@ -1,7 +1,7 @@
 """ 
     instafunc.py - function module for insta-likecom-bot
 
-    insta-likecom-bot v.3.0
+    insta-likecom-bot v.3.0.1
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -797,13 +797,15 @@ def get_delay(delay: tuple, default: tuple = (1,10)) -> Tuple[int]:
     return random.randint(delay[0], delay[1])
 
 
-def get_random_index(total_items: int, arg: int, all_specifier=float('inf')) -> list:
+def get_random_index(total_items: int, nreq: int, all_specifier=111) -> list:
     """
     Generates random index numbers based on value of argname
     """
-    if not arg or arg == all_specifier or arg > total_items:
-        arg = total_items
-    return random.sample(range(total_items), total_items)
+    if not nreq:
+        return []
+    if nreq == all_specifier or nreq > total_items:
+        nreq = total_items
+    return random.sample(range(total_items), nreq)
 
 
 def generate_random_comment(comments):

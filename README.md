@@ -86,8 +86,8 @@ Optional Arguments
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
 | -il, --inlast | target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
-| -ls, --likestory | like stories |
-| -cs, --commentstory | comment on stories (no comments if option not used) |
+| -ls, --likestory | like stories (use 111 to like all stories)|
+| -cs, --commentstory | comment on stories (use 111 to comment on all stories) |
 | -os, --onlystory | target only stories and not posts |
 | -mr, --mostrecent | target most recent posts |
 | -rr, --reloadrepeat | reload the target n times (used with -mr) |
