@@ -1,3 +1,15 @@
+""" 
+    applogger.py - class to maintain logs
+
+    insta-likecom-bot v.3.0.2
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+"""
+
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
