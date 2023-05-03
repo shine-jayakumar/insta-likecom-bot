@@ -1,3 +1,14 @@
+""" 
+    argparsing.py - module to parse command-line arguments
+
+    insta-likecom-bot v.3.0.2
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+"""
 
 import argparse
 from modules.constants import APP_VERSION

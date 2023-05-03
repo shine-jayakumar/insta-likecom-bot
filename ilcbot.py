@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.3.0.1
+    insta-likecom-bot v.3.0.2
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -133,7 +133,7 @@ try:
             target_list.extend(followers)
     else:
         target_list = profile.target
-        
+
     stats.accounts = len(target_list)
 
     for target in target_list:
