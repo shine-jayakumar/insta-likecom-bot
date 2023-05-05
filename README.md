@@ -316,7 +316,7 @@ tagstomatch.txt
 
 
 ## Version Updates
-Version **v.3.0** (latest)
+Version **v.3.0.2** (latest)
 
 Feature addition:
 - Supports Chrome browser profile - saves credentials
