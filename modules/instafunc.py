@@ -1,7 +1,7 @@
 """ 
     instafunc.py - Insta class and helper methods
 
-    insta-likecom-bot v.3.0.2
+    insta-likecom-bot v.3.0.3
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -24,6 +24,10 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.remote.webelement import WebElement
 
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.service import Service as FirefoxService
+
+# from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver import ActionChains
 
 # Added for FireFox support
@@ -35,6 +39,7 @@ import re
 import time
 from datetime import datetime
 from sys import platform
+import sys
 
 from modules.applogger import AppLogger
 from typing import List, Tuple
@@ -108,9 +113,16 @@ class Insta:
             options.log.level = 'fatal'
 
             # current working directory/driver/firefox
-            self.driver = webdriver.Firefox(
-                executable_path=GeckoDriverManager(path=os.path.join(self.driver_baseloc, 'firefox')).install(),
-                options=options)
+            # self.driver = webdriver.Firefox(
+            #     executable_path=GeckoDriverManager(path=os.path.join(self.driver_baseloc, 'firefox')).install(),
+            #     options=options)
+            self.driver = None
+            try:
+                self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+            except Exception as webdriver_ex:
+                logger.error(f'[Driver Download Manager Error]: {str(webdriver_ex)}')
+                sys.exit(1)
+
         # Chrome
         else:
             # Chrome Options
@@ -128,10 +140,17 @@ class Insta:
                 options.add_argument('--disable-dev-shm-usage')
 
             # current working directory/driver/chrome
-            self.driver = webdriver.Chrome(
-                executable_path=ChromeDriverManager(path=os.path.join(self.driver_baseloc, 'chrome')).install(),
-                options=options)
+            self.driver = None
+            try:
+                # self.driver = webdriver.Chrome(
+                #     executable_path=ChromeDriverManager(path=os.path.join(self.driver_baseloc, 'chrome')).install(),
+                #     options=options)
+                self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
 
+            except Exception as webdriver_ex:
+                logger.error(f'[Driver Download Manager Error]: {str(webdriver_ex)}')
+                sys.exit(1)
+                
         self.wait = WebDriverWait(self.driver, timeout)
         self.ac = ActionChains(self.driver)
 
@@ -264,9 +283,9 @@ class Insta:
         """
         like_button:WebElement = None
         try:
-            # like_button = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="fr66n"]/button')))
-            like_button = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="_aamw"]/button')))
-            like_button_span = like_button.find_element(By.XPATH, 'div/span')
+            like_button = self.driver.find_element(By.XPATH, '//span[@class="_aamw"]')
+            # like_button_span = like_button.find_element(By.CSS_SELECTOR, '._aame')
+            like_button_span = like_button.find_element(By.XPATH, 'div/div/span')
             button_status = like_button_span.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label')
             # like only if not already liked
             if button_status == 'Like':
@@ -274,7 +293,8 @@ class Insta:
 
         except ElementClickInterceptedException:
             self.driver.execute_script('arguments[0].click();', like_button)         
-        except:
+        except Exception as ex:
+            print(str(ex))
             return False
         return True
     
