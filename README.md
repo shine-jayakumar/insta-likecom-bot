@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.2&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.3&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -316,7 +316,17 @@ tagstomatch.txt
 
 
 ## Version Updates
-Version **v.3.0.2** (latest)
+
+Version **v.3.0.3** (latest)
+Bug Fixes:
+- Webdriver manager upgraded, enabling script to find latest Chrome drivers
+- XPATH for 'like' button updated
+
+Changes:
+- Using selenium Service class
+
+
+Version **v.3.0.2**
 
 Feature addition:
 - Supports Chrome browser profile - saves credentials

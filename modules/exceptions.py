@@ -1,7 +1,7 @@
 """ 
     exceptions.py - exceptions module for insta-likecom-bot
 
-    insta-likecom-bot v.3.0.2
+    insta-likecom-bot v.3.0.3
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -55,5 +55,11 @@ class InvalidBrowserError(Exception):
 class InvalidBrowserProfileError(Exception):
     """
     Raise when an invalid browser profile path is received
+    """
+    pass
+
+class DriverDirectoryMissingError(Exception):
+    """
+    Raise when the driver directory is missing
     """
     pass
