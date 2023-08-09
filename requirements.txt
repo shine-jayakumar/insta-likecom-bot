@@ -14,7 +14,7 @@ pycparser==2.21
 pyOpenSSL==22.0.0
 python-dotenv==0.21.0
 requests==2.27.1
-selenium==4.1.0
+selenium==4.11.2
 sniffio==1.2.0
 sortedcontainers==2.4.0
 trio==0.19.0
