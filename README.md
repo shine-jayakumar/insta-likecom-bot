@@ -325,6 +325,7 @@ Bug Fixes:
 Changes:
 - Using selenium Service class
 
+<br/>
 
 Version **v.3.0.2**
 
