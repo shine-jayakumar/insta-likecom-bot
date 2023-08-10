@@ -20,17 +20,17 @@
 insta-likecom-bot is an instagram bot written in python to automatically like and comment on an account or tag.
 
 **Table of Contents**
-- [Features](#Features "Features")
-- [Requirements](#Requirements "Requirements")
-- [Installation](#Installation "Installation")
-- [Options](#Options "Options")
-- [Usage](#Usage "Usage")
-- [Examples](#Examples "Examples")
-- [Version Updates](#Version-Updates "Version Updates")
-- [Frequenty Asked Questions](#FAQs "FAQs")
-- [Report a Bug](#Issue "Report an Issue")
-- [License](#LICENSE "License")
-- [Donations](#Donations "Donations")
+- [Features](#features "Features")
+- [Requirements](#requirements "Requirements")
+- [Installation](#installation "Installation")
+- [Options](#options "Options")
+- [Usage](#usage "Usage")
+- [Examples](#examples "Examples")
+- [Version Updates](#version-updates "Version Updates")
+- [Frequenty Asked Questions](#fAQs "FAQs")
+- [Report a Bug](#issue "Report an Issue")
+- [License](#license "License")
+- [Donations](#donations "Donations")
 
 
 ## Features
