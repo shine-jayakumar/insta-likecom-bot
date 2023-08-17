@@ -239,15 +239,23 @@ try:
                 logger.info(f'Post Tags: {posttags}')
 
                 # minimum tag match
-                if not insta.get_tag_match_count(posttags=posttags, matchtags=profile.matchtags, min_match=profile.matchtagnum) or \
-                    set(posttags).intersection(profile.ignoretags):
-                    logger.info('Irrelavent post')
+                if profile.matchtags and not insta.get_tag_match_count(posttags=posttags, matchtags=profile.matchtags, min_match=profile.matchtagnum): 
+                    logger.info('Irrelavent post - no matching tags found')
                     logger.info(f"[target: {target}] Moving on to the next post")
                     insta.next_post()
                     # time.sleep(DELAY or randint(1,10))
                     time.sleep(get_delay(profile.delay))
                     continue
-            
+                
+                # ignore tags
+                if profile.ignoretags and set(posttags).intersection(profile.ignoretags):
+                    logger.info('Irrelavent post - Tags to ignore found')
+                    logger.info(f"[target: {target}] Moving on to the next post")
+                    insta.next_post()
+                    # time.sleep(DELAY or randint(1,10))
+                    time.sleep(get_delay(profile.delay))
+                    continue
+
             if profile.inlast:
                 # get post date
                 postdate, ts = insta.get_post_date()
