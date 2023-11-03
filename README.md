@@ -63,9 +63,52 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 View the [requirements.txt](https://github.com/shine-jayakumar/insta-likecom-bot/blob/master/requirements.txt)
 
 ## Installation
+
+**1 - Open a Terminal or Command Prompt :**
+
+- On `Windows`, you can use Command Prompt or Powershell.
+- On `MacOS` or `Linux`, you can use Terminal.
+
+Navigate to the `insta-likecom-bot` directory:
+
+```sh
+cd /path/insta-likecom-bot
+```
+
+**2 - Create a Virtual Environment :**
+
+on Windows
+
+```cmd
+python -m venv env
+```
+
+on MacOS or Linux :
+
+```sh
+python3 -m venv env
+```
+
+**3 - Activate the Virtual Environment :**
+
+on Windows:
+
+```cmd
+env\Scripts\activate
+```
+
+on macOS or Linux:
+
+```sh
+source venv/bin/activate
+```
+
+**4 - Install Dependencies :**
+
 ```sh
 pip install -r requirements.txt
 ```
+
 ## Options
 Required arguments
 | Argument | Description |

@@ -97,8 +97,8 @@ class Insta:
     def __init__(self,
                  username: str,
                  password: str,
-                 timeout: str = 30,
-                 browser:str = 'chrome',
+                 timeout: int = 30,
+                 browser: str = 'chrome',
                  headless: bool = False,
                  profile: str = None) -> None:
         
