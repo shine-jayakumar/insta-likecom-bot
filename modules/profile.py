@@ -1,7 +1,7 @@
 """ 
     profile.py - Profile class
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -13,7 +13,6 @@ import json
 from modules.applogger import AppLogger
 from modules.exceptions import *
 from modules.constants import COMMENTS
-from typing import List, Tuple
 import re
 from os.path import exists as pathexists
 
@@ -113,7 +112,7 @@ class Profile:
                 else:
                     self.target = [self.target]
             elif isinstance(self.target, list):
-                self.target: List[str] = [str(target).strip() for target in self.target if target]
+                self.target: list[str] = [str(target).strip() for target in self.target if target]
 
     def _parse_numofposts(self) -> None:
         """ Parses numofposts """
@@ -163,11 +162,11 @@ class Profile:
         """ Loads comments """
         if self.comments:
             if isinstance(self.comments, str):
-                self.comments: List[str] = load_comments(self.comments)
+                self.comments: list[str] = load_comments(self.comments)
             elif isinstance(self.comments, list):
-                self.comments: List[str] = [str(cmt).strip() for cmt in self.comments]
+                self.comments: list[str] = [str(cmt).strip() for cmt in self.comments]
         else:
-            self.comments: List[str] = COMMENTS
+            self.comments: list[str] = COMMENTS
     
     def _parse_onecomment(self) -> None:
         """ Loads onecomment """
@@ -185,13 +184,13 @@ class Profile:
             if isinstance(self.matchtags, str):
                 tags_from_file = load_tags(self.matchtags)
                 if tags_from_file:
-                    self.matchtags: List[str] = tags_from_file
+                    self.matchtags: list[str] = tags_from_file
                 else:
                     self.matchtags = [self.matchtags]
             elif isinstance(self.matchtags, list):
                 self.matchtags = [str(tag).strip() for tag in self.matchtags]
         else:
-            self.matchtags: List[str] = []
+            self.matchtags: list[str] = []
     
     def _parse_ignoretags(self) -> None:
         """ Loads ignoretags """
@@ -199,13 +198,13 @@ class Profile:
             if isinstance(self.ignoretags, str):
                 tags_from_file = load_tags(self.ignoretags)
                 if tags_from_file:
-                    self.ignoretags: List[str] = tags_from_file
+                    self.ignoretags: list[str] = tags_from_file
                 else:
                     self.ignoretags = [self.ignoretags]
             elif isinstance(self.ignoretags, list):
-                self.ignoretags: List[str] = [str(tag).strip() for tag in self.ignoretags]
+                self.ignoretags: list[str] = [str(tag).strip() for tag in self.ignoretags]
         else:
-            self.ignoretags: List[str] = []
+            self.ignoretags: list[str] = []
 
     def _parse_matchtagnum(self) -> None:
         """ Loads matchtagnum """
@@ -263,9 +262,9 @@ class Profile:
     def _parse_delay(self) -> None:
         """ Parses delay """
         if self.delay:
-            self.delay: Tuple[int] = parse_delay(self.delay)
+            self.delay: tuple[int] = parse_delay(self.delay)
         else:
-            self.delay: Tuple[int] = (1,10)
+            self.delay: tuple[int] = (1,10)
     
     def _parse_browser(self) -> None:
         """ Parses browser """
@@ -282,14 +281,14 @@ class Profile:
             self.headless: bool = True
     
 
-def remove_blanks(lst: List) -> List:
+def remove_blanks(lst: list) -> list:
     """
     Removes empty elements from a list
     """
     return [el for el in lst if el != '']
 
 
-def remove_carriage_ret(lst) -> List:
+def remove_carriage_ret(lst) -> list:
     """
     Remove carriage return - \r from a list
     """
@@ -305,7 +304,7 @@ def to_int(val, field):
     raise ValueError(f"'{field}' expects a numeric type")
    
 
-def load_comments(fname: str) -> List:
+def load_comments(fname: str) -> list:
     """
     Reads comments from a file and returns a list of comments
     """
@@ -321,7 +320,7 @@ def load_comments(fname: str) -> List:
         return []
 
 
-def load_tags(fname: str) -> List:
+def load_tags(fname: str) -> list:
     """
     Returns list of tags from a file
     """
@@ -351,7 +350,7 @@ def parse_inlast(inlast: str) -> tuple:
         if not inlast:
             return ()
         
-        multiplier, tparam = (None,None)
+        multiplier, tparam = (None, None)
         try:
             match = re.match(r'(\d+)(y|M|d|h|m|s)', inlast)
             if not match:
@@ -363,7 +362,7 @@ def parse_inlast(inlast: str) -> tuple:
         return (multiplier, tparam)
 
 
-def parse_delay(delay:str, default: tuple = (1,10)) -> tuple:
+def parse_delay(delay: str, default: tuple = (1, 10)) -> tuple:
     """
     Parses delay value and returns start and end range
     """
@@ -391,7 +390,7 @@ def parse_delay(delay:str, default: tuple = (1,10)) -> tuple:
     raise ValueError(f"Invalid value received for 'delay' parameter: {delay}")
 
 
-def parse_targets_multi(fname: str) -> List[str]:
+def parse_targets_multi(fname: str) -> list[str]:
     """
     Parses target string to retrieve multiple targets
     """
@@ -406,7 +405,7 @@ def parse_targets_multi(fname: str) -> List[str]:
     return []
 
 
-def is_hashtag_present(targets: List) -> bool:
+def is_hashtag_present(targets: list) -> bool:
     """
     Checks if one of the targets is a hashtag
     """
@@ -414,9 +413,3 @@ def is_hashtag_present(targets: List) -> bool:
         if target.startswith('#'):
             return True
     return False
-
-        
-
-
-
-

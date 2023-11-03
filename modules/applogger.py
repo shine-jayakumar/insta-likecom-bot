@@ -1,7 +1,7 @@
 """ 
     applogger.py - class to maintain logs
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -19,9 +19,14 @@ import sys
 
 LOG_PATH = 'logs'
 
+def check_log_folder(cwd: str) -> None:
+    log_folder = os.path.join(cwd, LOG_PATH)
+    if not os.path.exists(log_folder):
+        os.mkdir(log_folder)
+
 class AppLogger:
 
-    def __init__(self, name):
+    def __init__(self, name: str):
 
         # ====================================================
         # Setting up logger

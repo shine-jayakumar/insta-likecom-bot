@@ -1,7 +1,7 @@
 """ 
     instafunc.py - Insta class and helper methods
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -11,27 +11,26 @@
 """
 
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver import Chrome, Firefox
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from webdriver_manager.chrome import ChromeDriverManager
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import StaleElementReferenceException
-from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.webdriver.remote.webelement import WebElement
-
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 
-# from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-# Added for FireFox support
-from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementClickInterceptedException
+
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.action_chains import ActionChains
+
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager # Added for FireFox support
 
 
 import os
@@ -42,7 +41,6 @@ from sys import platform
 import sys
 
 from modules.applogger import AppLogger
-from typing import List, Tuple
 from functools import wraps
 from enum import Enum
 import random
@@ -96,7 +94,14 @@ def retry(func):
 
 
 class Insta:
-    def __init__(self, username, password, timeout=30, browser='chrome', headless=False, profile:str = None) -> None:
+    def __init__(self,
+                 username: str,
+                 password: str,
+                 timeout: str = 30,
+                 browser:str = 'chrome',
+                 headless: bool = False,
+                 profile: str = None) -> None:
+        
         # current working directory/driver
         self.browser = 'chrome'
         self.driver_baseloc = os.path.join(os.getcwd(), 'driver')
@@ -113,12 +118,12 @@ class Insta:
             options.log.level = 'fatal'
 
             # current working directory/driver/firefox
-            # self.driver = webdriver.Firefox(
+            # self.driver = Firefox(
             #     executable_path=GeckoDriverManager(path=os.path.join(self.driver_baseloc, 'firefox')).install(),
             #     options=options)
             self.driver = None
             try:
-                self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+                self.driver = Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
             except Exception as webdriver_ex:
                 logger.error(f'[Driver Download Manager Error]: {str(webdriver_ex)}')
                 sys.exit(1)
@@ -129,8 +134,10 @@ class Insta:
             options = ChromeOptions()
             if headless:
                 options.add_argument("--headless")
+                if platform.startswith("win"): # Check if the operating system is Windows
+                    options.add_argument("--disable-gpu")
             if profile:
-                options.add_argument(f'user-data-dir={profile}')
+                options.add_argument(f'user-data-dir={profile}')                
             options.add_argument("--disable-notifications")
             options.add_argument("--start-maximized")
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -142,10 +149,10 @@ class Insta:
             # current working directory/driver/chrome
             self.driver = None
             try:
-                # self.driver = webdriver.Chrome(
+                # self.driver = Chrome(
                 #     executable_path=ChromeDriverManager(path=os.path.join(self.driver_baseloc, 'chrome')).install(),
                 #     options=options)
-                self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+                self.driver = Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
 
             except Exception as webdriver_ex:
                 logger.error(f'[Driver Download Manager Error]: {str(webdriver_ex)}')
@@ -161,7 +168,7 @@ class Insta:
         self.tag = None
         self.account = None
 
-    def target(self, accountname: str, tag: bool=False) -> None:
+    def target(self, accountname: str, tag: bool = False) -> None:
         """
         Loads the target - account or hastag
         """
@@ -298,7 +305,7 @@ class Insta:
             return False
         return True
     
-    def wait_until_comment_cleared(self, element, timeout) -> None:
+    def wait_until_comment_cleared(self, element: WebElement, timeout: int) -> None:
         """
         Waits until the comment textarea is cleared, or until timeout
         """
@@ -322,7 +329,7 @@ class Insta:
             return False
 
     @retry
-    def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!') -> bool:
+    def comment(self, text: str, timeout: int, max_retry: int = None, fs_comment: str = 'Perfect!') -> bool:
         """
         Comments on a post
 
@@ -495,7 +502,7 @@ class Insta:
         username = username.split('/')[1]
         return username
 
-    def get_followers(self, amount: int = None) -> List:
+    def get_followers(self, amount: int = None) -> list:
         """
         Gets followers from the target's page
         """
@@ -575,7 +582,7 @@ class Insta:
         
         return usernames
     
-    def get_post_tags(self) -> List:
+    def get_post_tags(self) -> list:
         """
         Gets tags present in current post
         """
@@ -587,7 +594,7 @@ class Insta:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return tags
     
-    def get_tag_match_count(self, posttags: List, matchtags: List, min_match: int = 3) -> bool:
+    def get_tag_match_count(self, posttags: list, matchtags: list, min_match: int = 3) -> bool:
         """
         Checks if a minimum number of tags in matchtags match in
         tags from post
@@ -596,7 +603,7 @@ class Insta:
             return False
         return sum([tag in posttags for tag in matchtags]) >= min_match
 
-    def get_user_and_comment_from_element(self, comment_el) -> Tuple:
+    def get_user_and_comment_from_element(self, comment_el) -> tuple:
         """
         Returns username and their comment from a comment element
         """
@@ -612,7 +619,7 @@ class Insta:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return (username, comment)
     
-    def like_comments(self, max_comments: int = 5) -> List[Tuple]:
+    def like_comments(self, max_comments: int = 5) -> list[tuple]:
         """
         Likes post comments
         """
@@ -654,7 +661,7 @@ class Insta:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return successful_comments
 
-    def get_post_date(self) -> Tuple[str,float]:
+    def get_post_date(self) -> tuple:
         """
         Returns post date (%Y-%m-%d %H:%M:%S, timestamp)
         """
@@ -760,7 +767,7 @@ class Insta:
             logger.error(f'[get_total_stories] Error: {ex.__class__.__name__}')
         return 0
     
-    def comment_on_story(self, text) -> bool:
+    def comment_on_story(self, text: str) -> bool:
         """
         Comments on a story
         """
@@ -778,21 +785,21 @@ class Insta:
         return False
 
 
-def remove_blanks(lst: List) -> List:
+def remove_blanks(lst: list) -> list:
     """
     Removes empty elements from a list
     """
     return [el for el in lst if el != '']
 
 
-def remove_carriage_ret(lst) -> List:
+def remove_carriage_ret(lst) -> list:
     """
     Remove carriage return - \r from a list
     """
     return list(map(lambda el: el.replace('\r',''), lst))
 
 
-def bmp_emoji_safe_text(text) -> str:
+def bmp_emoji_safe_text(text: str) -> str:
     """
     Returns bmp emoji safe text
     ChromeDriver only supports bmp emojis - unicode < FFFF
@@ -801,15 +808,15 @@ def bmp_emoji_safe_text(text) -> str:
     return ''.join(transformed)
 
 
-def scroll_into_view(driver, element) -> None:
+def scroll_into_view(driver, element: WebElement) -> None:
     """
     Scrolls an element into view
     """
     driver.execute_script('arguments[0].scrollIntoView()', element)
 
 
-def get_delay(delay: tuple, default: tuple = (1,10)) -> Tuple[int]:
-    """ Returns a random delay value between (st,en) """
+def get_delay(delay: tuple, default: tuple = (1, 10)) -> tuple[int]:
+    """ Returns a random delay value between (st, en) """
     if not delay:
         return random.randint(default[0], default[1])
     if len(delay) < 2:
@@ -817,7 +824,7 @@ def get_delay(delay: tuple, default: tuple = (1,10)) -> Tuple[int]:
     return random.randint(delay[0], delay[1])
 
 
-def get_random_index(total_items: int, nreq: int, all_specifier=111) -> list:
+def get_random_index(total_items: int, nreq: int, all_specifier: int = 111) -> list:
     """
     Generates random index numbers based on value of argname
     """
@@ -828,14 +835,14 @@ def get_random_index(total_items: int, nreq: int, all_specifier=111) -> list:
     return random.sample(range(total_items), nreq)
 
 
-def generate_random_comment(comments):
+def generate_random_comment(comments) -> str:
     """
     Returns a random comment from a list of comments
     """
-    return comments[random.randint(0, len(comments)-1)]
+    return str(comments[random.randint(0, len(comments)-1)])
 
 
-def display_intro():
+def display_intro() -> None:
 
     intro = f"""
      ___ _  _ ___ _____ _      _    ___ _  _____ ___ ___  __  __     ___  ___ _____ 

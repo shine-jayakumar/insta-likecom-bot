@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -8,6 +8,10 @@
     LICENSE: MIT
 """
 
+from modules.applogger import check_log_folder
+from os.path import abspath
+
+check_log_folder(abspath('.'))
 
 import time
 import sys
@@ -17,8 +21,6 @@ from modules.applogger import AppLogger
 from modules.argparsing import parser
 from modules.profile import Profile
 from modules.exceptions import *
-
-
 
 args = parser.parse_args()
 
@@ -353,6 +355,3 @@ finally:
     timediff = time.time() - start
     logger.info(f"Total time taken: {round(timediff, 4)} seconds")
     sys.exit()
-    
-
-

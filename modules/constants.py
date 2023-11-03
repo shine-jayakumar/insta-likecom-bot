@@ -2,7 +2,7 @@
 """ 
     constants.py - contains constants
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -12,11 +12,10 @@
 """
 
 from dotenv import load_dotenv
-import json
 import os
 
 
-APP_VERSION = 'v.3.0.3'
+APP_VERSION = 'v.3.0.4'
 
 
 INSTA_USER = None
