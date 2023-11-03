@@ -100,7 +100,7 @@ env\Scripts\activate
 on macOS or Linux:
 
 ```sh
-source venv/bin/activate
+source env/bin/activate
 ```
 
 **4 - Install Dependencies :**
