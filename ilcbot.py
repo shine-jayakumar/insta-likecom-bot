@@ -48,7 +48,6 @@ try:
     # INSTANTIATING Insta class
     logger.info("Loading Instagram")
     insta = Insta(
-        url=INSTA_URL,
         username=profile.username,
         password=profile.password,
         timeout=profile.eltimeout,
