@@ -17,6 +17,7 @@ from modules.applogger import AppLogger
 from modules.argparsing import parser
 from modules.profile import Profile
 from modules.exceptions import *
+from modules.constants import INSTA_URL
 
 
 
@@ -47,6 +48,7 @@ try:
     # INSTANTIATING Insta class
     logger.info("Loading Instagram")
     insta = Insta(
+        url=INSTA_URL,
         username=profile.username,
         password=profile.password,
         timeout=profile.eltimeout,
