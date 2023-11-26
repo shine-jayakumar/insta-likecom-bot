@@ -22,7 +22,7 @@ APP_VERSION = 'v.3.0.3'
 INSTA_USER = None
 INSTA_PASS = None
 INSTA_TARGET = None
-
+INSTA_URL = "https://www.instagram.com"
 
 if os.path.exists('.env'):
     load_dotenv()
