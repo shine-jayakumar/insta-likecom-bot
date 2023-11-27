@@ -324,13 +324,12 @@ class Insta:
             return False
 
     @retry
-    def comment(self, text, timeout, max_retry, fs_comment = 'Perfect!') -> bool:
+    def comment(self, text, timeout, fs_comment = 'Perfect!') -> bool:
         """
         Comments on a post
 
         Args:
         timeout     wait until comment is posted
-        max_retry   no. of times to try re-capturing comment textarea
         fs_comment  failsafe comment in case bmp_emoji_safe_text returns an empty string
         """
 
@@ -341,12 +340,7 @@ class Insta:
         if self.browser == 'chrome':
             cmt_text = bmp_emoji_safe_text(text) or fs_comment
 
-        # comment_success = False
-        # retry_count = 0
-        # while retry_count < max_retry and not comment_success:
         try:
-            
-            # cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//form[@class="_aidk"]/textarea')))
             # cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//form[@class="_aao9"]/textarea')))
             cmt = self.wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@aria-label="Add a comment…"]')))
             cmt.click()
@@ -369,8 +363,6 @@ class Insta:
         Returns number of post for an account or tag
         """
         try:
-            # num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="g47SY "]'))).text
-            # classname changed
             # num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="posts"]/span'))).text
             # changed to class name as finding div with text 'posts' fails for different language
             num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="_ac2a"]'))).text
@@ -598,6 +590,20 @@ class Insta:
             return False
         return sum([tag in posttags for tag in matchtags]) >= min_match
 
+    def get_comment_usernames_from_post(self) -> List[str]:
+        """
+        Returns usernames for comments on a post
+        """
+        wait = WebDriverWait(self.driver, 2)
+        usernames = []
+        try:
+            comment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
+            for comment_el in comment_elements:
+                usernames.append(comment_el.find_element(By.CSS_SELECTOR, '._a9zc').text)
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
+        return list(set(usernames))
+
     def get_user_and_comment_from_element(self, comment_el) -> Tuple:
         """
         Returns username and their comment from a comment element
@@ -613,6 +619,17 @@ class Insta:
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return (username, comment)
+
+    def is_commented(self) -> bool:
+        """
+        Checks if a post already has a comment from the user
+        """
+        usernames = self.get_comment_usernames_from_post()        
+        if not usernames:
+            return False
+        if self.username not in usernames:
+            return False
+        return True
     
     def like_comments(self, max_comments: int = 5) -> List[Tuple]:
         """
@@ -631,7 +648,8 @@ class Insta:
         wait = WebDriverWait(self.driver, 5)
         try:
             comment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='_a9ym']")))
-        except Exception:
+        except Exception as ex:
+            logger.error(f'{ex.__class__.__name__} {str(ex)}')
             return []
         
         if not comment_elements:
@@ -650,7 +668,8 @@ class Insta:
                 else:
                     user,comment = self.get_user_and_comment_from_element(com_el)
                     logger.info(f'Already Liked: [({user}) - {comment}]')
-                if total_comments_liked == max_comments: break
+                if total_comments_liked == max_comments: 
+                    break
 
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')

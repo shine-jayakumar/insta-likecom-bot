@@ -303,7 +303,7 @@ try:
                     random_comment += " " + profile.postscript
 
                 logger.info(f"[target: {target}] Commenting on the post")
-                if insta.comment(random_comment, 5, 5, fs_comment='Perfect!'):
+                if insta.comment(random_comment, timeout = 5, fs_comment = 'Perfect!'):
                     stats.comments += 1
                     logger.info(f'[target: {target}] Commented: {random_comment}')
             
