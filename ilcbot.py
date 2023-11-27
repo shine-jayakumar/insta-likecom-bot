@@ -302,10 +302,14 @@ try:
                 if profile.postscript:
                     random_comment += " " + profile.postscript
 
-                logger.info(f"[target: {target}] Commenting on the post")
-                if insta.comment(random_comment, timeout = 5, fs_comment = 'Perfect!'):
-                    stats.comments += 1
-                    logger.info(f'[target: {target}] Commented: {random_comment}')
+                # check if post has to be ignored if already commented and skipcommented flag is set
+                if any([not profile.skipcommented, all([profile.skipcommented, not insta.is_commented()])]):
+                    logger.info(f"[target: {target}] Commenting on the post")
+                    if insta.comment(random_comment, timeout = 5, fs_comment = 'Perfect!'):
+                        stats.comments += 1
+                        logger.info(f'[target: {target}] Commented: {random_comment}')
+                else:
+                    logger.info(f"[target: {target}] Skipping post. Already commented.")
             
             logger.info(f"[target: {target}] Moving on to the next post")
             insta.next_post()
