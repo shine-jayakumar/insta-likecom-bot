@@ -69,6 +69,8 @@ comments_group.add_argument('-c', '--comments', type=str, metavar='file', help='
 comments_group.add_argument('-oc', '--onecomment', type=str, metavar='text', help='specify only one comment')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
 
+parser.add_argument('-sc', '--skipcommented', action='store_true', help='skip posts already commented')
+
 parser.add_argument('-pr', '--profile', type=str, metavar='', help='loads profile from a json file')
 parser.add_argument('-bp', '--brprofile', type=str, metavar='', help='loads chrome profile from a path')
 parser.add_argument('-et', '--eltimeout',  type=int, metavar='', help='max time to wait for elements to be loaded (default=30)')
