@@ -10,11 +10,11 @@ load_dotenv()
 TEST_INSTA_USER = os.getenv('INSTA_USER', '')
 TEST_INSTA_PASS = os.getenv('INSTA_PASS', '')
 TEST_INSTA_TARGET_USER = os.getenv('INSTA_TARGET_USER', '')
+INSTA_TARGET_STORY_USER = os.getenv('INSTA_TARGET_STORY_USER', '')
 TEST_INSTA_TARGET_TAG = os.getenv('INSTA_TARGET_TAG', '')
 NPOSTS = int(os.getenv('NPOSTS', ''))
 
-POST_TAGS = ['#haiku', '#poetry', '#shortpoetry', '#poetsofinstagram',
-              '#basketball', '#basketballart', '#pinholepeek']
+POST_TAGS = os.getenv('POST_TAGS', '').split(',')
 
 POST_DATE = os.getenv('POST_DATE', '')
 POST_TIMESTAMP = float(os.getenv('POST_TIMESTAMP', 0.0))

@@ -120,15 +120,6 @@ def test_post_within_last(insta):
     pass
 
 
-def test_like_comments(insta):
-    result = insta.like_comments()
-    assert isinstance(result, list) == True
-    assert result != []
-    for user, comment in result:
-        assert isinstance(user, str) == True
-        assert isinstance(comment, str) == True
-
-
 def test_is_comment_disabled(insta):
     assert insta.is_comment_disabled() == False
 
@@ -137,6 +128,33 @@ def test_comment(insta):
     result = insta.comment('This is a test', 5, 5)
     assert result == True
 
+
+def test_is_commented(insta):
+    assert insta.is_commented() == True
+
+
+def test_skip_post_already_commented(insta):
+    skipcommented = True
+    skip_post = all([skipcommented, insta.is_commented()])
+    assert skip_post == True
+
+    skipcommented = False
+    comment_eligible = any([not skipcommented, all([skipcommented, not insta.is_commented()])])
+    assert comment_eligible == True
+
+    skipcommented = True
+    comment_eligible = any([not skipcommented, all([skipcommented, not insta.is_commented()])])
+    assert comment_eligible == False
+
+
+def test_like_comments(insta):
+    result = insta.like_comments()
+    assert isinstance(result, list) == True
+    assert result != []
+    for user, comment in result:
+        assert isinstance(user, str) == True
+        assert isinstance(comment, str) == True
+        
 
 def test_like(insta):
     assert insta.like() == True
