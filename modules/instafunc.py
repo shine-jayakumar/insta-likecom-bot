@@ -622,7 +622,7 @@ class Insta:
             """ Check if like button is not already clicked """
             try:
                 # like button svg
-                return com_el.find_element(By.CSS_SELECTOR, '._aamf svg')\
+                 return com_el.find_element(By.CSS_SELECTOR, '._a9zu svg')\
                     .get_attribute('aria-label').lower() == 'like'
             except Exception as ex:
                 logger.error(str(ex))
@@ -643,7 +643,7 @@ class Insta:
             for com_el in comment_elements:
                 if comment_not_liked(com_el):
                     # like button
-                    com_el.find_element(By.CSS_SELECTOR, '._aamf').click()
+                    com_el.find_element(By.CSS_SELECTOR, '._a9zu').click()
                     successful_comments.append(self.get_user_and_comment_from_element(com_el))    
                     total_comments_liked += 1
                     time.sleep(0.5)
