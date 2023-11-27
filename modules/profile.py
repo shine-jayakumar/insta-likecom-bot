@@ -159,6 +159,11 @@ class Profile:
         if self.onlystory:
             self.onlystory: bool = True
     
+    def _parse_skipcommented(self) -> None:
+        """ Parses skipcommented """
+        if self.skipcommented:
+            self.skipcommented: bool = True
+    
     def _parse_comments(self) -> None:
         """ Loads comments """
         if self.comments:
