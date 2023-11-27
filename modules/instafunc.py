@@ -174,15 +174,6 @@ class Insta:
             self.account = accountname
             self.targeturl = f"{self.baseurl}/{accountname}"
 
-        # # account
-        # if not tag:
-        #     self.account = accountname
-        #     self.targeturl = f"{self.baseurl}/{accountname}"
-        # # tag
-        # else:
-        #     self.tag = accountname
-        #     self.targeturl = f"{self.baseurl}/explore/tags/{accountname}"
-
     def validate_target(self) -> bool:
         """
         Validates the target account or hashtag
@@ -209,7 +200,6 @@ class Insta:
                 wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
                 return True
             except:
-                # logger.error(f"Could not find user's profile with xpath: {xpath}")
                 logger.error(f'Failed to validate login')
 
         return False
@@ -737,9 +727,9 @@ class Insta:
         """
         Pauses a story
         """
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, 5)
         try:
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._ac0m'))).find_element(By.CSS_SELECTOR, '._abl-').click()
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._ac0m'))).find_element(By.CSS_SELECTOR, 'svg[aria-label="Pause"]').click()
             return True
         except Exception as ex:
             logger.error(f'[pause_story] Error: {ex.__class__.__name__}')
@@ -751,7 +741,7 @@ class Insta:
         """
         wait = WebDriverWait(self.driver, 10)
         try:
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._abx4'))).find_element(By.CSS_SELECTOR, '._abl-').click()
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._abx4'))).find_element(By.CSS_SELECTOR, 'svg[aria-label="Like"]').click()
             return True
         except Exception as ex:
             logger.error(f'[like_story] Error: {ex.__class__.__name__}')
