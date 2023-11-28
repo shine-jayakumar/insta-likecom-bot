@@ -125,7 +125,7 @@ def test_is_comment_disabled(insta):
 
 
 def test_comment(insta):
-    result = insta.comment('This is a test', 5, 5)
+    result = insta.comment('This is a test', 5)
     assert result == True
 
 
