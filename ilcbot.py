@@ -42,10 +42,8 @@ try:
     display_intro()
 
     logger.info("Script started")
-     # CHOOSING BROWSER
     logger.info(f"Downloading webdriver for your version of {profile.browser.capitalize()}")
 
-    # INSTANTIATING Insta class
     logger.info("Loading Instagram")
     insta = Insta(
         username=profile.username,

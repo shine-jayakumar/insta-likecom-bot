@@ -16,7 +16,7 @@ def test_mandatory_params(insta):
     assert insta.password == TEST_INSTA_PASS
 
 
-@pytest.mark.skip("yet to be implemented")
+@pytest.mark.skip("deprecated")
 def test_targeturl_tag(insta):
     insta.target(accountname=TEST_INSTA_TARGET_TAG)
     assert insta.targeturl == f"{INSTA_URL}/explore/search/keyword/?q={TEST_INSTA_TARGET_TAG[1:]}"
@@ -43,7 +43,7 @@ def test_target_user(insta):
     assert insta.account == TEST_INSTA_TARGET_USER
 
 
-@pytest.mark.skip('To be done in a separate file')
+@pytest.mark.skip('deprecated')
 def test_target_tag(insta):
     insta.target(accountname=TEST_INSTA_TARGET_TAG)
     assert insta.tag == TEST_INSTA_TARGET_TAG[1:]
@@ -161,4 +161,5 @@ def test_like(insta):
 
 
 
-
+# insta.driver.find_element(By.XPATH, '//a[contains(@href,"/denver/reels")]').click()
+# //div[@class="_aajw"]

@@ -787,7 +787,87 @@ class Insta:
         except Exception as ex:
             logger.error(f'[comment_on_story] Error: {ex.__class__.__name__}')
         return False
+    
+    def is_reels_present(self):
+        """
+        Checks if reels is present for an account
+        """
+        wait = WebDriverWait(self.driver, 5)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(@href,"{self.account}/reels")]')))
+            return True
+        except Exception as ex:
+            logger.error(f'[is_reels_present] Could not find reels')
+        return False
 
+    def open_reels(self):
+        """
+        Opens reels page
+        """
+        wait = WebDriverWait(self.driver, 5)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(@href,"{self.account}/reels")]'))).click()
+            return True
+        except:
+            logger.error(f'[open_reels] Failed to open reels page')
+        return False
+    
+    def click_first_reel(self):
+        """
+        Clicks on the first reel found on the account
+        """
+        try:
+            reels = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//div[@class="_aajw"]')))
+            reels[0].click()
+            return True
+        except:
+            logger.error(f'[click_first_reels] Failed to open first reel')
+        return False
+
+    def next_reel(self):
+        """
+        Moves to the next reel
+        """
+        try:
+            self.next_post()
+            return True
+        except:
+            logger.error('[next_reel] Failed to move to the next reel')
+        return False
+    
+    def like_reel(self):
+        """
+        Likes a reel
+        """
+        try:
+            self.like()
+            return True
+        except:
+            logger.error(f'[like_reel] Failed to like reel')
+        return False
+
+    def comment_on_reel(self, text: str, timeout: int):
+        """
+        Comments on a reel
+        """
+        try:
+            self.comment(text=text, timeout=timeout)
+            return True
+        except Exception as ex:
+            logger.error('[comment_on_reel] Failed to comment on the reel')
+        return False
+
+    def like_reel_comments(self, max_comments: int = 5):
+        """
+        Likes comments on a reel
+        """
+        try:
+            self.like_comments(max_comments=max_comments)
+            return True
+        except Exception as ex:
+            logger.error('[like_reel_comments] Failed to comment on the reel')
+        return False
+        
 
 def remove_blanks(lst: List) -> List:
     """
