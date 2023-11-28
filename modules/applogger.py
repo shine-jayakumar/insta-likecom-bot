@@ -15,9 +15,7 @@ from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 import os
 import sys
-# from constants.constants import LOG_PATH
 
-LOG_PATH = 'logs'
 
 class AppLogger:
 
@@ -26,10 +24,14 @@ class AppLogger:
         # ====================================================
         # Setting up logger
         # ====================================================
+        self.logdir = 'logs'
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.INFO)
 
-        logfname = os.path.join(LOG_PATH, f'instalikecombot_{datetime.now().strftime("%Y_%m_%d")}.log')
+        if not os.path.exists(self.logdir):
+            os.mkdir(self.logdir)
+
+        logfname = os.path.join(self.logdir, f'ilcbot_{datetime.now().strftime("%Y_%m_%d")}.log')
 
         formatter = logging.Formatter("[%(asctime)s]:[%(name)s]:[%(funcName)s:%(lineno)s]:[%(levelname)s]:%(message)s")
         file_handler = TimedRotatingFileHandler(logfname, when='midnight')
