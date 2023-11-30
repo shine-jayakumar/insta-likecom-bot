@@ -1,7 +1,7 @@
 """ 
     exceptions.py - exceptions module for insta-likecom-bot
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -64,7 +64,17 @@ class DriverDirectoryMissingError(Exception):
     """
     pass
 
-class InvalidLimitsFile(Exception):
+class InvalidLimitsFileError(Exception):
     """
     Raise when an invalid limits json file is received
+    """
+
+class LimitsFileMissingError(Exception):
+    """
+    Raise when limits file is missing
+    """
+
+class LimitsExceededError(Exception):
+    """
+    Raise when limits have exceeded
     """
