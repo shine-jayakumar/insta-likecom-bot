@@ -1,7 +1,7 @@
 """ 
-    instafunc.py - Insta class and helper methods
+    insta.py - Insta class and helper methods
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -16,6 +16,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from webdriver_manager.chrome import ChromeDriverManager
+# Added for FireFox support
+from webdriver_manager.firefox import GeckoDriverManager
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -26,12 +28,8 @@ from selenium.webdriver.remote.webelement import WebElement
 
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
-
-# from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver import ActionChains
 
-# Added for FireFox support
-from webdriver_manager.firefox import GeckoDriverManager
 
 import os
 import re
@@ -44,7 +42,7 @@ from modules.applogger import AppLogger
 from typing import List, Tuple
 from functools import wraps
 from enum import Enum
-from modules.constants import APP_VERSION, INSTA_URL
+from modules.constants import INSTA_URL
 from modules.helpers import *
 
 
@@ -88,7 +86,9 @@ def retry(func):
             status = func(*args, **kwargs)
             if status == 'skip_retry':
                 status = False
-                break                    
+                break         
+            if status == None:
+                break           
             attempt +=  1
         return status
     return wrapper
@@ -267,26 +267,27 @@ class Insta:
         return True
 
     @retry
-    def like(self) -> bool:
+    def like(self) -> bool | None:
         """
         Likes a post if not liked already
         """
         like_button:WebElement = None
+        wait = WebDriverWait(self.driver, timeout=2)
         try:
-            like_button = self.driver.find_element(By.XPATH, '//span[@class="_aamw"]')
-            # like_button_span = like_button.find_element(By.CSS_SELECTOR, '._aame')
+            like_button = wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="_aamw"]')))
             like_button_span = like_button.find_element(By.XPATH, 'div/div/span')
             button_status = like_button_span.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label')
             # like only if not already liked
             if button_status == 'Like':
                 like_button.click()
+                return True
 
         except ElementClickInterceptedException:
             self.driver.execute_script('arguments[0].click();', like_button)         
         except Exception as ex:
             print(str(ex))
             return False
-        return True
+        return None
     
     def wait_until_comment_cleared(self, element, timeout) -> None:
         """
@@ -351,8 +352,6 @@ class Insta:
         Returns number of post for an account or tag
         """
         try:
-            # num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="posts"]/span'))).text
-            # changed to class name as finding div with text 'posts' fails for different language
             num_of_posts = self.wait.until(EC.presence_of_element_located((By.XPATH, '//span[@class="_ac2a"]'))).text
             num_of_posts = num_of_posts.replace(',','')
             return int(num_of_posts)
@@ -390,15 +389,17 @@ class Insta:
         """
         Clicks 'Not Now' button when prompted with 'Save Your Login Info?'
         """
+        wait = WebDriverWait(self.driver, timeout=2)
         not_now_button_xpaths = [
             '//button[text()="Not now"]',
             '//div[@class="cmbtv"]/button',
-            '//div[@class="_ac8f"]/button'
+            '//div[@class="_ac8f"]/button',
+            '//div[text()="Not now"]'
         ]
         for xpath in not_now_button_xpaths:
             try:
                 logger.info(f'Finding Not Now button with xpath: {xpath}')
-                self.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+                wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
                 return True
             except:
                 logger.error(f'Could not find Not Now button with xpath: {xpath}')
@@ -408,13 +409,17 @@ class Insta:
         """
         Saves login information
         """
-        # wait = WebDriverWait(self.driver, 10)
-        try:
-            self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(text(),"Save Your Login Info")]')))
-            self.driver.find_element(By.XPATH, '//button[contains(text(),"Save Info")]').click()
-            return True
-        except:
-            logger.error(f'Save Login Info dialog box not found')
+        wait = WebDriverWait(self.driver, 2)
+        xpaths = [
+            '//button[contains(text(),"Save Info")]',
+            '//button[contains(text(),"Save info")]'
+        ]
+        for xpath in xpaths:
+            try:
+                wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+                return True
+            except:
+                logger.error(f'Save Login Info dialog box not found')
         return False
 
     def next_post(self) -> bool: 
@@ -733,15 +738,18 @@ class Insta:
             logger.error(f'[pause_story] Error: {ex.__class__.__name__}')
         return False
     
-    def like_story(self) -> bool:
+    def like_story(self) -> bool | None:
         """
         Pauses a story
         """
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, 2)
         try:
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '._abx4'))).find_element(By.CSS_SELECTOR, 'svg[aria-label="Like"]').click()
             return True
         except Exception as ex:
+            if self.driver.find_element(By.CSS_SELECTOR, '._abx4').find_element(By.CSS_SELECTOR, 'svg[aria-label="Unlike"]'):
+                logger.info('[like_story]: Already liked')
+                return None
             logger.error(f'[like_story] Error: {ex.__class__.__name__}')
         return False
 

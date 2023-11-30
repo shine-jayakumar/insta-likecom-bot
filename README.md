@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.3&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.4&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -34,23 +34,22 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 
 
 ## Features
-- Like and Comment on all the posts for an account/tag
+- Interact with Posts (like, comment, like user comments)
+- Interact with Stories (like, comment)
+- Interact with Reels (like, comment, like user comments) [NEW] [version >= 3.0.4]
 - Like and Comment on posts from followers of an account
-- Like and React/Comment on stories
-- Target only stories
-- Target Most Recent posts
-- Reloading target to view latest posts
+- Softban limit check [NEW] [version >= 3.0.4]
+- Skip posts/reels already commented [NEW] [version >= 3.0.4]
+- Target only stories or reels (skip posts)
+- ~~Target Most Recent posts~~ (Deprecated)
+- ~~Reloading target to view latest posts~~ (Deprecated)
 - Specify the number of posts to like
 - Filter post based on tags
 - Filter posts within last n years, months, days, hours, mins, secs
 - Comes loaded with generic comments
 - Load your own comments
 - Comments supports emojis (full support with Firefox; only bmp characters with Chrome)
-- Add a PS to the comments
-- Skip comments and just like a post
-- Like comments from other users
-- Built in random time delays
-- Specify time delays after each post
+- Add a PS to the comments (postscript)
 - Supports Chrome and Firefox
 - Headless mode
 - Supports profile - load parameters from a json file
@@ -73,6 +72,7 @@ Required arguments
 | username | Instagram username |
 | password | Instagram password |
 | target | An instagram account or tag|
+| limits | json file defining daily/hourly limits |
 
 Optional Arguments
 | Option | Description |
@@ -89,11 +89,16 @@ Optional Arguments
 | -ls, --likestory | like stories (use 111 to like all stories)|
 | -cs, --commentstory | comment on stories (use 111 to comment on all stories) |
 | -os, --onlystory | target only stories and not posts |
+| -nr, --numofreels | number of reels to like |
+| -nrc, --noreelcomments | turn off reel comments |
+| -lrc, --likereelcomments | like top n user comments per reel |
+| -or, --onlyreels | target only reels and not posts |
 | -mr, --mostrecent | target most recent posts |
 | -rr, --reloadrepeat | reload the target n times (used with -mr) |
 | -mt, --matchtags | read tags to match from a file |
 | -mn, --matchtagnum | minimum tag match count for post to be qualified |
 | -ma, --matchalltags | match all tags in matchtags |
+| -lm, --limits | json file with limits configuration |
 | -et , --eltimeout | max time to wait for elements to be loaded (default=30) |
 | -d , --delay | time to wait while moving from one post to another |
 | -br, --browser | browser to use [chrome or firefox] (default=chrome) |
@@ -103,141 +108,146 @@ Optional Arguments
 ## Usage
 **To like and comment every post**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget
+ilcbot.py -u yourusername -p yourpassword -t thetarget --limits limits.json
 ```
 
 **To like and comment on stories**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -ls -cs
+ilcbot.py -u yourusername -p yourpassword -t thetarget -ls -cs 20 -lm limits.json
+```
+
+**To like and comment on reels**
+```
+ilcbot.py -u yourusername -p yourpassword -t thetarget -nr 10 -lm limits.json
 ```
 
 **To specify number of posts to like**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS
+ilcbot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS -lm limits.json
 ```
 
 **To like and comment on posts from target's followers**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS -ff
+ilcbot.py -u yourusername -p yourpassword -t thetarget -np NOOFPOSTS -ff -lm limits.json
 ```
 
 **To specify a delay**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -d DELAY
+ilcbot.py -u yourusername -p yourpassword -t thetarget -d DELAY -lm limits.json
 ```
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -d start,end
+ilcbot.py -u yourusername -p yourpassword -t thetarget -d start,end -lm limits.json
 ```
 
 **To specify a file with comments**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -c FILE
+ilcbot.py -u yourusername -p yourpassword -t thetarget -c FILE -lm limits.json
 ```
 
 **To specify only one comment**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -oc TEXT
+ilcbot.py -u yourusername -p yourpassword -t thetarget -oc TEXT -lm limits.json
 ```
 
 **To add a text to the end of every comment**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -ps TEXT
+ilcbot.py -u yourusername -p yourpassword -t thetarget -ps TEXT -lm limits.json
 ```
 
 **To leave no comments**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -nc
+ilcbot.py -u yourusername -p yourpassword -t thetarget -nc -lm limits.json
 ```
 
 **To like comments from other users**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -ls 5
+ilcbot.py -u yourusername -p yourpassword -t thetarget -ls 5 -lm limits.json
 ```
 
 **To filter posts within last 2 days**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -il 2d
+ilcbot.py -u yourusername -p yourpassword -t thetarget -il 2d -lm limits.json
 ```
 
 **To filter posts within last 5 months**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -il 5M
+ilcbot.py -u yourusername -p yourpassword -t thetarget -il 5M -lm limits.json
 ```
 
 **To filter posts within last 3 years**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -il 3y
+ilcbot.py -u yourusername -p yourpassword -t thetarget -il 3y -lm limits.json
 ```
 
 **To target most recent posts**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -mr
+ilcbot.py -u yourusername -p yourpassword -t thetarget -mr -lm limits.json
 ```
 
 **To reload target 5 times with most recent posts**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -mr -rr 5
+ilcbot.py -u yourusername -p yourpassword -t thetarget -mr -rr 5 -lm limits.json
 ```
 
 **To filter posts based on tags**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget --matchtags tags.txt
+ilcbot.py -u yourusername -p yourpassword -t thetarget --matchtags tags.txt -lm limits.json
 ```
 
 **To specify a browser**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -br firefox
+ilcbot.py -u yourusername -p yourpassword -t thetarget -br firefox -lm limits.json
 ```
 
 **To specify a profile**
 ```
-ilcbot.py -pr profile1.json
+ilcbot.py -pr profile1.json -lm limits.json
 ```
 
 **To specify a browser profile**
 ```
-ilcbot.py -u yourusername -p yourpassword -t thetarget -bp '/path/to/Profile 1'
+ilcbot.py -u yourusername -p yourpassword -t thetarget -bp '/path/to/Profile 1' -lm limits.json
 ```
 
 ## Examples
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 5 -ff
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 5 -ff -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 20 -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -ps "Follow me @bob101" -c mycomments.txt -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -oc "Hello there"
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t "#haiku" -oc "Hello there" -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk --delay 5 --numofposts 30 -lm limits.json
 ```
 ```
-ilcbot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" --delay 2,20
+ilcbot.py -u 'bob101' -p 'b@bpassw0rd1' -t "#haiku" --delay 2,20 -lm limits.json
 ```
 ```
-ilcbot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments
+ilcbot.py --loadenv --delay 5 --numofposts 10 --headless --nocomments -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -d 5 -np 30 -lc 5 -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 -il 3h
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 -il 3h -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 --matchtags tags.txt --ignoretags ignoretags.txt
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 --matchtags tags.txt --ignoretags ignoretags.txt -lm limits.json
 ```
 ```
-ilcbot.py -pr profile1.json
+ilcbot.py -pr profile1.json -lm limits.json
 ```
 ```
-ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 --brprofile '/path/to/Profile 1'
+ilcbot.py -u bob101 -p b@bpassw0rd1 -t elonmusk -np 30 --brprofile '/path/to/Profile 1' -lm limits.json
 ```
 
 **Note: Enclose tagnames (#haiku) in double-quotes/single-quotes when running the script in PowerShell/Bash.**
@@ -312,12 +322,65 @@ tagstomatch.txt
 #healthylife
 #workout
 ```
+**Sample file with comments**
+<br/>
+comments.txt
+```
+🔥🔥🔥
+👏👏
+Beyond amazing 😍
+You’re the goat
+This is fire 🔥
+Keep grinding 💪
+Insane bro 🔥
+The shocker! 😮
+Such a beauty 😍❤️
+```
+**Sample limits configuration file**
+<br/>
+instalimits.json
+```
+{
+    "daily": {
+        "likes": 1000,
+        "stories": 1000,
+        "story_likes": 600,
+        "comment_likes": 1500,
+        "accounts": 800,
+        "comments": 1000
+    },
+    "hourly": {
+        "likes": 350,
+        "accounts": 120,
+        "comments": 200
+    }
+}
+```
 
 
 
 ## Version Updates
+Version **v.3.0.4** (latest)
 
-Version **v.3.0.3** (latest)
+Feature addition:
+- Reels interaction added
+- Softban limit check added
+- Skip already commented posts/reels
+- Persistent stats
+
+Changes:
+- Introduced InstaWorkFlow class
+- Added unit testing
+- Updated Stats class - Auto exit on exceeding limits
+
+Bug Fixes:
+- auto creation of logs directory
+- xpaths for like, Save info buttons updated
+
+<br/>
+
+Version **v.3.0.3**
+
 Bug Fixes:
 - Webdriver manager upgraded, enabling script to find latest Chrome drivers
 - XPATH for 'like' button updated

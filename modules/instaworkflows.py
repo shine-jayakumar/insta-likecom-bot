@@ -1,3 +1,13 @@
+""" 
+    instaworkflows.py - Instagram workflows - Posts, Stories, Reels
+    insta-likecom-bot v.3.0.4
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+"""
 
 from modules.exceptions import InvalidAccountError
 from modules.helpers import get_delay, get_random_index, generate_random_comment
@@ -70,20 +80,21 @@ class Story(InstaWorkFlow):
         for story_idx in range(total_stories):
             stats.stories += 1
             if self.profile.likestory and story_idx in like_stories_at:
-                self.insta.like_story()
-                stats.story_likes += 1
-                self.logger.info(f'[{target}] Liked story # {story_idx+1}')
+                if self.insta.like_story():
+                    stats.story_likes += 1
+                    self.logger.info(f'[{target}] Liked story # {story_idx+1}')
                 time.sleep(get_delay(delay=(2,10)))
 
             if self.profile.commentstory and story_idx in comment_stories_at:
                 comment_text = generate_random_comment(self.profile.comments)
-                self.insta.comment_on_story(comment_text)
-                stats.story_comments += 1
-                self.logger.info(f'[{target}] Commented on story # {story_idx+1}: {comment_text}')
+                if self.insta.comment_on_story(comment_text):
+                    stats.story_comments += 1
+                    self.logger.info(f'[{target}] Commented on story # {story_idx+1}: {comment_text}')
                 time.sleep(get_delay(delay=(2,10)))
             
             self.insta.next_story()
             time.sleep(1)
+            stats.save()
         return True
 
 
@@ -230,8 +241,8 @@ class Post(InstaWorkFlow):
                 time.sleep(get_delay(self.profile.delay))
                 continue
             
-            self.insta.like()
-            stats.likes += 1
+            if self.insta.like():
+                stats.likes += 1
 
             self._like_comments(target, stats)
             self._comment(target, stats)
@@ -243,6 +254,7 @@ class Post(InstaWorkFlow):
             self.logger.info(f"[target: {target}] Waiting for {delay} seconds")
             time.sleep(delay)
             post += 1
+            stats.save()
         return True
 
 
@@ -341,7 +353,7 @@ class Reel(InstaWorkFlow):
             self.logger.info(f"[target: {target}] Waiting for {delay} seconds")
             time.sleep(delay)
             reel += 1
-
+            stats.save()
         return True
 
 
