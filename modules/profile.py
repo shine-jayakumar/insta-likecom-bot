@@ -1,7 +1,7 @@
 """ 
     profile.py - Profile class
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -9,6 +9,7 @@
     Copyright (c) 2023 Shine Jayakumar
     LICENSE: MIT
 """
+
 import json
 from modules.applogger import AppLogger
 from modules.exceptions import *
@@ -253,6 +254,40 @@ class Profile:
                 raise ValueError(f"Invalid value '{self.inlast}' received for 'inlast' parameter")
             self.inlast_multiplier, self.inlast_tparam = parsed_inlast
     
+    def _parse_onlyreels(self) -> None:
+        """ Parses onlyreels """
+        if self.onlyreels:
+            self.onlyreels: bool = True
+
+    def _parse_numofreels(self) -> None:
+        """ Loads numofreels """
+        if self.numofreels:
+            self.numofreels: int = to_int(self.numofreels, 'numofreels')
+    
+    def _parse_noreelcomments(self) -> None:
+        """ Loads noreelcomments """
+        if self.noreelcomments:
+            self.noreelcomments: bool = True
+    
+    def _parse_likereelcomments(self) -> None:
+        """ Loads likereelcomments """
+        if self.likereelcomments:
+            self.likereelcomments: int = to_int(self.likereelcomments, 'likereelcomments')
+    
+    def _parse_limits(self) -> None:
+        """ Loads limits from json file """
+        if self.limits:
+            try:
+                with open(self.limits) as fh:
+                    limits = json.load(fh)
+                    if any([not limits.get('daily', None), not limits.get('hourly', None)]):
+                        raise InvalidLimitsFileError('Invalid Limits file received')
+                    self.limits = limits
+            except json.JSONDecodeError:
+                raise InvalidLimitsFileError('Invalid Limits file received')
+        else:
+            raise LimitsFileMissingError('Limits file is missing. Use --limits file.json to specify a limits file.')
+
     def _parse_brprofile(self) -> None:
         """ Loads brprofile """
         if self.brprofile and not pathexists(self.brprofile):
