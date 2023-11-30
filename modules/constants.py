@@ -2,7 +2,7 @@
 """ 
     constants.py - contains constants
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -11,40 +11,9 @@
     LICENSE: MIT
 """
 
-from dotenv import load_dotenv
-import json
-import os
+APP_VERSION = 'v.3.0.4'
 
-
-APP_VERSION = 'v.3.0.3'
-
-
-INSTA_USER = None
-INSTA_PASS = None
-INSTA_TARGET = None
-
-
-if os.path.exists('.env'):
-    load_dotenv()
-    INSTA_USER = os.getenv('INSTA_USER')
-    INSTA_PASS = os.getenv('INSTA_PASS')
-    INSTA_TARGET = os.getenv('INSTA_TARGET')
-
-
-def getsettings() -> dict:
-    """
-    Returns constants as dict
-    """
-    global INSTA_USER
-    global INSTA_PASS
-    global INSTA_TARGET
-
-    settings = {
-        "username": INSTA_USER,
-        "password": INSTA_PASS,
-        "target": INSTA_TARGET
-    }
-    return settings
+INSTA_URL = "https://www.instagram.com"
 
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",

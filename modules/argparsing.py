@@ -1,7 +1,7 @@
 """ 
     argparsing.py - module to parse command-line arguments
 
-    insta-likecom-bot v.3.0.3
+    insta-likecom-bot v.3.0.4
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -46,17 +46,22 @@ parser.add_argument('-t', '--target',  metavar='', type=str, help='target (accou
 parser.add_argument('-np', '--numofposts', type=int, metavar='numposts', help='number of posts to like')
 parser.add_argument('-ps', '--postscript', type=str, metavar='text', help='additional text to add after every comment')
 parser.add_argument('-ff', '--findfollowers', action='store_true', help="like/comment on posts from target's followers")
-parser.add_argument('-fa', '--followersamount', type=int, metavar='numfollowers', help='number of followers to process (default=all)')
-parser.add_argument('-lc', '--likecomments', type=int, metavar='', help='like top n user comments per post')
+parser.add_argument('-fa', '--followersamount', type=int, metavar='nfollowers', help='number of followers to process (default=all)')
+parser.add_argument('-lc', '--likecomments', type=int, nargs='?', metavar='ncomments', help='like top n user comments per post')
 parser.add_argument('-il', '--inlast', type=str, metavar='', help='target post within last n years (y), months (M), days (d), hours (h), mins (m), secs (s)')
 
 parser.add_argument('-vs', '--viewstory', action='store_true', help='view stories')
-parser.add_argument('-ls', '--likestory', type=int, nargs='?', metavar='numstories', help='like stories (default=all)')
-parser.add_argument('-cs', '--commentstory', type=int, nargs='?', metavar='numcomments', help='comments on stories (no comments if option not used)')
+parser.add_argument('-ls', '--likestory', type=int, nargs='?', metavar='nstories', help='like stories (default=all)')
+parser.add_argument('-cs', '--commentstory', type=int, nargs='?', metavar='ncomments', help='comments on stories (no comments if option not used)')
 parser.add_argument('-os', '--onlystory', action='store_true', help='target only stories and not posts')
 
+parser.add_argument('-nr', '--numofreels', type=int, nargs='?', metavar='nreels', help='number of reels to like')
+parser.add_argument('-nrc', '--noreelcomments', action='store_true', help='turn off reel comments')
+parser.add_argument('-lrc', '--likereelcomments', type=int, nargs='?', metavar='ncomments', help='like top n user comments per reel')
+parser.add_argument('-or', '--onlyreels', action='store_true', help='target only reels and not posts')
+
 parser.add_argument('-mr', '--mostrecent', action='store_true', help='target most recent posts')
-parser.add_argument('-rr', '--reloadrepeat', type=int, metavar='times', help='reload the target n times (used with -mr)')
+parser.add_argument('-rr', '--reloadrepeat', type=int, metavar='ntimes', help='reload the target n times (used with -mr)')
 
 parser.add_argument('-mt', '--matchtags', type=str, metavar='tag_file', help='read tags to match from a file')
 parser.add_argument('-it', '--ignoretags', type=str, metavar='tag_file', help='read tags to ignore from a file')
@@ -68,6 +73,10 @@ comments_group = parser.add_mutually_exclusive_group()
 comments_group.add_argument('-c', '--comments', type=str, metavar='file', help='file containing comments (one comment per line)')
 comments_group.add_argument('-oc', '--onecomment', type=str, metavar='text', help='specify only one comment')
 comments_group.add_argument('-nc', '--nocomments', action='store_true', help='turn off comments')
+
+parser.add_argument('-sc', '--skipcommented', action='store_true', help='skip posts already commented')
+
+parser.add_argument('-lm', '--limits', type=str, metavar='file', help='json file with limits configuration')
 
 parser.add_argument('-pr', '--profile', type=str, metavar='', help='loads profile from a json file')
 parser.add_argument('-bp', '--brprofile', type=str, metavar='', help='loads chrome profile from a path')
