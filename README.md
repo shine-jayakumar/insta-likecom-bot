@@ -41,8 +41,6 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Softban limit check [NEW] [version >= 3.0.4]
 - Skip posts/reels already commented [NEW] [version >= 3.0.4]
 - Target only stories or reels (skip posts)
-- ~~Target Most Recent posts~~ (Deprecated)
-- ~~Reloading target to view latest posts~~ (Deprecated)
 - Specify the number of posts to like
 - Filter post based on tags
 - Filter posts within last n years, months, days, hours, mins, secs
@@ -54,6 +52,8 @@ insta-likecom-bot is an instagram bot written in python to automatically like an
 - Headless mode
 - Supports profile - load parameters from a json file
 - Supports browser profile - save credentials to skip login
+- ~~Target Most Recent posts~~ (Deprecated)
+- ~~Reloading target to view latest posts~~ (Deprecated)
 
 ## Requirements
 - Python 3
