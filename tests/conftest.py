@@ -3,7 +3,7 @@ import pytest
 import os
 from dotenv import load_dotenv
 from modules.constants import INSTA_URL
-from modules.instafunc import *
+from modules.insta import *
 
 load_dotenv()
 
@@ -11,6 +11,7 @@ TEST_INSTA_USER = os.getenv('INSTA_USER', '')
 TEST_INSTA_PASS = os.getenv('INSTA_PASS', '')
 TEST_INSTA_TARGET_USER = os.getenv('INSTA_TARGET_USER', '')
 INSTA_TARGET_STORY_USER = os.getenv('INSTA_TARGET_STORY_USER', '')
+INSTA_TARGET_REEL_USER = os.getenv('INSTA_TARGET_REEL_USER', '')
 TEST_INSTA_TARGET_TAG = os.getenv('INSTA_TARGET_TAG', '')
 NPOSTS = int(os.getenv('NPOSTS', ''))
 
