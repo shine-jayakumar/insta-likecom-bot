@@ -63,3 +63,8 @@ class DriverDirectoryMissingError(Exception):
     Raise when the driver directory is missing
     """
     pass
+
+class InvalidLimitsFile(Exception):
+    """
+    Raise when an invalid limits json file is received
+    """
