@@ -48,6 +48,7 @@ class Stats:
         self.tref = datetime.now().timestamp()
 
         self.limits = limits
+        self.session_st = datetime.now().timestamp()
 
         self._init()
         self._init_statsmon()
@@ -76,7 +77,7 @@ class Stats:
         """
         fpath = os.path.join('stats', f'{datetime.now().strftime("%Y_%m_%d")}.json')
         with open(fpath, 'w') as json_fh:
-            exclude_keys = ['limits']
+            exclude_keys = ['limits', 'session_st']
             stats_vars = {k:v for k,v in vars(self).items() if k not in exclude_keys}
             json.dump(stats_vars, json_fh)
     
@@ -109,22 +110,33 @@ class Stats:
         Initiates stats monitor
         """
         SIGRAISED = False
+
+        def raisesig():
+            nonlocal SIGRAISED
+            if not SIGRAISED:
+                signal.raise_signal(signal.SIGUSR1)
+                SIGRAISED = True
+
         while True:
             cur_ts = datetime.now().timestamp()
 
+            # session timeout
+            if all([
+                self.limits.get('session_timeout', -1) > 0,
+                cur_ts - self.session_st > self.limits.get('session_timeout', -1)
+                ]):
+                raisesig()
+                break
+
             # check daily limits
             if not self._witin_limits(limits=self.limits['daily']):
-                if not SIGRAISED:
-                    signal.raise_signal(signal.SIGUSR1)
-                    SIGRAISED = True
+                raisesig()
                 break
 
             # check hourly limits
             if cur_ts - self.tref < 3600:
                 if not self._witin_limits(limits=self.limits['hourly']):
-                    if not SIGRAISED:
-                        signal.raise_signal(signal.SIGUSR1)
-                        SIGRAISED = True                    
+                    raisesig()                
                     break
             else:
                 self._update_tref()
@@ -138,7 +150,7 @@ class Stats:
 
     def log(self):
         """ Logs the current stats """
-        exclude_keys = ['limits']
+        exclude_keys = ['limits', 'session_st']
         stats_vars = {k:v for k,v in vars(self).items() if k not in exclude_keys}
         for k,v in stats_vars.items():
             logger.info(f'[{k}]: {v}')

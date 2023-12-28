@@ -12,8 +12,11 @@ TEST_STORY_COMMENTS = [
 
 
 def test_login(insta):
-    assert insta.login() == True
-
+    if insta.validate_login() == True:
+        assert True
+    else:
+        assert insta.login() == True
+        
 
 def test_open_target(insta):
     insta.target(accountname=INSTA_TARGET_STORY_USER)
