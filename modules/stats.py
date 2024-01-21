@@ -117,7 +117,10 @@ class Stats:
         def raisesig():
             nonlocal SIGRAISED
             if not SIGRAISED:
-                signal.raise_signal(signal.SIGUSR1)
+                if os.name == 'nt':
+                    signal.raise_signal(signal.SIGABRT)
+                else:
+                    signal.raise_signal(signal.SIGUSR1)
                 SIGRAISED = True
 
         while True:
