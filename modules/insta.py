@@ -823,7 +823,7 @@ class Insta:
         Clicks on the first reel found on the account
         """
         try:
-            reels = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//div[@class="_aajw"]')))
+            reels = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//div[contains(@class,"_abq3")]')))
             reels[0].click()
             return True
         except:
