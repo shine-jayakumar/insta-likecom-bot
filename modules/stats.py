@@ -101,7 +101,10 @@ class Stats:
         """
         Monitors stats
         """
-        signal.signal(signal.SIGUSR1, handler=self._sighandler)
+        if os.name == 'nt':
+            signal.signal(signal.SIGABRT, handler=self._sighandler)
+        else:
+            signal.signal(signal.SIGUSR1, handler=self._sighandler)
         thread = Thread(target=self._stasmon, daemon=True)
         thread.start()
 
