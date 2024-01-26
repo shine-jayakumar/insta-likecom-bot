@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from modules.constants import INSTA_URL
 from modules.insta import *
 
-load_dotenv()
+load_dotenv('.env')
 
 TEST_INSTA_USER = os.getenv('INSTA_USER', '')
 TEST_INSTA_PASS = os.getenv('INSTA_PASS', '')

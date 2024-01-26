@@ -11,9 +11,11 @@
 """
 
 
+from selenium.webdriver.common.by import By
 from typing import List, Tuple
 import random
 from modules.constants import APP_VERSION
+
 
 
 def remove_blanks(lst: List) -> List:
@@ -73,6 +75,15 @@ def generate_random_comment(comments):
     return comments[random.randint(0, len(comments)-1)]
 
 
+def get_By_strategy(locator: str) -> tuple[By,str] | tuple[None, None]:
+    """ Returns By strategy and locator (xpath, css selector) """
+    if not locator:
+        return(None, None)
+    if locator.startswith('//'):
+        return By.XPATH, locator
+    return By.CSS_SELECTOR, locator
+
+    
 def display_intro():
 
     intro = f"""

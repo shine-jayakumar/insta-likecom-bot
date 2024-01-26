@@ -14,7 +14,7 @@
 APP_VERSION = 'v.3.0.4'
 
 INSTA_URL = "https://www.instagram.com"
-
+LOCATORS_URL = ''
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
 "So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",

@@ -105,7 +105,7 @@ class Post(InstaWorkFlow):
         self.logger = logger
 
     def _is_post_eligible(self, filters: List[Callable]):
-        return all([filter for filter in filters])
+        return all([filter() for filter in filters])
     
     def _filter_matchtags(self) -> bool:
         """
@@ -229,6 +229,10 @@ class Post(InstaWorkFlow):
         self.logger.info(f'[target: {target} (Top Posts)] Opening first post')
         self.insta.click_first_post()
 
+        if posts_to_interact and not self._filter_inlast():
+            self.logger.info(f"[target: {target}] Latest post older than set time limit.")
+            return True
+
         post = 0
         while post < posts_to_interact:
             # check post eligibility
@@ -239,6 +243,8 @@ class Post(InstaWorkFlow):
             ])
             if not post_eligible:
                 time.sleep(get_delay(self.profile.delay))
+                self.logger.info(f"[target: {target}] Moving on to the next post")
+                self.insta.next_post()
                 continue
             
             if self.insta.like():

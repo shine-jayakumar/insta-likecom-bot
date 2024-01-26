@@ -12,5 +12,5 @@
         "accounts": 120,
         "comments": 200
     },
-    "session_timeout": 20
+    "session_timeout": 3600
 }

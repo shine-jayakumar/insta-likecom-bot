@@ -17,7 +17,7 @@ import os
 import sys
 
 from colorama import init as colorama_init
-from colorama import Fore
+from colorama import Fore, Style
 
 
 colorama_init(autoreset=True)
@@ -31,9 +31,9 @@ class ColoredFormatter(logging.Formatter):
         self._level_colors = {
             "WARNING": Fore.YELLOW,
             "ERROR": Fore.RED,
-            "DEBUG": Fore.BLUE,
-            "INFO": Fore.WHITE,
-            "CRITICAL": Fore.RED
+            "DEBUG": Fore.BLUE
+            # "INFO": Fore.WHITE,
+            # "CRITICAL": Fore.RED + Style.BRIGHT
         }
     
     def format(self, record):
@@ -56,7 +56,7 @@ class AppLogger:
         # ====================================================
         self.logdir = 'logs'
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
 
         if not os.path.exists(self.logdir):
             os.mkdir(self.logdir)

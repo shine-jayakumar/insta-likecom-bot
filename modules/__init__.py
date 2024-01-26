@@ -7,4 +7,4 @@ from . import profile
 from . import stats
 from . import instaworkflows
 from . import helpers
-
+from . import locators
