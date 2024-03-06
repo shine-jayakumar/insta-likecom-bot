@@ -82,6 +82,7 @@ Optional Arguments
 | -c , --comments | file containing comments (one comment per line) |
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
+| -sc, --skipcommented | skip posts already commented |
 | -lc, --likecomments | like top n user comments per post |
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
