@@ -21,7 +21,7 @@ LOGS_DIR = os.path.join(WORKING_DIR, 'logs')
 STATS_DIR = os.path.join(WORKING_DIR, 'stats')
 LOCATORS_DIR = os.path.join(WORKING_DIR, 'locators')
 
-LOCATORS_URL = ''
+LOCATORS_URL = 'https://raw.githubusercontent.com/shine-jayakumar/insta-likecom-bot/master/locators/locators.json'
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
 "So beautiful ❤️", "So perfect ❤️", "Oh my lawd 😍", "I love this ❤️", "🔥🔥🔥", "👏👏",
