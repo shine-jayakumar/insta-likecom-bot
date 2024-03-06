@@ -66,7 +66,13 @@ try:
     if profile.matchtags:
         logger.info(f'Match tags: {profile.matchtags}')
         if profile.matchtagnum:
-            logger.info(f'Match at least: {profile.matchtagnum}')
+            total_tags = len(profile.matchtags)
+            if profile.matchtagnum > total_tags:
+                logger.warning('No. of tags to match is greater than total tags specified')
+                logger.info(f'Setting tags to match to: {total_tags}')
+                profile.matchtagnum = total_tags
+            else:
+                logger.info(f'Match at least: {profile.matchtagnum} tags')
     
     if profile.ignoretags:
         logger.info(f'Ignore tags: {profile.ignoretags}')

@@ -115,9 +115,11 @@ class Post(InstaWorkFlow):
             return True
         
         tags = self.insta.get_post_tags()
+        self.logger.info(f'Post tags: {tags}')
         if self.insta.get_tag_match_count(
             posttags=tags, matchtags=self.profile.matchtags, 
             min_match=self.profile.matchtagnum):
+            self.logger.info(f'[Filter MatchTags] Post is eligible')
             return True
         
         self.logger.info(f'[Filter MatchTags] Post not eligible')
