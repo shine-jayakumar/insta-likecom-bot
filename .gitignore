@@ -6,3 +6,4 @@ env
 venv
 .vscode
 stats/*.json
+.pytest_cache
