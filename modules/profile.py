@@ -1,7 +1,7 @@
 """ 
     profile.py - Profile class
 
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
