@@ -690,7 +690,7 @@ class Insta:
 
     def next_story(self):
         """ Moves to next story """
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, 5)
         try:
             wait.until(EC.presence_of_element_located(get_By_strategy(StoryLocators.next))).click()
             return True
@@ -708,6 +708,7 @@ class Insta:
             logger.error(f'[get_total_stories] Error: {ex.__class__.__name__}')
         return 0
     
+    @retry
     def comment_on_story(self, text) -> bool:
         """ Comments on a story """
         wait = WebDriverWait(self.driver, 5)

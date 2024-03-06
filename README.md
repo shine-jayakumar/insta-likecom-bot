@@ -87,8 +87,9 @@ Optional Arguments
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
 | -il, --inlast | target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
-| -ls, --likestory | like stories (use 111 to like all stories)|
-| -cs, --commentstory | comment on stories (use 111 to comment on all stories) |
+| -vs, --viewstory | view stories |
+| -ls, --likestory | like stories (default=all) |
+| -cs, --commentstory | comments on stories (no comments if option not used) |
 | -os, --onlystory | target only stories and not posts |
 | -nr, --numofreels | number of reels to like |
 | -nrc, --noreelcomments | turn off reel comments |

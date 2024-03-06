@@ -23,6 +23,7 @@ logger = AppLogger('locators').getlogger()
 
 
 LOCATORS = json.load(open(os.path.join(LOCATORS_DIR, 'locators.json')))
+# LOCATORS = json.load(open('./locators.json'))
 
 try:
     locators_remote = requests.get(LOCATORS_URL).json()

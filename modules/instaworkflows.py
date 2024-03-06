@@ -64,7 +64,12 @@ class Story(InstaWorkFlow):
     
     def interact(self, target, stats: 'Stats') -> None | bool:
 
-        if any([not self.profile.viewstory, self.is_private]):
+        if not self.profile.viewstory:
+            self.logger.info(f"[{target}] '--viewstory' argument not set. Skipping stories.")
+            return 
+        
+        if self.is_private:
+            self.logger.info(f"[{target}] Private account. Skipping stories.")
             return 
         
         if not self.insta.is_story_present():
@@ -83,16 +88,18 @@ class Story(InstaWorkFlow):
                 if self.insta.like_story():
                     stats.story_likes += 1
                     self.logger.info(f'[{target}] Liked story # {story_idx+1}')
-                time.sleep(get_delay(delay=(2,10)))
+                    time.sleep(get_delay(delay=(1,3)))
 
             if self.profile.commentstory and story_idx in comment_stories_at:
                 comment_text = generate_random_comment(self.profile.comments)
                 if self.insta.comment_on_story(comment_text):
                     stats.story_comments += 1
                     self.logger.info(f'[{target}] Commented on story # {story_idx+1}: {comment_text}')
-                time.sleep(get_delay(delay=(2,10)))
+                    time.sleep(get_delay(delay=(1,3)))
             
             self.insta.next_story()
+            time.sleep(0.5)
+            self.insta.pause_story()
             time.sleep(1)
             stats.save()
         return True
