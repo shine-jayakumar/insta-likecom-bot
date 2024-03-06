@@ -49,6 +49,7 @@ from modules.locators import (
     FollowersLocators, AccountLocators
 )
 
+
 logger = AppLogger(__name__).getlogger()
 
 # suppress webdriver manager logs
