@@ -1,7 +1,7 @@
 """ 
     applogger.py - class to maintain logs
 
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -15,7 +15,7 @@ from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 import os
 import sys
-
+from modules.constants import LOGS_DIR
 from colorama import init as colorama_init
 from colorama import Fore, Style
 
@@ -54,7 +54,7 @@ class AppLogger:
         # ====================================================
         # Setting up logger
         # ====================================================
-        self.logdir = 'logs'
+        self.logdir = LOGS_DIR
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
 
@@ -79,3 +79,7 @@ class AppLogger:
         Returns the logger object
         """
         return self.logger
+
+
+if __name__ == '__main__':
+    pass

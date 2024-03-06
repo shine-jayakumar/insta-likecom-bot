@@ -456,7 +456,5 @@ def is_hashtag_present(targets: List) -> bool:
     return False
 
         
-
-
-
-
+if __name__ == '__main__':
+    pass

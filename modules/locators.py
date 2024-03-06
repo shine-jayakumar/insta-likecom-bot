@@ -1,15 +1,28 @@
 
+"""
+    locators.py - contains classes to access DOM locators for Instagram elements
+
+    insta-likecom-bot v.3.0.5
+    Automates likes and comments on an instagram account or tag
+
+    Author: Shine Jayakumar
+    Github: https://github.com/shine-jayakumar
+    Copyright (c) 2023 Shine Jayakumar
+    LICENSE: MIT
+"""
+
 from dataclasses import dataclass
 import json
 import os
 import requests
-from modules.constants import LOCATORS_URL
+from modules.constants import LOCATORS_URL, LOCATORS_DIR
 from modules.applogger import AppLogger
 
 
 logger = AppLogger('locators').getlogger()
 
-LOCATORS = json.load(open(os.path.join('locators', 'locators.json')))
+
+LOCATORS = json.load(open(os.path.join(LOCATORS_DIR, 'locators.json')))
 
 try:
     locators_remote = requests.get(LOCATORS_URL).json()
@@ -114,3 +127,6 @@ class ReelsLocators:
 class FollowersLocators:
     link: str = LOCATORS['locators']['followers']['link']
     container: str = LOCATORS['locators']['followers']['container']
+
+if __name__ == '__main__':
+    pass

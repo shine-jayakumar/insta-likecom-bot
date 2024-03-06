@@ -78,3 +78,6 @@ class LimitsExceededError(Exception):
     """
     Raise when limits have exceeded
     """
+
+if __name__ == '__main__':
+    pass

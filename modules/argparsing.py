@@ -85,3 +85,4 @@ parser.add_argument('-d', '--delay', type=str, metavar='min,max', help='time to 
 parser.add_argument('-br', '--browser',  type=str, metavar='', choices = ('chrome', 'firefox'), help='browser to use [chrome|firefox] (default=chrome)')
 parser.add_argument('-hl', '--headless',  action='store_true', help='headless mode')
 parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {APP_VERSION}')
+

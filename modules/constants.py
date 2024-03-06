@@ -10,10 +10,17 @@
     Copyright (c) 2023 Shine Jayakumar
     LICENSE: MIT
 """
+import os
 
 APP_VERSION = 'v.3.0.5'
 
 INSTA_URL = "https://www.instagram.com"
+
+WORKING_DIR = os.getcwd()
+LOGS_DIR = os.path.join(WORKING_DIR, 'logs')
+STATS_DIR = os.path.join(WORKING_DIR, 'stats')
+LOCATORS_DIR = os.path.join(WORKING_DIR, 'locators')
+
 LOCATORS_URL = ''
 
 COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!","Out of this world",
@@ -25,3 +32,8 @@ COMMENTS = ["My jaw dropped", "This is amazing", "Awe-inspiring", "Sheeeeeeesh!"
 "Just like that 🔥", "Good vibes only ❤️", "This is mood ❤️", "The vibes are immaculate", "I adore you 🌺",
 "You never fail to impress me😩", "These are hard 🔥", "Slaying as always 😍", "Blessing my feed rn 🙏",
 "This is incredible ❤️", "Vibes on point 🔥", "You got it 🔥", "Dope!", "This is magical! ✨"]
+
+
+if __name__ == '__main__':
+    pass
+

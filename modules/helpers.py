@@ -15,7 +15,7 @@ from selenium.webdriver.common.by import By
 from typing import List, Tuple
 import random
 from modules.constants import APP_VERSION
-
+import os
 
 
 def remove_blanks(lst: List) -> List:
@@ -83,7 +83,17 @@ def get_By_strategy(locator: str) -> tuple[By,str] | tuple[None, None]:
         return By.XPATH, locator
     return By.CSS_SELECTOR, locator
 
-    
+
+def create_dirs(dirlist: list[str]) -> None:
+    """ Creates directories if doesn't exist """
+    for dirname in dirlist:
+        try:
+            if not os.path.exists(dirname):
+                os.mkdir(dirname)
+        except Exception as ex:
+            print(f'[{ex.__class__.__name__} - {str(ex)}] Error creating director: {dirname}')
+        
+
 def display_intro():
 
     intro = f"""
@@ -102,3 +112,7 @@ def display_intro():
     
     """
     print(intro)
+
+
+if __name__ == '__main__':
+    pass
