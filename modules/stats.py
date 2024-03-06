@@ -22,6 +22,7 @@ from modules.applogger import AppLogger
 
 logger = AppLogger('Stats').getlogger()
 
+
 class Stats:    
 
     def __init__(self, limits: dict):
