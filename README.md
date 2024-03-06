@@ -370,6 +370,10 @@ Changes:
 
 Bug Fixes:
 - Updated DOM locators for Instagram elements
+- Issue fixed: Skip posts/reels already commented - Doesn't work #113
+- Issue fixed: Unable to interact with Reels #105
+- Issue fixed: Unable To Like And Comment On Stories #104
+
 
 <br/>
 
