@@ -534,6 +534,7 @@ class Insta:
         """
         if not all([posttags, matchtags]):
             return False
+        min_match = min(len(matchtags), min_match)
         return sum([tag in posttags for tag in matchtags]) >= min_match
 
     def get_comment_usernames_from_post(self) -> List[str]:
