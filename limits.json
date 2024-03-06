@@ -11,5 +11,6 @@
         "likes": 350,
         "accounts": 120,
         "comments": 200
-    }
+    },
+    "session_timeout": 3600
 }

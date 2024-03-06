@@ -1,6 +1,6 @@
 """ 
     instaworkflows.py - Instagram workflows - Posts, Stories, Reels
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -64,7 +64,12 @@ class Story(InstaWorkFlow):
     
     def interact(self, target, stats: 'Stats') -> None | bool:
 
-        if any([not self.profile.viewstory, self.is_private]):
+        if not self.profile.viewstory:
+            self.logger.info(f"[{target}] '--viewstory' argument not set. Skipping stories.")
+            return 
+        
+        if self.is_private:
+            self.logger.info(f"[{target}] Private account. Skipping stories.")
             return 
         
         if not self.insta.is_story_present():
@@ -83,16 +88,18 @@ class Story(InstaWorkFlow):
                 if self.insta.like_story():
                     stats.story_likes += 1
                     self.logger.info(f'[{target}] Liked story # {story_idx+1}')
-                time.sleep(get_delay(delay=(2,10)))
+                    time.sleep(get_delay(delay=(1,3)))
 
             if self.profile.commentstory and story_idx in comment_stories_at:
                 comment_text = generate_random_comment(self.profile.comments)
                 if self.insta.comment_on_story(comment_text):
                     stats.story_comments += 1
                     self.logger.info(f'[{target}] Commented on story # {story_idx+1}: {comment_text}')
-                time.sleep(get_delay(delay=(2,10)))
+                    time.sleep(get_delay(delay=(1,3)))
             
             self.insta.next_story()
+            time.sleep(0.5)
+            self.insta.pause_story()
             time.sleep(1)
             stats.save()
         return True
@@ -105,7 +112,7 @@ class Post(InstaWorkFlow):
         self.logger = logger
 
     def _is_post_eligible(self, filters: List[Callable]):
-        return all([filter for filter in filters])
+        return all([filter() for filter in filters])
     
     def _filter_matchtags(self) -> bool:
         """
@@ -115,9 +122,11 @@ class Post(InstaWorkFlow):
             return True
         
         tags = self.insta.get_post_tags()
+        self.logger.info(f'Post tags: {tags}')
         if self.insta.get_tag_match_count(
             posttags=tags, matchtags=self.profile.matchtags, 
             min_match=self.profile.matchtagnum):
+            self.logger.info(f'[Filter MatchTags] Post is eligible')
             return True
         
         self.logger.info(f'[Filter MatchTags] Post not eligible')
@@ -229,6 +238,10 @@ class Post(InstaWorkFlow):
         self.logger.info(f'[target: {target} (Top Posts)] Opening first post')
         self.insta.click_first_post()
 
+        if posts_to_interact and not self._filter_inlast():
+            self.logger.info(f"[target: {target}] Latest post older than set time limit.")
+            return True
+
         post = 0
         while post < posts_to_interact:
             # check post eligibility
@@ -239,6 +252,8 @@ class Post(InstaWorkFlow):
             ])
             if not post_eligible:
                 time.sleep(get_delay(self.profile.delay))
+                self.logger.info(f"[target: {target}] Moving on to the next post")
+                self.insta.next_post()
                 continue
             
             if self.insta.like():
@@ -357,7 +372,8 @@ class Reel(InstaWorkFlow):
         return True
 
 
-
+if __name__ == '__main__':
+    pass
             
 
 

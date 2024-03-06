@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.4&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.5&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -82,12 +82,14 @@ Optional Arguments
 | -c , --comments | file containing comments (one comment per line) |
 | -oc , --onecomment | specify only one comment |
 | -nc , --nocomments | turn off comments |
+| -sc, --skipcommented | skip posts already commented |
 | -lc, --likecomments | like top n user comments per post |
 | -ff, --findfollowers | like/comment on posts from target's followers |
 | -fa, --followersamount | number of followers to process (default=all) |
 | -il, --inlast | target post within last n days (default=all) ex. 1y, 2M, 3d, 4h, 53m, 10s |
-| -ls, --likestory | like stories (use 111 to like all stories)|
-| -cs, --commentstory | comment on stories (use 111 to comment on all stories) |
+| -vs, --viewstory | view stories |
+| -ls, --likestory | like stories (default=all) |
+| -cs, --commentstory | comments on stories (no comments if option not used) |
 | -os, --onlystory | target only stories and not posts |
 | -nr, --numofreels | number of reels to like |
 | -nrc, --noreelcomments | turn off reel comments |
@@ -360,7 +362,24 @@ instalimits.json
 
 
 ## Version Updates
-Version **v.3.0.4** (latest)
+
+Version **v.3.0.5** (latest)
+
+Changes:
+- DOM locators isolated to a .json file
+- Fetches latest version of locators from repo
+
+Bug Fixes:
+- Updated DOM locators for Instagram elements
+- Issue fixed: Skip posts/reels already commented - Doesn't work #113
+- Issue fixed: Unable to interact with Reels #105
+- Issue fixed: Unable To Like And Comment On Stories #104
+- Issue fixed: Error when story comment is disabled #101
+
+
+<br/>
+
+Version **v.3.0.4**
 
 Feature addition:
 - Reels interaction added

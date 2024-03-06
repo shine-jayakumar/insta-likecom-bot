@@ -1,7 +1,7 @@
 """ 
     helpers.py - helper methods
 
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -11,9 +11,11 @@
 """
 
 
+from selenium.webdriver.common.by import By
 from typing import List, Tuple
 import random
 from modules.constants import APP_VERSION
+import os
 
 
 def remove_blanks(lst: List) -> List:
@@ -73,6 +75,25 @@ def generate_random_comment(comments):
     return comments[random.randint(0, len(comments)-1)]
 
 
+def get_By_strategy(locator: str) -> tuple[By,str] | tuple[None, None]:
+    """ Returns By strategy and locator (xpath, css selector) """
+    if not locator:
+        return(None, None)
+    if locator.startswith('//'):
+        return By.XPATH, locator
+    return By.CSS_SELECTOR, locator
+
+
+def create_dirs(dirlist: list[str]) -> None:
+    """ Creates directories if doesn't exist """
+    for dirname in dirlist:
+        try:
+            if not os.path.exists(dirname):
+                os.mkdir(dirname)
+        except Exception as ex:
+            print(f'[{ex.__class__.__name__} - {str(ex)}] Error creating director: {dirname}')
+        
+
 def display_intro():
 
     intro = f"""
@@ -91,3 +112,7 @@ def display_intro():
     
     """
     print(intro)
+
+
+if __name__ == '__main__':
+    pass

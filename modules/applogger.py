@@ -1,7 +1,7 @@
 """ 
     applogger.py - class to maintain logs
 
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -15,7 +15,37 @@ from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 import os
 import sys
+from modules.constants import LOGS_DIR
+from colorama import init as colorama_init
+from colorama import Fore, Style
 
+
+colorama_init(autoreset=True)
+
+
+class ColoredFormatter(logging.Formatter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._level_colors = {
+            "WARNING": Fore.YELLOW,
+            "ERROR": Fore.RED,
+            "DEBUG": Fore.BLUE
+            # "INFO": Fore.WHITE,
+            # "CRITICAL": Fore.RED + Style.BRIGHT
+        }
+    
+    def format(self, record):
+        color = self._level_colors.get(record.levelname, "")
+        if not color:
+            return logging.Formatter.format(self, record)
+        
+        record.name = color + record.name
+        record.levelname = color + record.levelname
+        record.msg = color + record.msg
+        return logging.Formatter.format(self, record)
+    
 
 class AppLogger:
 
@@ -24,9 +54,9 @@ class AppLogger:
         # ====================================================
         # Setting up logger
         # ====================================================
-        self.logdir = 'logs'
+        self.logdir = LOGS_DIR
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
 
         if not os.path.exists(self.logdir):
             os.mkdir(self.logdir)
@@ -37,7 +67,7 @@ class AppLogger:
         file_handler = TimedRotatingFileHandler(logfname, when='midnight')
         file_handler.setFormatter(formatter)
 
-        stdout_formatter = logging.Formatter("[*] => %(message)s")
+        stdout_formatter = ColoredFormatter("[*] => %(message)s")
         stdout_handler = logging.StreamHandler(sys.stdout)
         stdout_handler.setFormatter(stdout_formatter)
 
@@ -49,3 +79,7 @@ class AppLogger:
         Returns the logger object
         """
         return self.logger
+
+
+if __name__ == '__main__':
+    pass

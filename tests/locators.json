@@ -1,0 +1,82 @@
+{
+    "version": "0.0.0.1",
+    "locators": {
+        "account": {
+            "is_private": [
+                "//*[text()='This account is private'",
+                "//*[text()='This Account is private'",
+                "//*[text()='This Account is Private'"
+            ]
+        },
+        "login": {
+            "username": "//input[@name='username']",
+            "password": "//input[@name='password']",
+            "submit": "//button[@type='submit']",
+            "validation": [
+                "//img[contains(@alt, ' profile picture')]",
+                "//div[@class='_acut']/div/span/img",
+                "//img[@data-testid='user-avatar']"
+            ],
+            "save_login": {
+                "notnow": [
+                    "//button[text()='Not now']",
+                    "//div[@class='cmbtv']/button",
+                    "//div[@class='_ac8f']/button",
+                    "//div[text()='Not now']"
+                ],
+                "save": [
+                    "//button[contains(text(),'Save Info')]",
+                    "//button[contains(text(),'Save info')]"
+                ]
+            },
+            "twofactor": "//div[@id='verificationCodeDescription']"
+        },
+        "post": {
+            "like": "//span[@class='_aamw']",
+            "comment": "//textarea[@aria-label='Add a comment…']",
+            "comment_post": "//div[@role='button' and contains(text(), 'Post')]",
+            "comment_disabled": "//div[@class='_ae63']",
+            "num_of_posts": "//span[@class='_ac2a']",
+            "first_post": "//div[contains(@class,'_aagw')]",
+            "post_properties": {
+                "tags": "//a[contains(@href, '/explore/tags')]",
+                "comment": {
+                    "comments_list": "//ul[@class='_a9ym']",
+                    "username": "._a9zc",
+                    "comment": "._a9zs",
+                    "like": "._a9zu",
+                    "is_liked": "._a9zu svg"
+                },
+                "date": "//time[@class='_aaqe']"
+            }
+        },
+        "story": {
+            "is_present": "//div[contains(@class, '_aarf')]",
+            "pause": {
+                "container": ".x78zum5",
+                "pause_button": "svg[aria-label='Pause']"
+            },
+            "like": {
+                "container": ".x1i64zmx",
+                "like_button": "svg[aria-label='Like']",
+                "unlike_button": "svg[aria-label='Unlike']"
+            },
+            "comment": {
+                "container": "._ac12",
+                "comment_box": "//textarea[contains(@placeholder, 'Reply to')]"
+            },
+            "next": "svg[aria-label='Next']",
+            "count": {
+                "container": "//div[contains(@class, 'x1ned7t2')]",
+                "story": "//div[contains(@class,'x1lix1fw')]"
+            }
+        },
+        "reels": {
+            "first_reel": "//div[@class='_aajz']"
+        },
+        "followers": {
+            "link": "//a[contains(@href, '/followers')]",
+            "container": "//div[@class='_aano']/div/div"
+        }
+    }
+}

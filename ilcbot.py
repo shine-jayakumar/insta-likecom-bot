@@ -1,5 +1,5 @@
 """
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -18,7 +18,12 @@ from modules.argparsing import parser
 from modules.profile import Profile
 from modules.instaworkflows import Followers, Story, Post, Reel
 from modules.exceptions import *
-from modules.helpers import display_intro
+from modules.helpers import display_intro, create_dirs
+from modules.constants import LOGS_DIR, STATS_DIR, LOCATORS_DIR
+
+
+
+create_dirs([LOGS_DIR, STATS_DIR, LOCATORS_DIR])
 
 
 args = parser.parse_args()
@@ -61,7 +66,13 @@ try:
     if profile.matchtags:
         logger.info(f'Match tags: {profile.matchtags}')
         if profile.matchtagnum:
-            logger.info(f'Match at least: {profile.matchtagnum}')
+            total_tags = len(profile.matchtags)
+            if profile.matchtagnum > total_tags:
+                logger.warning('No. of tags to match is greater than total tags specified')
+                logger.info(f'Setting tags to match to: {total_tags}')
+                profile.matchtagnum = total_tags
+            else:
+                logger.info(f'Match at least: {profile.matchtagnum} tags')
     
     if profile.ignoretags:
         logger.info(f'Ignore tags: {profile.ignoretags}')

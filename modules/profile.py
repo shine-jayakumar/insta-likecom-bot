@@ -1,7 +1,7 @@
 """ 
     profile.py - Profile class
 
-    insta-likecom-bot v.3.0.4
+    insta-likecom-bot v.3.0.5
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -108,11 +108,9 @@ class Profile:
         """ Loads target """
         if self.target:
             if isinstance(self.target, str):
+                # get targets from file if --target arg contains a file path
                 targets_from_file = parse_targets_multi(fname=self.target)
-                if targets_from_file:
-                    self.target = targets_from_file
-                else:
-                    self.target = [self.target]
+                self.target = targets_from_file if targets_from_file else [self.target]
             elif isinstance(self.target, list):
                 self.target: List[str] = [str(target).strip() for target in self.target if target]
 
@@ -433,8 +431,10 @@ def parse_delay(delay:str, default: tuple = (1,10)) -> tuple:
 
 def parse_targets_multi(fname: str) -> List[str]:
     """
-    Parses target string to retrieve multiple targets
+    Returns multiple targets from a file
     """
+    if not pathexists(fname):
+        return []
     try:
         targets = []
         with open(fname) as fh:
@@ -456,7 +456,5 @@ def is_hashtag_present(targets: List) -> bool:
     return False
 
         
-
-
-
-
+if __name__ == '__main__':
+    pass
