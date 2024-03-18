@@ -1,7 +1,7 @@
 """ 
     stats.py - Stats class to keep track of activity
 
-    insta-likecom-bot v.3.0.5
+    insta-likecom-bot v.3.0.6
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar

@@ -1,7 +1,7 @@
 """ 
     insta.py - Insta class and helper methods
 
-    insta-likecom-bot v.3.0.5
+    insta-likecom-bot v.3.0.6
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -23,7 +23,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException
-from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -199,13 +199,12 @@ class Insta:
     def validate_login(self) -> bool:
         """ Validates login """
         wait = WebDriverWait(self.driver, 5)
-        for atmpt_cnt, xpath in enumerate(LoginLocators.validaton, start=1):
+        for atmpt_cnt, xpath in enumerate(LoginLocators.validation, start=1):
             try:
-                logger.info(f'[Attempt# {atmpt_cnt}] Validating login')
                 wait.until(EC.presence_of_element_located(get_By_strategy(xpath)))
                 return True
             except:
-                logger.error(f'Failed to validate login')
+                logger.error(f'Could not find xpath: {xpath}')
 
         return False
 
@@ -261,7 +260,8 @@ class Insta:
             if validate:
                 if not self.validate_login():
                     return False
-        except:
+        except Exception as ex:
+            logger.error(f'[{ex.__class__.__name__} - {str(ex)}] Failed to login')
             return False
         return True
 
@@ -270,21 +270,47 @@ class Insta:
         """ Likes a post if not liked already """
         like_button:WebElement = None
         wait = WebDriverWait(self.driver, timeout=2)
-        try:
-            like_button = wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.like)))
-            like_button_span = like_button.find_element(By.XPATH, 'div/div/span')
-            button_status = like_button_span.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label')
-            # like only if not already liked
-            if button_status == 'Like':
-                like_button.click()
+
+        def is_already_liked():
+            try:
+                self.driver.find_element(*get_By_strategy(PostLocators.unlike))
                 return True
+            except:
+                return False
+
+        try:
+            logger.info('Finding like button')
+            like_button = wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.like)))
+            like_button.click()
+            return True
+            # like_button_span = like_button.find_element(By.XPATH, 'div/div/span')
+            # button_status = like_button_span.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label')
+            # # like only if not already liked
+            # if button_status == 'Like':
+            #     like_button.click()
+            #     return True
         except ElementClickInterceptedException:
+            logger.info('Failed to click - deploying Javascript')
             self.driver.execute_script('arguments[0].click();', like_button)
             return True
+        
         except NoSuchElementException as nosuchelex:
+            if is_already_liked():
+                logger.info('Post is already liked')
+                return None    
+                    
             logger.warning('Like button seems to be disabled')
             logger.debug(str(nosuchelex))            
             return None
+        
+        except TimeoutException as timeoutex:
+            if is_already_liked():
+                logger.info('Post is already liked')
+                return None
+            logger.warning('Like button seems to be disabled')
+            logger.debug(str(timeoutex))
+            return False
+
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} - {str(ex)}')
             return False
@@ -321,23 +347,23 @@ class Insta:
 
         cmt_text = text
         cmt: WebElement = None
-
+        wait = WebDriverWait(self.driver, 5)
         # remove non-bmp characters (for chrome)
         if self.browser == 'chrome':
             cmt_text = bmp_emoji_safe_text(text) or fs_comment
 
         try:
-            cmt = self.wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment)))
+            cmt = wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment)))
             cmt.click()
             cmt.send_keys(cmt_text)
-            self.wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment_post))).click()
+            wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment_post))).click()
             self.wait_until_comment_cleared(cmt, timeout)
 
         except ElementClickInterceptedException:
             self.driver.execute_script('arguments[0].click();', cmt)
             self.wait_until_comment_cleared(cmt, timeout)
 
-        except:
+        except Exception as ex:
             return False
 
         return True
@@ -389,10 +415,11 @@ class Insta:
         wait = WebDriverWait(self.driver, 2)
         for xpath in LoginLocators.save_login.save:
             try:
+                logger.info(f'Finding Save Login with xpath: {xpath}')
                 wait.until(EC.presence_of_element_located(get_By_strategy(xpath))).click()
                 return True
             except:
-                logger.error(f'Save Login Info dialog box not found')
+                logger.error(f'Save Login info could not be found with xpath: {xpath}')
         return False
 
     def next_post(self) -> bool: 
@@ -420,8 +447,8 @@ class Insta:
             wait.until(EC.presence_of_element_located(get_By_strategy(LoginLocators.twofactor)))
             return True
         except Exception as ex:
-            # logger.error('Could not locate 2 factor authentication screen')
-            return False
+            logger.info('Could not locate 2 factor authentication screen')
+        return False
 
     def quit(self) -> None:
         """ Quit driver """
