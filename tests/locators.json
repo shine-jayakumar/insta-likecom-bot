@@ -1,5 +1,5 @@
 {
-    "version": "0.0.0.1",
+    "version": "0.0.0.2",
     "locators": {
         "account": {
             "is_private": [
@@ -32,10 +32,11 @@
             "twofactor": "//div[@id='verificationCodeDescription']"
         },
         "post": {
-            "like": "//span[@class='_aamw']",
-            "comment": "//textarea[@aria-label='Add a comment…']",
+            "like": "//*[name()='svg' and contains(@aria-label, 'Like')]",
+            "unlike": "//*[name()='svg' and contains(@aria-label, 'Unlike')]",
+            "comment": "//textarea[contains(@aria-label, 'Add a comment')]",
             "comment_post": "//div[@role='button' and contains(text(), 'Post')]",
-            "comment_disabled": "//div[@class='_ae63']",
+            "comment_disabled": "//*[contains(text(), 'Comments on this post have been limited')]",
             "num_of_posts": "//span[@class='_ac2a']",
             "first_post": "//div[contains(@class,'_aagw')]",
             "post_properties": {
@@ -47,7 +48,7 @@
                     "like": "._a9zu",
                     "is_liked": "._a9zu svg"
                 },
-                "date": "//time[@class='_aaqe']"
+                "date": "//time[@class='x1p4m5qa']"
             }
         },
         "story": {

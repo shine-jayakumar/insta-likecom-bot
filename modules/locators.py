@@ -2,7 +2,7 @@
 """
     locators.py - contains classes to access DOM locators for Instagram elements
 
-    insta-likecom-bot v.3.0.5
+    insta-likecom-bot v.3.0.6
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -11,7 +11,7 @@
     LICENSE: MIT
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 import os
 import requests
@@ -21,10 +21,13 @@ from modules.applogger import AppLogger
 
 logger = AppLogger('locators').getlogger()
 
-
+# comment line below while running tests
 LOCATORS = json.load(open(os.path.join(LOCATORS_DIR, 'locators.json')))
+
+# uncomment line below while running tests
 # LOCATORS = json.load(open('./locators.json'))
 
+# comment lines below (try-except block) while running tests
 try:
     locators_remote = requests.get(LOCATORS_URL).json()
     if all([
@@ -52,9 +55,9 @@ class LoginLocators:
     username: str = LOCATORS['locators']['login']['username']
     password: str = LOCATORS['locators']['login']['password']
     submit: str = LOCATORS['locators']['login']['submit']
-    validaton: tuple[str] = tuple(LOCATORS['locators']['login']['validation'])
+    validation: tuple[str] = tuple(LOCATORS['locators']['login']['validation'])
     twofactor: str = LOCATORS['locators']['login']['twofactor']
-    save_login: SaveLoginLocators = SaveLoginLocators()
+    save_login: SaveLoginLocators = field(default=SaveLoginLocators())
 
 
 @dataclass
@@ -76,6 +79,7 @@ class PostPropertiesLocators:
 @dataclass
 class PostLocators:
     like: str = LOCATORS['locators']['post']['like']
+    unlike: str = LOCATORS['locators']['post']['unlike']
     comment: str = LOCATORS['locators']['post']['comment']
     comment_post: str = LOCATORS['locators']['post']['comment_post']
     comment_disabled: str = LOCATORS['locators']['post']['comment_disabled']

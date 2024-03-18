@@ -2,7 +2,7 @@
 """ 
     constants.py - contains constants
 
-    insta-likecom-bot v.3.0.5
+    insta-likecom-bot v.3.0.6
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -12,7 +12,7 @@
 """
 import os
 
-APP_VERSION = 'v.3.0.5'
+APP_VERSION = 'v.3.0.6'
 
 INSTA_URL = "https://www.instagram.com"
 
