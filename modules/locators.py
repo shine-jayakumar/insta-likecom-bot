@@ -57,7 +57,7 @@ class LoginLocators:
     submit: str = LOCATORS['locators']['login']['submit']
     validation: tuple[str] = tuple(LOCATORS['locators']['login']['validation'])
     twofactor: str = LOCATORS['locators']['login']['twofactor']
-    save_login: SaveLoginLocators = field(default_factory=SaveLoginLocators())
+    save_login: SaveLoginLocators = field(default=SaveLoginLocators())
     #save_login: SaveLoginLocators = SaveLoginLocators()
 
 
@@ -73,7 +73,7 @@ class PostCommentLocators:
 @dataclass
 class PostPropertiesLocators:
     tags: str = LOCATORS['locators']['post']['post_properties']['tags']
-    comment: PostCommentLocators = field(default_factory=PostCommentLocators)
+    comment: PostCommentLocators = field(default=PostCommentLocators)
     date: str = LOCATORS['locators']['post']['post_properties']['date']
 
 
@@ -86,7 +86,7 @@ class PostLocators:
     comment_disabled: str = LOCATORS['locators']['post']['comment_disabled']
     num_of_posts: str = LOCATORS['locators']['post']['num_of_posts']
     first_post: str = LOCATORS['locators']['post']['first_post']
-    properties: PostPropertiesLocators = field(default_factory=PostPropertiesLocators())
+    properties: PostPropertiesLocators = field(default=PostPropertiesLocators())
 
 
 @dataclass
@@ -117,11 +117,11 @@ class StoryCountLocators:
 @dataclass
 class StoryLocators:
     is_present: str = LOCATORS['locators']['story']['is_present']
-    pause: StoryPauseLocators = field(default_factory=StoryPauseLocators())
-    like: StoryLikeLocators = field(default_factory=StoryLikeLocators())
-    comment: StoryCommentLocators = field(default_factory=StoryCommentLocators())
+    pause: StoryPauseLocators = field(default=StoryPauseLocators())
+    like: StoryLikeLocators = field(default=StoryLikeLocators())
+    comment: StoryCommentLocators = field(default=StoryCommentLocators())
     next: str = LOCATORS['locators']['story']['next']
-    count: StoryCountLocators = field(default_factory=StoryCountLocators())
+    count: StoryCountLocators = field(default=StoryCountLocators())
 
 
 @dataclass
