@@ -1,7 +1,7 @@
 """ 
     insta.py - Insta class and helper methods
 
-    insta-likecom-bot v.3.0.6
+    insta-likecom-bot v.3.0.7
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
@@ -44,11 +44,14 @@ from functools import wraps
 from enum import Enum
 from modules.constants import INSTA_URL
 from modules.helpers import *
+# from modules.locators import (
+#     LoginLocators, PostLocators, StoryLocators, ReelsLocators, 
+#     FollowersLocators, AccountLocators
+# )
 from modules.locators import (
-    LoginLocators, PostLocators, StoryLocators, ReelsLocators, 
-    FollowersLocators, AccountLocators
+    loginlocators, postlocators, storylocators, reelslocators,
+    followerslocators, accountlocators
 )
-
 
 logger = AppLogger(__name__).getlogger()
 
@@ -199,7 +202,7 @@ class Insta:
     def validate_login(self) -> bool:
         """ Validates login """
         wait = WebDriverWait(self.driver, 5)
-        for atmpt_cnt, xpath in enumerate(LoginLocators.validation, start=1):
+        for atmpt_cnt, xpath in enumerate(loginlocators.validation, start=1):
             try:
                 wait.until(EC.presence_of_element_located(get_By_strategy(xpath)))
                 return True
@@ -249,9 +252,9 @@ class Insta:
         """ Initiates login with username and password """
         try:
             self.driver.get(self.baseurl)
-            self.wait.until(EC.presence_of_element_located(get_By_strategy(LoginLocators.username))).send_keys(self.username)
-            self.wait.until(EC.presence_of_element_located(get_By_strategy(LoginLocators.password))).send_keys(self.password)
-            self.wait.until(EC.presence_of_element_located(get_By_strategy(LoginLocators.submit))).click()
+            self.wait.until(EC.presence_of_element_located(get_By_strategy(loginlocators.username))).send_keys(self.username)
+            self.wait.until(EC.presence_of_element_located(get_By_strategy(loginlocators.password))).send_keys(self.password)
+            self.wait.until(EC.presence_of_element_located(get_By_strategy(loginlocators.submit))).click()
 
             if self.is_2factor_present():
                 logger.info('2 factor authentication active. Enter your authentication code to continue')
@@ -273,14 +276,14 @@ class Insta:
 
         def is_already_liked():
             try:
-                self.driver.find_element(*get_By_strategy(PostLocators.unlike))
+                self.driver.find_element(*get_By_strategy(postlocators.unlike))
                 return True
             except:
                 return False
 
         try:
             logger.info('Finding like button')
-            like_button = wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.like)))
+            like_button = wait.until(EC.presence_of_element_located(get_By_strategy(postlocators.like)))
             like_button.click()
             return True
             # like_button_span = like_button.find_element(By.XPATH, 'div/div/span')
@@ -329,7 +332,7 @@ class Insta:
         try:
             # self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[normalize-space(text())="Comments on this post have been limited."]')))
             wait = WebDriverWait(self.driver, timeout=1)
-            wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment_disabled)))
+            wait.until(EC.presence_of_element_located(get_By_strategy(postlocators.comment_disabled)))
             self.comment_disabled = True
             return True
         except:
@@ -353,10 +356,10 @@ class Insta:
             cmt_text = bmp_emoji_safe_text(text) or fs_comment
 
         try:
-            cmt = wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment)))
+            cmt = wait.until(EC.presence_of_element_located(get_By_strategy(postlocators.comment)))
             cmt.click()
             cmt.send_keys(cmt_text)
-            wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.comment_post))).click()
+            wait.until(EC.presence_of_element_located(get_By_strategy(postlocators.comment_post))).click()
             self.wait_until_comment_cleared(cmt, timeout)
 
         except ElementClickInterceptedException:
@@ -371,7 +374,7 @@ class Insta:
     def get_number_of_posts(self) -> int:
         """ Returns number of post for an account or tag """
         try:
-            num_of_posts = self.wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.num_of_posts))).text
+            num_of_posts = self.wait.until(EC.presence_of_element_located(get_By_strategy(postlocators.num_of_posts))).text
             num_of_posts = num_of_posts.replace(',','')
             return int(num_of_posts)
         except:
@@ -380,7 +383,7 @@ class Insta:
     def click_first_post(self) -> bool:
         """ Clicks on the first post found for an account """
         try:
-            self.wait.until(EC.presence_of_element_located(get_By_strategy(PostLocators.first_post))).click()
+            self.wait.until(EC.presence_of_element_located(get_By_strategy(postlocators.first_post))).click()
             return True
         except:
             return False
@@ -401,7 +404,7 @@ class Insta:
     def dont_save_login_info(self) -> bool:
         """ Clicks 'Not Now' button when prompted with 'Save Your Login Info?' """
         wait = WebDriverWait(self.driver, timeout=2)
-        for xpath in LoginLocators.save_login.notnow:
+        for xpath in loginlocators.save_login.notnow:
             try:
                 logger.info(f'Finding Not Now button with xpath: {xpath}')
                 wait.until(EC.presence_of_element_located(get_By_strategy(xpath))).click()
@@ -413,7 +416,7 @@ class Insta:
     def save_login_info(self) -> bool:
         """ Saves login information """
         wait = WebDriverWait(self.driver, 2)
-        for xpath in LoginLocators.save_login.save:
+        for xpath in loginlocators.save_login.save:
             try:
                 logger.info(f'Finding Save Login with xpath: {xpath}')
                 wait.until(EC.presence_of_element_located(get_By_strategy(xpath))).click()
@@ -432,7 +435,7 @@ class Insta:
 
     def is_private(self) -> bool:
         """ Checks if an account is private """
-        for xpath in AccountLocators.is_private:
+        for xpath in accountlocators.is_private:
             try:
                 self.driver.find_element(*get_By_strategy(xpath))
                 return True        
@@ -444,7 +447,7 @@ class Insta:
         """ Checks if 2 factor verification screen is present """
         wait = WebDriverWait(self.driver, 10)
         try:
-            wait.until(EC.presence_of_element_located(get_By_strategy(LoginLocators.twofactor)))
+            wait.until(EC.presence_of_element_located(get_By_strategy(loginlocators.twofactor)))
             return True
         except Exception as ex:
             logger.info('Could not locate 2 factor authentication screen')
@@ -472,8 +475,8 @@ class Insta:
             logger.info(f'Restricting followers search to: {amount}')
             
         logger.info('Opening followers list')
-        self.wait.until(EC.presence_of_element_located(get_By_strategy(FollowersLocators.link))).click()
-        followers_div = self.wait.until(EC.presence_of_element_located(get_By_strategy(FollowersLocators.container)))
+        self.wait.until(EC.presence_of_element_located(get_By_strategy(followerslocators.link))).click()
+        followers_div = self.wait.until(EC.presence_of_element_located(get_By_strategy(followerslocators.container)))
 
         # holds extracted usernames
         usernames = []
@@ -514,7 +517,7 @@ class Insta:
                 except StaleElementReferenceException:
                     logger.error(f'StaleElementReferenceException exception occured while capturing username links')
                     logger.info("Capturing div containing followers' list")
-                    followers_div = self.wait.until(EC.presence_of_element_located(get_By_strategy(FollowersLocators.container)))
+                    followers_div = self.wait.until(EC.presence_of_element_located(get_By_strategy(followerslocators.container)))
                     time.sleep(2)
     
             
@@ -548,7 +551,7 @@ class Insta:
         """ Gets tags present in current post """
         tags = []
         try:
-            tags_links = self.driver.find_elements(*get_By_strategy(PostLocators.properties.tags))
+            tags_links = self.driver.find_elements(*get_By_strategy(postlocators.properties.tags))
             tags = [taglink.text for taglink in tags_links]
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
@@ -569,9 +572,9 @@ class Insta:
         wait = WebDriverWait(self.driver, 2)
         usernames = []
         try:
-            comment_elements = wait.until(EC.presence_of_all_elements_located(get_By_strategy(PostLocators.properties.comment.comment_list)))
+            comment_elements = wait.until(EC.presence_of_all_elements_located(get_By_strategy(postlocators.properties.comment.comment_list)))
             for comment_el in comment_elements:
-                uname = comment_el.find_element(*get_By_strategy(PostLocators.properties.comment.username)).text
+                uname = comment_el.find_element(*get_By_strategy(postlocators.properties.comment.username)).text
                 usernames.append(uname)
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
@@ -585,8 +588,8 @@ class Insta:
         username = ''
         comment = ''
         try:
-            username = comment_el.find_element(*get_By_strategy(PostLocators.properties.comment.username)).text
-            comment = comment_el.find_element(*get_By_strategy(PostLocators.properties.comment.comment)).text
+            username = comment_el.find_element(*get_By_strategy(postlocators.properties.comment.username)).text
+            comment = comment_el.find_element(*get_By_strategy(postlocators.properties.comment.comment)).text
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
         return (username, comment)
@@ -606,7 +609,7 @@ class Insta:
             """ Check if like button is not already clicked """
             try:
                 # like button svg
-                 return com_el.find_element(*get_By_strategy(PostLocators.properties.comment.is_liked))\
+                 return com_el.find_element(*get_By_strategy(postlocators.properties.comment.is_liked))\
                     .get_attribute('aria-label').lower() == 'like'
             except Exception as ex:
                 logger.error(str(ex))
@@ -614,7 +617,7 @@ class Insta:
             
         wait = WebDriverWait(self.driver, 5)
         try:
-            comment_elements = wait.until(EC.presence_of_all_elements_located(get_By_strategy(PostLocators.properties.comment.comment_list)))
+            comment_elements = wait.until(EC.presence_of_all_elements_located(get_By_strategy(postlocators.properties.comment.comment_list)))
         except Exception as ex:
             logger.error(f'{ex.__class__.__name__} {str(ex)}')
             return []
@@ -628,7 +631,7 @@ class Insta:
             for com_el in comment_elements:
                 if comment_not_liked(com_el):
                     # like button
-                    com_el.find_element(*get_By_strategy(PostLocators.properties.comment.like)).click()
+                    com_el.find_element(*get_By_strategy(postlocators.properties.comment.like)).click()
                     successful_comments.append(self.get_user_and_comment_from_element(com_el))    
                     total_comments_liked += 1
                     time.sleep(0.5)
@@ -645,7 +648,7 @@ class Insta:
     def get_post_date(self) -> Tuple[str,float]:
         """ Returns post date (%Y-%m-%d %H:%M:%S, timestamp) """
         try:
-            dt = self.driver.find_element(*get_By_strategy(PostLocators.properties.date)).get_attribute('datetime')
+            dt = self.driver.find_element(*get_By_strategy(postlocators.properties.date)).get_attribute('datetime')
             if not dt:
                 logger.error('Failed to find date for the post')
                 return ('','')
@@ -676,8 +679,14 @@ class Insta:
         """ Checks if story is present """
         wait = WebDriverWait(self.driver, 5)
         try:
-            is_disabled = wait.until(EC.presence_of_element_located(get_By_strategy(StoryLocators.is_present))).get_attribute('aria-disabled')
-            return is_disabled == 'false'
+            # is_disabled = wait.until(EC.presence_of_element_located(get_By_strategy(storylocators.is_present)))
+            # .get_attribute('aria-disabled')
+            # return is_disabled == 'false'
+            # canvas only appears when story is present
+            wait.until(EC.presence_of_element_located(
+                get_By_strategy(f"//span[@role='link']/img[contains(@alt, '{self.account}')]/../../canvas")
+            ))
+            return True
         except Exception as ex:
             logger.error(f'Stories not found for the account')
         return False
@@ -696,7 +705,7 @@ class Insta:
         """ Pauses a story """
         wait = WebDriverWait(self.driver, 5)
         try:
-            wait.until(EC.presence_of_element_located(get_By_strategy(StoryLocators.pause.pause_button))).click()
+            wait.until(EC.presence_of_element_located(get_By_strategy(storylocators.pause.pause_button))).click()
             return True
         except Exception as ex:
             logger.error(f'[pause_story] Error: {ex.__class__.__name__}')
@@ -706,10 +715,10 @@ class Insta:
         """ Pauses a story """
         wait = WebDriverWait(self.driver, 2)
         try:
-            wait.until(EC.presence_of_element_located(get_By_strategy(StoryLocators.like.like_button))).click()
+            wait.until(EC.presence_of_element_located(get_By_strategy(storylocators.like.like_button))).click()
             return True
         except Exception as ex:
-            if self.driver.find_element(*get_By_strategy(StoryLocators.like.unlike_button)):
+            if self.driver.find_element(*get_By_strategy(storylocators.like.unlike_button)):
                 logger.info('[like_story]: Already liked')
                 return None
             logger.error(f'[like_story] Error: {ex.__class__.__name__}')
@@ -719,7 +728,7 @@ class Insta:
         """ Moves to next story """
         wait = WebDriverWait(self.driver, 5)
         try:
-            wait.until(EC.presence_of_element_located(get_By_strategy(StoryLocators.next))).click()
+            wait.until(EC.presence_of_element_located(get_By_strategy(storylocators.next))).click()
             return True
         except Exception as ex:
             logger.error(f'[next_story] Error: {ex.__class__.__name__}')
@@ -730,7 +739,7 @@ class Insta:
         wait = WebDriverWait(self.driver, 10)
         try:
             return len(wait.until(EC.presence_of_element_located(
-                get_By_strategy(StoryLocators.count.container))).find_elements(*get_By_strategy(StoryLocators.count.story)))
+                get_By_strategy(storylocators.count.container))).find_elements(*get_By_strategy(storylocators.count.story)))
         except Exception as ex:
             logger.error(f'[get_total_stories] Error: {ex.__class__.__name__}')
         return 0
@@ -741,7 +750,7 @@ class Insta:
         wait = WebDriverWait(self.driver, 5)
         try:
 
-            cmt = wait.until(EC.presence_of_element_located(get_By_strategy(StoryLocators.comment.comment_box)))
+            cmt = wait.until(EC.presence_of_element_located(get_By_strategy(storylocators.comment.comment_box)))
             cmt.click()
             time.sleep(0.5)
             cmt.send_keys(text)
@@ -774,7 +783,7 @@ class Insta:
     def click_first_reel(self):
         """ Clicks on the first reel found on the account """
         try:
-            reels = self.wait.until(EC.presence_of_all_elements_located(get_By_strategy(ReelsLocators.first_reel)))
+            reels = self.wait.until(EC.presence_of_all_elements_located(get_By_strategy(reelslocators.first_reel)))
             reels[0].click()
             return True
         except:

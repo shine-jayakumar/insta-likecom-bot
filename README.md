@@ -1,7 +1,7 @@
 # insta-likecom-bot
 ![License](https://img.shields.io/static/v1?label=license&message=MIT&color=green)
 ![Open Source](https://img.shields.io/static/v1?label=OpenSource&message=Yes&color=brightgreen)
-![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.6&color=blue)
+![Version](https://img.shields.io/static/v1?label=version&message=v.3.0.7&color=blue)
 ![Issues](https://img.shields.io/github/issues/shine-jayakumar/insta-likecom-bot)
 ![ClosedIssues](https://img.shields.io/github/issues-closed-raw/shine-jayakumar/insta-likecom-bot)
 ![Contributors](https://img.shields.io/github/contributors/shine-jayakumar/insta-likecom-bot)
@@ -363,7 +363,17 @@ instalimits.json
 
 ## Version Updates
 
-Version **v.3.0.6** (latest)
+Version **v.3.0.7** (latest)
+
+Bug Fixes:
+- issue # 119 and issue # 118 (dataclass initiation error while assigining another dataclass as default value)
+- updated locators.py
+- updated locators.json
+- updated is_story_present() method
+
+<br/>
+
+Version **v.3.0.6**
 
 Bug Fixes:
 - DOM locators for like, comment, comment disabled updated
