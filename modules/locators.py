@@ -21,13 +21,9 @@ from modules.applogger import AppLogger
 
 logger = AppLogger('locators').getlogger()
 
-# comment line below while running tests
+# comment lines below while running tests
 LOCATORS = json.load(open(os.path.join(LOCATORS_DIR, 'locators.json')))
 
-# uncomment line below while running tests
-# LOCATORS = json.load(open('./locators.json'))
-
-# comment lines below (try-except block) while running tests
 try:
     locators_remote = requests.get(LOCATORS_URL).json()
     if all([
@@ -39,11 +35,17 @@ try:
 except Exception as ex:
     logger.error(f'[Fetch Locators] {ex.__class__.__name__} - {str(ex)}')
 
+# uncomment line below while running tests
+# LOCATORS = json.load(open('./locators.json'))
+
+
+
 
 @dataclass
 class AccountLocators:
     is_private: tuple[str] = tuple(LOCATORS['locators']['account']['is_private'])
     
+
 @dataclass
 class SaveLoginLocators:
     notnow: tuple[str] = tuple(LOCATORS['locators']['login']['save_login']['notnow'])
@@ -57,7 +59,7 @@ class LoginLocators:
     submit: str = LOCATORS['locators']['login']['submit']
     validation: tuple[str] = tuple(LOCATORS['locators']['login']['validation'])
     twofactor: str = LOCATORS['locators']['login']['twofactor']
-    save_login: SaveLoginLocators = field(default=SaveLoginLocators())
+    save_login: SaveLoginLocators = field(default_factory=lambda: SaveLoginLocators())
 
 
 @dataclass
@@ -72,7 +74,7 @@ class PostCommentLocators:
 @dataclass
 class PostPropertiesLocators:
     tags: str = LOCATORS['locators']['post']['post_properties']['tags']
-    comment: PostCommentLocators = PostCommentLocators()
+    comment: PostCommentLocators = field(default_factory=lambda: PostCommentLocators())
     date: str = LOCATORS['locators']['post']['post_properties']['date']
 
 
@@ -85,7 +87,7 @@ class PostLocators:
     comment_disabled: str = LOCATORS['locators']['post']['comment_disabled']
     num_of_posts: str = LOCATORS['locators']['post']['num_of_posts']
     first_post: str = LOCATORS['locators']['post']['first_post']
-    properties: PostPropertiesLocators = PostPropertiesLocators()
+    properties: PostPropertiesLocators = field(default_factory=lambda: PostPropertiesLocators())
 
 
 @dataclass
@@ -116,11 +118,11 @@ class StoryCountLocators:
 @dataclass
 class StoryLocators:
     is_present: str = LOCATORS['locators']['story']['is_present']
-    pause: StoryPauseLocators = StoryPauseLocators()
-    like: StoryLikeLocators = StoryLikeLocators()
-    comment: StoryCommentLocators = StoryCommentLocators()
+    pause: StoryPauseLocators = field(default_factory=lambda: StoryPauseLocators())
+    like: StoryLikeLocators = field(default_factory=lambda: StoryLikeLocators())
+    comment: StoryCommentLocators = field(default_factory=lambda: StoryCommentLocators())
     next: str = LOCATORS['locators']['story']['next']
-    count: StoryCountLocators = StoryCountLocators()
+    count: StoryCountLocators = field(default_factory=lambda: StoryCountLocators())
 
 
 @dataclass
@@ -132,6 +134,22 @@ class ReelsLocators:
 class FollowersLocators:
     link: str = LOCATORS['locators']['followers']['link']
     container: str = LOCATORS['locators']['followers']['container']
+
+
+accountlocators = AccountLocators()
+saveloginlocators = SaveLoginLocators()
+loginlocators = LoginLocators()
+postcommentlocators = PostCommentLocators()
+postpropertieslocators = PostPropertiesLocators()
+postlocators = PostLocators()
+storypauselocators = StoryPauseLocators()
+storylikelocators = StoryLikeLocators()
+storycommentlocators = StoryCommentLocators()
+storycountlocators = StoryCountLocators()
+storylocators = StoryLocators()
+reelslocators = ReelsLocators()
+followerslocators = FollowersLocators()
+
 
 if __name__ == '__main__':
     pass

@@ -52,7 +52,7 @@
             }
         },
         "story": {
-            "is_present": "//div[contains(@class, '_aarf')]",
+            "is_present": "//div[@role='button' and contains(@class, '_aarf') and @aria-disabled='false']",
             "pause": {
                 "container": ".x78zum5",
                 "pause_button": "svg[aria-label='Pause']"
