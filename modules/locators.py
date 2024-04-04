@@ -2,7 +2,7 @@
 """
     locators.py - contains classes to access DOM locators for Instagram elements
 
-    insta-likecom-bot v.3.0.6
+    insta-likecom-bot v.3.0.7
     Automates likes and comments on an instagram account or tag
 
     Author: Shine Jayakumar
